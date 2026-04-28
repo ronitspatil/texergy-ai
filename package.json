@@ -8,12 +8,14 @@
     "node": ">=20.0.0"
   },
   "scripts": {
+    "predev": "node scripts/check-native-modules.mjs",
+    "prebuild": "node scripts/check-native-modules.mjs",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "postinstall": "node -e \"try{require('better-sqlite3')}catch(e){console.error('\\n[postinstall] better-sqlite3 native module mismatch — run \\\\`npm rebuild better-sqlite3\\\\`\\n')}\"",
+    "postinstall": "node scripts/check-native-modules.mjs",
     "waitlist:list": "node scripts/list-waitlist.mjs",
     "waitlist:csv": "node scripts/list-waitlist.mjs --csv",
     "waitlist:json": "node scripts/list-waitlist.mjs --json"
