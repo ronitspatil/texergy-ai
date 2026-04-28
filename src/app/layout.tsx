@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Inter_Tight } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import RefreshToHome from "@/components/RefreshToHome";
 import "./globals.css";
 
@@ -52,6 +53,7 @@ export default function RootLayout({
       <body>
         <RefreshToHome />
         {children}
+        <Analytics />
       </body>
     </html>
   );

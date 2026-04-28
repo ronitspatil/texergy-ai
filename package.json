@@ -19,6 +19,7 @@
     "waitlist:json": "node scripts/list-waitlist.mjs --json"
   },
   "dependencies": {
+    "@vercel/analytics": "^2.0.1",
     "better-sqlite3": "^11.7.0",
     "next": "^16.2.4",
     "react": "^19.2.5",
