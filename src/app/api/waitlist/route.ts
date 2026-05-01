@@ -114,7 +114,11 @@ export async function POST(req: NextRequest) {
   if (inserted) {
     try {
       const result = await sendWaitlistConfirmation(email, zip ?? null);
-      if (!result.ok) {
+      if (result.ok) {
+        console.log(
+          `[waitlist] confirmation sent to ${email} (resend id: ${result.id ?? "n/a"})`,
+        );
+      } else {
         console.warn("[waitlist] email skipped:", result.error);
       }
     } catch (err) {
