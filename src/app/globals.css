@@ -111,15 +111,6 @@ html {
   0%, 100% { background-position: 0% 50%; }
   50%      { background-position: 100% 50%; }
 }
-@keyframes spark-rise {
-  0%   { transform: translateY(20px); opacity: 0; }
-  20%  { opacity: 1; }
-  100% { transform: translateY(-120px); opacity: 0; }
-}
-@keyframes ring-pulse {
-  0%   { box-shadow: 0 0 0 0 rgba(255, 122, 26, 0.55); }
-  100% { box-shadow: 0 0 0 10px rgba(255, 122, 26, 0); }
-}
 /* Pulses travel from each edge inward to converge at center, then slide back out. */
 @keyframes signal-left {
   0%   { transform: translateY(-50%) translateX(-110%) scaleX(0.6); opacity: 0; }
@@ -144,7 +135,6 @@ html {
 
 .fade-up       { animation: float-up 0.8s ease-out both; }
 .fade-up-slow  { animation: float-up 1.2s ease-out both; }
-.ring-pulse    { animation: ring-pulse 2.4s ease-out infinite; }
 
 /* ---------- Title ---------- */
 .display-type {
@@ -576,20 +566,6 @@ html {
     0 30px 80px -20px rgba(0, 0, 0, 0.7),
     0 0 60px -20px rgba(255, 122, 26, 0.35);
 }
-.mock-bar {
-  height: 6px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
-  overflow: hidden;
-  position: relative;
-}
-.mock-bar > span {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, #ff944d, #e85d00);
-  transform-origin: left;
-}
-
 /* ---------- Footer ---------- */
 .footer-link {
   transition: color 0.18s ease;
