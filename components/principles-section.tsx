@@ -15,38 +15,42 @@ export function PrinciplesSection() {
   const principles = [
     {
       number: "01",
+      label: "SAVE MONEY",
       titleParts: [
-        { text: "LOCAL", highlight: true },
-        { text: " FIRST", highlight: false },
+        { text: "STOP", highlight: true },
+        { text: " OVERPAYING", highlight: false },
       ],
-      description: "Every search starts with a Texas ZIP code, because the best electricity plan depends on where you live.",
+      description: "Texergy AI looks past headline rates to estimate what each plan is likely to cost for the way you use power.",
       align: "left",
     },
     {
       number: "02",
+      label: "AI-POWERED",
       titleParts: [
-        { text: "PERSONAL", highlight: true },
-        { text: " FIT", highlight: false },
+        { text: "SMART", highlight: true },
+        { text: " MATCHING", highlight: false },
       ],
-      description: "Usage, budget, rate type, contract length, and renewable goals all shape the plans Texergy AI recommends.",
+      description: "Your ZIP, usage, preferences, and weights guide the ranking so the shortlist is built around your priorities.",
       align: "right",
     },
     {
       number: "03",
+      label: "TRUE RATES",
       titleParts: [
-        { text: "CLEAR ", highlight: false },
-        { text: "TRADEOFFS", highlight: true },
+        { text: "NO ", highlight: false },
+        { text: "GUESSWORK", highlight: true },
       ],
-      description: "Texergy AI translates fees, bill credits, and plan fine print into plain comparisons you can actually use.",
+      description: "Expandable details and plain-language explanations make the hidden fees, terms, and tradeoffs easier to understand.",
       align: "left",
     },
     {
       number: "04",
+      label: "SWITCH EASILY",
       titleParts: [
-        { text: "CONFIDENT ", highlight: false },
-        { text: "CHOICE", highlight: true },
+        { text: "FAST ", highlight: false },
+        { text: "RESULTS", highlight: true },
       ],
-      description: "The goal is a short, transparent recommendation set instead of another overwhelming plan marketplace.",
+      description: "Texergy narrows the market into top matching plans quickly, then sends you directly to the provider when you are ready.",
       align: "right",
     },
   ]
@@ -93,8 +97,8 @@ export function PrinciplesSection() {
     <section ref={sectionRef} id="principles" className="relative py-32 pl-6 md:pl-28 pr-6 md:pr-12">
       {/* Section header */}
       <div ref={headerRef} className="mb-24">
-        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">03 / Promise</span>
-        <h2 className="mt-4 font-[var(--font-bebas)] text-5xl md:text-7xl tracking-tight">WHY IT HELPS</h2>
+        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">03 / Why Us</span>
+        <h2 className="mt-4 font-[var(--font-bebas)] text-5xl md:text-7xl tracking-tight">WHY TEXERGY AI</h2>
       </div>
 
       {/* Staggered principles */}
@@ -108,7 +112,7 @@ export function PrinciplesSection() {
           >
             {/* Annotation label */}
             <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-4">
-              {principle.number} / {principle.titleParts[0].text.split(" ")[0]}
+              {principle.number} / {principle.label}
             </span>
 
             <h3 className="font-[var(--font-bebas)] text-4xl md:text-6xl lg:text-8xl tracking-tight leading-none">

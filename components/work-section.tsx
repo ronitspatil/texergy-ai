@@ -9,39 +9,45 @@ gsap.registerPlugin(ScrollTrigger)
 
 const experiments = [
   {
-    title: "ZIP Lookup",
-    medium: "Step 01",
-    description: "Enter a Texas ZIP code to narrow the search to plans available in your service area.",
+    title: "Usage",
+    medium: "Variable 01",
+    description: "Monthly kWh, seasonal swings, household size, and usage patterns shape projected plan cost.",
     span: "col-span-2 row-span-2",
   },
   {
-    title: "Usage Profile",
-    medium: "Step 02",
-    description: "Share expected monthly usage so projected costs are grounded in how your household uses power.",
+    title: "Rate Preferences",
+    medium: "Variable 02",
+    description: "Fixed rates, variable rates, contract length, cancellation fees, and bill-credit structures all affect fit.",
     span: "col-span-1 row-span-1",
   },
   {
-    title: "Rate Preference",
-    medium: "Step 03",
-    description: "Choose fixed, variable, or flexible preferences to match plans with your comfort around price changes.",
+    title: "Renewability",
+    medium: "Variable 03",
+    description: "Renewable content, green-energy claims, and clean-power preferences can be weighted alongside price.",
     span: "col-span-1 row-span-2",
   },
   {
-    title: "Renewables",
-    medium: "Step 04",
-    description: "Flag renewable energy goals so cleaner plan options can move higher in the recommendation set.",
+    title: "Pricing History",
+    medium: "Variable 04",
+    description: "Historical pricing data helps separate durable value from a plan that only looks good today.",
     span: "col-span-1 row-span-1",
   },
   {
-    title: "Plan Tradeoffs",
-    medium: "Step 05",
-    description: "Review contract length, fees, bill credits, and estimated costs with the important differences called out.",
+    title: "ETFs",
+    medium: "Variable 05",
+    description: "Early termination fees, cancellation terms, switching costs, and other exit penalties are factored into the comparison.",
     span: "col-span-2 row-span-1",
   },
   {
-    title: "Best Match",
-    medium: "Step 06",
-    description: "See a short list of plans that fit your ZIP code, priorities, and usage pattern.",
+    title: "Ratings",
+    medium: "Variable 06",
+    description: "Provider reputation, support quality, plan clarity, and customer signals help balance price with trust.",
+    span: "col-span-1 row-span-1",
+  },
+  {
+    title: "Weights",
+    medium: "Variable 07",
+    description: "Your priorities decide how strongly savings, stability, renewable content, and simplicity influence matches.",
     span: "col-span-1 row-span-1",
   },
 ]
@@ -98,11 +104,11 @@ export function WorkSection() {
       {/* Section header */}
       <div ref={headerRef} className="mb-16 flex items-end justify-between">
         <div>
-          <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">02 / Plan Flow</span>
-          <h2 className="mt-4 font-[var(--font-bebas)] text-5xl md:text-7xl tracking-tight">FIND A BETTER PLAN</h2>
+          <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">02 / Considered Variables</span>
+          <h2 className="mt-4 font-[var(--font-bebas)] text-5xl md:text-7xl tracking-tight">WHAT TEXERGY CONSIDERS</h2>
         </div>
         <p className="hidden md:block max-w-xs font-mono text-xs text-muted-foreground text-right leading-relaxed">
-          A guided comparison flow built around Texas ZIP codes, household needs, rate type, and renewable preferences.
+          Recommendations weigh real plan economics, customer priorities, provider signals, and the fine print behind the rate.
         </p>
       </div>
 
