@@ -9,29 +9,29 @@ gsap.registerPlugin(ScrollTrigger)
 
 const signals = [
   {
-    date: "ZIP FIRST",
-    title: "Local Plans",
-    note: "Start with your Texas ZIP code so results reflect the providers and plan options available where you live.",
+    date: "START",
+    title: "Enter ZIP",
+    note: "Begin with your Texas ZIP code so Texergy only compares plans available in your service area.",
   },
   {
-    date: "USAGE",
-    title: "Smart Fit",
-    note: "Tell Texergy AI your expected usage, home profile, and budget so it can weigh plans against real needs.",
+    date: "DETAILS",
+    title: "Add Basics",
+    note: "Share usage, household profile, expected pricing range, and bill details so estimates reflect your real situation.",
   },
   {
-    date: "RATE TYPE",
-    title: "Fixed or Flex",
-    note: "Compare fixed-rate stability, variable-rate flexibility, contract length, fees, and renewal terms in one place.",
+    date: "WEIGHTS",
+    title: "Tune Fit",
+    note: "Pick preferences like rate type, renewability, contract length, fees, and adjust weights around what matters most.",
   },
   {
-    date: "RENEWABLE",
-    title: "Green Goals",
-    note: "Prioritize renewable content, clean energy preferences, and plan details that match how you want to power your home.",
+    date: "MATCHES",
+    title: "Review Plans",
+    note: "See top matching plans, open expandable details, compare tradeoffs, and chat through questions before deciding.",
   },
   {
-    date: "MATCHING",
-    title: "Clear Picks",
-    note: "Get AI-assisted recommendations that explain tradeoffs instead of leaving you to decode every electricity fact label.",
+    date: "BUY",
+    title: "Go Direct",
+    note: "When a plan looks right, Texergy points you straight to the provider purchase path so you can finish confidently.",
   },
 ]
 
@@ -135,8 +135,8 @@ export function SignalsSection() {
 
       {/* Section header */}
       <div ref={headerRef} className="mb-16 pr-6 md:pr-12">
-        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">01 / Matching Inputs</span>
-        <h2 className="mt-4 font-[var(--font-bebas)] text-5xl md:text-7xl tracking-tight">WHAT TEXERGY USES</h2>
+        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">01 / How It Works</span>
+        <h2 className="mt-4 font-[var(--font-bebas)] text-5xl md:text-7xl tracking-tight">STEP BY STEP</h2>
       </div>
 
       {/* Horizontal scroll container */}

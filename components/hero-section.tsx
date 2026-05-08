@@ -59,7 +59,7 @@ export function HeroSection() {
         </SplitFlapAudioProvider>
 
         <h2 className="font-[var(--font-bebas)] text-muted-foreground text-[clamp(1rem,3vw,2rem)] mt-4 tracking-wide">
-          AI-Powered Electricity Plan Recommendations
+          Stop Letting Electricity Companies Pick Your Pocket — Shop Smarter with AI
         </h2>
 
         <p className="mt-12 max-w-md font-mono text-sm text-muted-foreground leading-relaxed">
