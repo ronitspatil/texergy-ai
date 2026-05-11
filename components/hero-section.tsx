@@ -47,7 +47,7 @@ export function HeroSection() {
       {/* Main content */}
       <div ref={contentRef} className="flex-1 w-full">
         <span className="block font-mono text-[10px] uppercase tracking-[0.3em] text-accent mb-6">
-          01 / Texergy AI
+          01 / Home
         </span>
         <SplitFlapAudioProvider>
           <div className="relative">
@@ -59,25 +59,29 @@ export function HeroSection() {
         </SplitFlapAudioProvider>
 
         <h2 className="font-[var(--font-bebas)] text-muted-foreground text-[clamp(1rem,3vw,2rem)] mt-4 tracking-wide">
-          Stop Letting Electricity Companies Pick Your Pocket — Shop Smarter with AI
+          Stop Letting Electricity Companies Pick Your Pocket. Shop Smarter with AI.
         </h2>
 
-        <p className="mt-12 max-w-md font-mono text-sm text-muted-foreground leading-relaxed">
-          Enter your ZIP code, share what matters to you, and Texergy AI finds the best electricity plans for you. 100%
-          free + no sign up required.
+        <p className="mt-12 max-w-xl font-mono text-[16px] text-muted-foreground leading-relaxed">
+          <span className="block">
+            Enter your ZIP code, share what matters to you, and Texergy AI finds the best electricity plans for you.
+          </span>
+          <span className="mt-3 block">
+            100% free + no sign up required.
+          </span>
         </p>
 
         <div className="mt-16 flex items-center gap-8">
           <a
             href="#waitlist"
-            className="group inline-flex items-center gap-3 border border-foreground/20 px-6 py-3 font-mono text-xs uppercase tracking-widest text-foreground hover:border-accent hover:text-accent transition-all duration-200"
+            className="group inline-flex items-center gap-3 border border-foreground/20 px-7 py-3.5 font-mono text-sm uppercase tracking-widest text-foreground hover:border-accent hover:text-accent transition-all duration-200"
           >
             <ScrambleTextOnHover text="Join Waitlist" as="span" duration={0.6} />
             <BitmapChevron className="transition-transform duration-[400ms] ease-in-out group-hover:rotate-45" />
           </a>
           <a
             href="#signals"
-            className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors duration-200"
+            className="font-mono text-sm uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors duration-200"
           >
             How It Works
           </a>

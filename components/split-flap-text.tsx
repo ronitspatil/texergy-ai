@@ -250,7 +250,7 @@ function SplitFlapChar({ char, index, animationKey, skipEntrance, speed, playCli
       <div
         style={{
           width: "0.3em",
-          fontSize: "clamp(4rem, 15vw, 14rem)",
+          fontSize: "clamp(3.6rem, 13.5vw, 12.6rem)",
         }}
       />
     )
@@ -264,7 +264,7 @@ function SplitFlapChar({ char, index, animationKey, skipEntrance, speed, playCli
         transition={{ delay: tileDelay, duration: 0.3, ease: "easeOut" }}
         className="flex items-end justify-center"
         style={{
-          fontSize: "clamp(4rem, 15vw, 14rem)",
+          fontSize: "clamp(3.6rem, 13.5vw, 12.6rem)",
           width: "0.25em",
           height: "1.05em",
         }}
@@ -290,7 +290,7 @@ function SplitFlapChar({ char, index, animationKey, skipEntrance, speed, playCli
       transition={{ delay: tileDelay, duration: 0.3, ease: "easeOut" }}
       className="relative overflow-hidden flex items-center justify-center font-[family-name:var(--font-bebas)]"
       style={{
-        fontSize: "clamp(4rem, 15vw, 14rem)",
+        fontSize: "clamp(3.6rem, 13.5vw, 12.6rem)",
         width: "0.65em",
         height: "1.05em",
         backgroundColor: bgColor,
