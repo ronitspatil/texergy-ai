@@ -59,12 +59,12 @@ export function HeroSection() {
         </SplitFlapAudioProvider>
 
         <h2 className="font-[var(--font-bebas)] text-muted-foreground text-[clamp(1rem,3vw,2rem)] mt-4 tracking-wide">
-          Stop Letting Electricity Companies Pick Your Pocket. Shop Smarter with AI.
+          Stop Overpaying for Electricity. Start Shopping Smarter with AI.
         </h2>
 
         <p className="mt-12 max-w-xl font-mono text-[16px] text-muted-foreground leading-relaxed">
           <span className="block">
-            Enter your ZIP code, share what matters to you, and Texergy AI finds the best electricity plans for you.
+            Enter your ZIP code, share what matters to you, and Texergy AI finds the best electricity plans for residents and businesses alike.
           </span>
           <span className="mt-3 block">
             100% free + no sign up required.

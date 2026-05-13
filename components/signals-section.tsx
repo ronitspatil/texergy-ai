@@ -30,8 +30,8 @@ const signals = [
   },
   {
     date: "BUY",
-    title: "Go Direct",
-    note: "When a plan looks right, Texergy points you straight to the provider purchase path so you can finish confidently.",
+    title: "Sign Up",
+    note: "When a plan looks right, Texergy makes it easy to get started with your chosen provider.",
   },
 ]
 
@@ -135,7 +135,7 @@ export function SignalsSection() {
 
       {/* Section header */}
       <div ref={headerRef} className="mb-16 pr-6 md:pr-12">
-        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">01 / How It Works</span>
+        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">02 / How It Works</span>
         <h2 className="mt-4 font-[var(--font-bebas)] text-5xl md:text-7xl tracking-tight">STEP BY STEP</h2>
       </div>
 

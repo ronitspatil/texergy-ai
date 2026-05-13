@@ -116,6 +116,7 @@ export function ColophonSection() {
           <ul className="space-y-2">
             <li className="font-mono text-xs text-foreground/80">Texas</li>
             <li className="font-mono text-xs text-foreground/80">Residents</li>
+            <li className="font-mono text-xs text-foreground/80">Businesses</li>
           </ul>
         </div>
 

@@ -12,16 +12,8 @@ const FAQS = [
     a: "No account required. Drop your ZIP, set your priorities, see your plans. We'll only ask for an email if you want results sent to you or saved between visits.",
   },
   {
-    q: "Will Texergy AI really be free to use?",
-    a: "Yes. Texergy AI will be free for shoppers to use: no subscription, no credit card, and no paywall on recommendations. If we introduce provider-facing paid listings later, those terms will be disclosed and will not affect your ranking.",
-  },
-  {
     q: "Is my data secure?",
     a: "Yes. We store your email and (optionally) your ZIP. That's it. We use limited anti-abuse protections, but we don't use technical identifiers to profile or market to you. We don't sell or share your information, and we don't run third-party advertising trackers on this site. See our Privacy Policy for the full breakdown.",
-  },
-  {
-    q: "How will Texergy make money if it's free?",
-    a: "For now, we're focused on getting recommendations right. Longer term, Texergy may charge providers a flat fee for verified fit-based listings, never undisclosed referral kickbacks. Rankings will stay independent of who pays us.",
   },
   {
     q: "Where do the plan prices come from?",
@@ -93,7 +85,8 @@ export function FaqSection() {
         </h2>
       </div>
 
-      <div ref={itemsRef} className="max-w-3xl space-y-3">
+      <div className="grid gap-10 lg:grid-cols-2 lg:gap-24 lg:items-stretch">
+        <div ref={itemsRef} className="space-y-3 lg:pl-6">
         {FAQS.map((f, i) => (
           <details
             key={f.q}
@@ -129,6 +122,51 @@ export function FaqSection() {
             </div>
           </details>
         ))}
+        </div>
+
+        <div className="flex flex-col gap-6 lg:h-full">
+          <aside className="border border-border/40 px-6 py-6 bg-background/40 backdrop-blur-sm">
+            <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">
+              Still curious?
+            </span>
+            <h3 className="mt-3 font-[var(--font-bebas)] text-2xl md:text-3xl tracking-tight leading-[0.95]">
+              ASK US ANYTHING.
+            </h3>
+            <p className="mt-3 font-mono text-sm text-muted-foreground leading-relaxed">
+              Got a question we didn&apos;t cover? Send it over and we&apos;ll
+              get back to you.
+            </p>
+            <a
+              href="mailto:hello@texergy.ai"
+              className="mt-4 inline-flex items-center gap-2 font-mono text-sm text-foreground hover:text-accent transition-colors border-b border-border/60 hover:border-accent pb-0.5"
+            >
+              hello@texergy.ai
+              <span aria-hidden>→</span>
+            </a>
+          </aside>
+
+          <div aria-hidden className="hidden lg:block lg:flex-1" />
+
+          <aside className="border border-border/40 px-6 py-6 bg-background/40 backdrop-blur-sm lg:-mt-2">
+            <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">
+              Business
+            </span>
+            <h3 className="mt-3 font-[var(--font-bebas)] text-2xl md:text-3xl tracking-tight leading-[0.95]">
+              GET IN TOUCH.
+            </h3>
+            <p className="mt-3 font-mono text-sm text-muted-foreground leading-relaxed">
+              Feel free to reach out to us directly for any business
+              inquiries.
+            </p>
+            <a
+              href="mailto:ronit@texergy.ai"
+              className="mt-4 inline-flex items-center gap-2 font-mono text-sm text-foreground hover:text-accent transition-colors border-b border-border/60 hover:border-accent pb-0.5"
+            >
+              ronit@texergy.ai
+              <span aria-hidden>→</span>
+            </a>
+          </aside>
+        </div>
       </div>
     </section>
   );

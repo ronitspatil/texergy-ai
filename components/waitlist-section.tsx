@@ -58,9 +58,9 @@ export function WaitlistSection() {
           JOIN THE WAITLIST
         </h2>
         <p className="mt-6 max-w-md font-mono text-sm text-muted-foreground leading-relaxed">
-          Texergy AI is in early access for Texas residents. Drop your email
-          (and optionally your ZIP) and we&apos;ll let you know the moment
-          you can shop your service area.
+          Texergy AI is in early access for Texas residents and businesses.
+          Drop your email (and optionally your ZIP) and we&apos;ll let you
+          know the moment you can shop your service area.
         </p>
       </div>
 
