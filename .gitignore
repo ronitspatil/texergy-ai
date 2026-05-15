@@ -82,3 +82,6 @@ Thumbs.db
 # --------------------------------------------------------------
 .tmp/
 tmp/
+
+# Local email template previews — regenerated via lib/email.ts.
+email-preview-*.html
