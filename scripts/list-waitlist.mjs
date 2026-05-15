@@ -7,15 +7,12 @@
  *   npm run waitlist:list -- --csv  # CSV to stdout (pipe to a file)
  *   npm run waitlist:list -- --json # JSON array to stdout
  *
- * Picks Turso when TURSO_DATABASE_URL + TURSO_AUTH_TOKEN are set,
- * otherwise reads the local SQLite file at ./data/waitlist.db.
+ * Reads from Supabase using NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY.
  */
 
-import { createClient } from "@libsql/client";
-import path from "node:path";
+import { createClient } from "@supabase/supabase-js";
 import { existsSync, readFileSync } from "node:fs";
 
-// Tiny .env.local loader so the script picks up Turso creds without dotenv dep.
 function loadEnvLocal() {
   const p = ".env.local";
   if (!existsSync(p)) return;
@@ -28,34 +25,36 @@ function loadEnvLocal() {
 loadEnvLocal();
 
 const args = new Set(process.argv.slice(2));
-const TURSO_URL = process.env.TURSO_DATABASE_URL;
-const TURSO_TOKEN = process.env.TURSO_AUTH_TOKEN;
-const LOCAL_PATH = process.env.WAITLIST_DB_PATH ?? "./data/waitlist.db";
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-let client;
-let source;
-if (TURSO_URL && TURSO_TOKEN) {
-  client = createClient({ url: TURSO_URL, authToken: TURSO_TOKEN });
-  source = TURSO_URL;
-} else {
-  if (!existsSync(LOCAL_PATH)) {
-    console.error(`No waitlist DB at ${path.resolve(LOCAL_PATH)}`);
-    console.error("Has anyone joined the waitlist yet?");
-    process.exit(1);
-  }
-  client = createClient({ url: `file:${LOCAL_PATH}` });
-  source = path.resolve(LOCAL_PATH);
+if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
+  console.error(
+    "Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in .env.local",
+  );
+  process.exit(1);
 }
 
-const result = await client.execute(
-  "SELECT id, email, zip, referrer, created_at FROM waitlist ORDER BY created_at DESC",
-);
-const rows = result.rows.map((r) => ({
+const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
+  auth: { persistSession: false, autoRefreshToken: false },
+});
+
+const { data, error } = await supabase
+  .from("waitlist")
+  .select("id, email, zip, referrer, created_at")
+  .order("created_at", { ascending: false });
+
+if (error) {
+  console.error("Query failed:", error.message);
+  process.exit(1);
+}
+
+const rows = (data ?? []).map((r) => ({
   id: Number(r.id),
   email: String(r.email),
   zip: r.zip == null ? null : String(r.zip),
   referrer: r.referrer == null ? null : String(r.referrer),
-  created_at: Number(r.created_at),
+  created_at: new Date(r.created_at).getTime(),
 }));
 
 const fmt = (ts) =>
@@ -89,7 +88,7 @@ if (args.has("--csv")) {
 
 if (rows.length === 0) {
   console.log("(no signups yet)");
-  console.log(`source: ${source}`);
+  console.log(`source: ${SUPABASE_URL}`);
   process.exit(0);
 }
 
@@ -117,4 +116,4 @@ for (const r of rows) {
   );
 }
 console.log("");
-console.log(`${rows.length} ${rows.length === 1 ? "signup" : "signups"} · ${source}`);
+console.log(`${rows.length} ${rows.length === 1 ? "signup" : "signups"} · ${SUPABASE_URL}`);

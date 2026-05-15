@@ -1,56 +1,21 @@
-import { createClient, type Client } from "@libsql/client";
-import { mkdirSync } from "node:fs";
-import { dirname } from "node:path";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-/**
- * Database connection.
- *
- * In production (Vercel) we point at Turso (libSQL hosted as HTTP).
- * In local development we fall back to a SQLite file under ./data so
- * `npm run dev` works with no setup.
- *
- * Set both TURSO_DATABASE_URL and TURSO_AUTH_TOKEN as environment variables
- * (e.g. on Vercel) to use the cloud database.
- */
-const TURSO_URL = process.env.TURSO_DATABASE_URL;
-const TURSO_TOKEN = process.env.TURSO_AUTH_TOKEN;
-const LOCAL_DB_PATH = process.env.WAITLIST_DB_PATH ?? "./data/waitlist.db";
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-let client: Client | null = null;
-let initialized = false;
+let client: SupabaseClient | null = null;
 
-function getClient(): Client {
+function getClient(): SupabaseClient {
   if (client) return client;
-
-  if (TURSO_URL && TURSO_TOKEN) {
-    client = createClient({ url: TURSO_URL, authToken: TURSO_TOKEN });
-  } else {
-    // Local fallback — libsql understands `file:` URLs natively.
-    mkdirSync(dirname(LOCAL_DB_PATH), { recursive: true });
-    client = createClient({ url: `file:${LOCAL_DB_PATH}` });
+  if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
+    throw new Error(
+      "Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in env.",
+    );
   }
-
+  client = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
   return client;
-}
-
-async function ensureSchema(): Promise<void> {
-  if (initialized) return;
-  const c = getClient();
-  await c.batch(
-    [
-      `CREATE TABLE IF NOT EXISTS waitlist (
-         id INTEGER PRIMARY KEY AUTOINCREMENT,
-         email TEXT NOT NULL UNIQUE,
-         zip TEXT,
-         referrer TEXT,
-         created_at INTEGER NOT NULL,
-         ip_hash TEXT
-       )`,
-      `CREATE INDEX IF NOT EXISTS idx_waitlist_created ON waitlist(created_at)`,
-    ],
-    "write",
-  );
-  initialized = true;
 }
 
 export type WaitlistInsert = {
@@ -63,28 +28,25 @@ export type WaitlistInsert = {
 export async function addToWaitlist(
   entry: WaitlistInsert,
 ): Promise<{ inserted: boolean }> {
-  await ensureSchema();
-  const c = getClient();
-  const result = await c.execute({
-    sql: `INSERT OR IGNORE INTO waitlist (email, zip, referrer, created_at, ip_hash)
-          VALUES (?, ?, ?, ?, ?)`,
-    args: [
-      entry.email,
-      entry.zip ?? null,
-      entry.referrer ?? null,
-      Date.now(),
-      entry.ipHash ?? null,
-    ],
+  const { error } = await getClient().from("waitlist").insert({
+    email: entry.email,
+    zip: entry.zip ?? null,
+    referrer: entry.referrer ?? null,
+    ip_hash: entry.ipHash ?? null,
   });
-  return { inserted: result.rowsAffected > 0 };
+
+  if (!error) return { inserted: true };
+  // 23505 = unique_violation (duplicate email). Mirror previous "INSERT OR IGNORE" behavior.
+  if (error.code === "23505") return { inserted: false };
+  throw error;
 }
 
 export async function waitlistCount(): Promise<number> {
-  await ensureSchema();
-  const c = getClient();
-  const result = await c.execute("SELECT COUNT(*) as c FROM waitlist");
-  const row = result.rows[0];
-  return row ? Number(row.c) : 0;
+  const { count, error } = await getClient()
+    .from("waitlist")
+    .select("*", { count: "exact", head: true });
+  if (error) throw error;
+  return count ?? 0;
 }
 
 export type WaitlistRow = {
@@ -98,22 +60,21 @@ export type WaitlistRow = {
 export async function listWaitlist(
   opts: { limit?: number; offset?: number } = {},
 ): Promise<WaitlistRow[]> {
-  await ensureSchema();
   const limit = Math.min(Math.max(opts.limit ?? 200, 1), 1000);
   const offset = Math.max(opts.offset ?? 0, 0);
-  const c = getClient();
-  const result = await c.execute({
-    sql: `SELECT id, email, zip, referrer, created_at
-          FROM waitlist
-          ORDER BY created_at DESC
-          LIMIT ? OFFSET ?`,
-    args: [limit, offset],
-  });
-  return result.rows.map((r) => ({
+
+  const { data, error } = await getClient()
+    .from("waitlist")
+    .select("id, email, zip, referrer, created_at")
+    .order("created_at", { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  if (error) throw error;
+  return (data ?? []).map((r) => ({
     id: Number(r.id),
     email: String(r.email),
     zip: r.zip == null ? null : String(r.zip),
     referrer: r.referrer == null ? null : String(r.referrer),
-    created_at: Number(r.created_at),
+    created_at: new Date(r.created_at as string).getTime(),
   }));
 }
