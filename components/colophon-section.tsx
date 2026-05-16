@@ -5,6 +5,8 @@ import { SectionLabel } from "@/components/ui/section-label"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 
+const IS_PRODUCT_MODE = process.env.NEXT_PUBLIC_APP_MODE === "product"
+
 gsap.registerPlugin(ScrollTrigger)
 
 export function ColophonSection() {
@@ -97,7 +99,11 @@ export function ColophonSection() {
               <a href="#principles" className="hover:text-accent transition-colors duration-200">Why Us</a>
             </li>
             <li className="h-5 flex items-center font-mono text-xs text-foreground/80">
-              <a href="#waitlist" className="hover:text-accent transition-colors duration-200">Early Access</a>
+              {IS_PRODUCT_MODE ? (
+                <a href="#hero" className="hover:text-accent transition-colors duration-200">Find My Plan</a>
+              ) : (
+                <a href="#waitlist" className="hover:text-accent transition-colors duration-200">Early Access</a>
+              )}
             </li>
             <li className="h-5 flex items-center font-mono text-xs text-foreground/80">
               <a href="#faq" className="hover:text-accent transition-colors duration-200">FAQ</a>

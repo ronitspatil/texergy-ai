@@ -3,12 +3,16 @@
 import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 
+const IS_PRODUCT_MODE = process.env.NEXT_PUBLIC_APP_MODE === "product"
+
 const navItems = [
   { id: "hero", label: "Home" },
   { id: "signals", label: "How It Works" },
   { id: "work", label: "Considered Variables" },
   { id: "principles", label: "Why Us" },
-  { id: "waitlist", label: "Early Access" },
+  ...(IS_PRODUCT_MODE
+    ? []
+    : [{ id: "waitlist", label: "Early Access" }]),
   { id: "faq", label: "FAQ" },
   { id: "colophon", label: "Coming Soon" },
 ]

@@ -6,8 +6,11 @@ import { SplitFlapText, SplitFlapMuteToggle, SplitFlapAudioProvider } from "@/co
 import { AnimatedNoise } from "@/components/animated-noise"
 import { BitmapChevron } from "@/components/bitmap-chevron"
 import { SectionLabel } from "@/components/ui/section-label"
+import { HeroZipForm } from "@/components/hero-zip-form"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
+
+const IS_PRODUCT_MODE = process.env.NEXT_PUBLIC_APP_MODE === "product"
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -70,14 +73,18 @@ export function HeroSection() {
           </span>
         </p>
 
-        <div className="mt-16 flex items-center gap-8">
-          <a
-            href="#waitlist"
-            className="group inline-flex items-center gap-3 border border-foreground/20 px-7 py-3.5 font-mono text-sm uppercase tracking-widest text-foreground hover:border-accent hover:text-accent transition-all duration-200"
-          >
-            <ScrambleTextOnHover text="Join Waitlist" as="span" duration={0.6} />
-            <BitmapChevron className="transition-transform duration-[400ms] ease-in-out group-hover:rotate-45" />
-          </a>
+        <div className="mt-16 flex flex-wrap items-center gap-8">
+          {IS_PRODUCT_MODE ? (
+            <HeroZipForm />
+          ) : (
+            <a
+              href="#waitlist"
+              className="group inline-flex items-center gap-3 border border-foreground/20 px-7 py-3.5 font-mono text-sm uppercase tracking-widest text-foreground hover:border-accent hover:text-accent transition-all duration-200"
+            >
+              <ScrambleTextOnHover text="Join Waitlist" as="span" duration={0.6} />
+              <BitmapChevron className="transition-transform duration-[400ms] ease-in-out group-hover:rotate-45" />
+            </a>
+          )}
           <a
             href="#signals"
             className="font-mono text-sm uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors duration-200"
