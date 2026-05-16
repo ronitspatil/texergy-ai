@@ -17,7 +17,8 @@
     "waitlist:csv": "node scripts/list-waitlist.mjs --csv",
     "waitlist:json": "node scripts/list-waitlist.mjs --json",
     "ingest:plans": "node scripts/ingest-plans.mjs",
-    "parse:efls": "node scripts/parse-efls.mjs"
+    "parse:efls": "node scripts/parse-efls.mjs",
+    "rank:test": "node --experimental-strip-types scripts/test-rank.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
