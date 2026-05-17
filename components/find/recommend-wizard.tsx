@@ -30,6 +30,9 @@ export function RecommendWizard() {
     rateTypePref: "any",
     renewablePref: "any",
     termPref: "any",
+    timeOfUsePref: "any",
+    baseChargePref: "any",
+    etfPref: "any",
     weights: {
       cost: 50,
       renewable: 10,

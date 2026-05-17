@@ -1,5 +1,55 @@
 import type { PlanForScoring } from "./types.ts";
 
+/** Probability that a plan's bill-credit threshold is met in a typical month,
+ *  given the user's stated average usage. TX residential usage varies by
+ *  roughly ±15% month-to-month around the annual mean, so we model the
+ *  credit-qualifying probability as a linear ramp across a ±15% margin
+ *  centered on the threshold. This is a close approximation of a normal CDF
+ *  with stdev = 15% × mean.
+ *
+ *  Returns 0..1. A value < 0.5 means "you'd miss the credit more often than
+ *  you'd hit it" — i.e. classic bill-credit-cliff territory. */
+export function creditReliability(usageKwh: number, thresholdKwh: number): number {
+  if (usageKwh <= 0) return 0;
+  const margin = Math.max(50, usageKwh * 0.15); // floor at 50 kWh so very low usage isn't over-confident
+  const lo = thresholdKwh - margin;
+  const hi = thresholdKwh + margin;
+  if (usageKwh >= hi) return 1;
+  if (usageKwh <= lo) return 0;
+  return (usageKwh - lo) / (hi - lo);
+}
+
+export type CreditAssessment = {
+  threshold_kwh: number;
+  amount: number;
+  reliability: number;             // 0..1, P(qualify in a typical month)
+  expected_value_per_month: number; // amount × reliability
+  /** UI bucket. "safe" = reliability ≥ 0.9; "marginal" 0.5–0.9; "cliff" 0.1–0.5;
+   *  "unreachable" < 0.1 (credit effectively never applies). */
+  status: "safe" | "marginal" | "cliff" | "unreachable";
+};
+
+export function assessBillCredits(
+  usageKwh: number,
+  credits: PlanForScoring["bill_credits"],
+): CreditAssessment | null {
+  if (!credits) return null;
+  const reliability = creditReliability(usageKwh, credits.threshold_kwh);
+  const expected = credits.amount * reliability;
+  const status: CreditAssessment["status"] =
+    reliability >= 0.9 ? "safe"
+    : reliability >= 0.5 ? "marginal"
+    : reliability >= 0.1 ? "cliff"
+    : "unreachable";
+  return {
+    threshold_kwh: credits.threshold_kwh,
+    amount: credits.amount,
+    reliability,
+    expected_value_per_month: expected,
+    status,
+  };
+}
+
 /** Compute the projected monthly bill (USD) for a plan at a given kWh.
  *
  * Preferred path uses parsed EFL components:
@@ -38,8 +88,13 @@ function tryParsedBill(plan: PlanForScoring, usageKwh: number): number | null {
   bill += ((plan.tdu_charges?.per_kwh_cents ?? 0) * usageKwh) / 100;
   bill += plan.tdu_charges?.per_month_usd ?? 0;
 
-  if (plan.bill_credits && usageKwh >= plan.bill_credits.threshold_kwh) {
-    bill -= plan.bill_credits.amount;
+  // Probabilistic bill credit: apply credit × reliability rather than the
+  // old binary "qualify or not" rule. This stops cliff-prone plans (credit
+  // threshold right at the user's stated usage) from dominating ranking on
+  // savings they'd only realize half the time.
+  if (plan.bill_credits) {
+    const reliability = creditReliability(usageKwh, plan.bill_credits.threshold_kwh);
+    bill -= plan.bill_credits.amount * reliability;
   }
 
   // Many EFLs charge a minimum-usage fee when usage falls below a threshold.

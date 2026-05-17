@@ -11,8 +11,14 @@ export type PlanForScoring = {
   name: string;
   rep_id: number;
   rep_name: string;
+  rep_logo_url: string | null;
   tdu_id: number;
   tdu_code: string;
+
+  time_of_use: boolean;
+  simple_plan: boolean;
+  new_customer_only: boolean;
+  has_minimum_usage_fee: boolean;
 
   rate_type: RateType | null;
   term_months: number | null;
@@ -33,6 +39,8 @@ export type PlanForScoring = {
   bill_credits: { amount: number; threshold_kwh: number } | null;
 
   efl_url: string | null;
+  tos_url: string | null;
+  yrac_url: string | null;
   enroll_url: string | null;
 };
 
@@ -54,6 +62,13 @@ export type Filters = Partial<{
   prepaidOnly: boolean;
   excludePrepaid: boolean;
   maxMonthlyBill: number;
+  timeOfUseOnly: boolean;
+  /** Cap on base charge in $/mo. 0 = "$0 base charge only". Plans with no
+   *  parsed base_charge (NULL) are included as a benefit-of-the-doubt. */
+  maxBaseCharge: number;
+  /** Cap on ETF in $. 0 = "no ETF" / month-to-month. Plans with no parsed
+   *  etf_amount (NULL) are included. */
+  maxEtf: number;
 }>;
 
 export type RecommendInput = {
@@ -72,12 +87,22 @@ export type Breakdown = {
   ratings: number;
 };
 
+export type CreditAssessment = {
+  threshold_kwh: number;
+  amount: number;
+  reliability: number;
+  expected_value_per_month: number;
+  status: "safe" | "marginal" | "cliff" | "unreachable";
+};
+
 export type RankedPlan = {
   plan: PlanForScoring;
   score: number; // 0..1 composite
   estMonthlyBillUsd: number; // at the user's monthly kWh
   estAnnualCostUsd: number;
+  effectiveCentsPerKwh: number; // all-in cost per kWh = estMonthlyBillUsd / usageKwh * 100
   costSource: "parsed_efl" | "ptc_headline"; // which path produced the cost
+  creditAssessment: CreditAssessment | null;
   breakdown: Breakdown;
   reasons: string[]; // human-readable highlights for the UI
 };

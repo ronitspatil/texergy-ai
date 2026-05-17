@@ -1,9 +1,12 @@
 "use client";
 
 import type {
+  BaseChargePref,
+  EtfPref,
   RateTypePref,
   RenewablePref,
   TermPref,
+  TimeOfUsePref,
   WeightsUI,
   WizardState,
 } from "@/components/find/wizard-types";
@@ -78,6 +81,43 @@ export function ResultsSidebar({
             { value: "long", label: "24+" },
           ]}
           onChange={(v) => onUpdate({ termPref: v as TermPref })}
+        />
+      </Block>
+
+      <Block label="Time of use">
+        <Chips
+          value={state.timeOfUsePref}
+          options={[
+            { value: "any", label: "Any" },
+            { value: "only", label: "ToU only" },
+          ]}
+          onChange={(v) => onUpdate({ timeOfUsePref: v as TimeOfUsePref })}
+        />
+      </Block>
+
+      <Block label="Base charge">
+        <Chips
+          value={state.baseChargePref}
+          options={[
+            { value: "any", label: "Any" },
+            { value: "zero", label: "$0" },
+            { value: "atmost5", label: "≤$5" },
+            { value: "atmost10", label: "≤$10" },
+          ]}
+          onChange={(v) => onUpdate({ baseChargePref: v as BaseChargePref })}
+        />
+      </Block>
+
+      <Block label="ETF">
+        <Chips
+          value={state.etfPref}
+          options={[
+            { value: "any", label: "Any" },
+            { value: "none", label: "None" },
+            { value: "atmost100", label: "≤$100" },
+            { value: "atmost200", label: "≤$200" },
+          ]}
+          onChange={(v) => onUpdate({ etfPref: v as EtfPref })}
         />
       </Block>
 

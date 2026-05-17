@@ -16,7 +16,7 @@ export function HeroZipForm() {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (submitting) return;
     if (!/^\d{5}$/.test(zip)) {
@@ -25,11 +25,63 @@ export function HeroZipForm() {
     }
     setError(null);
     setSubmitting(true);
-    router.push(`/find/recommend?zip=${zip}`);
+
+    try {
+      const res = await fetch("/api/zip-check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ zip }),
+      });
+      const data = (await res.json().catch(() => ({}))) as {
+        ok?: boolean;
+        reason?: string;
+        tduCodes?: string[];
+      };
+      if (!res.ok || !data.ok) {
+        setSubmitting(false);
+        if (data.reason === "not_deregulated") {
+          setError(
+            `ZIP ${zip} isn't in a deregulated area. Texergy AI only works for ZIPs served by ERCOT retail providers.`,
+          );
+        } else if (data.reason === "ptc_unreachable" || data.reason === "ptc_error") {
+          setError("Power-to-Choose is temporarily unreachable. Try again in a moment.");
+        } else {
+          setError("That ZIP doesn't look valid. Double-check the 5 digits.");
+        }
+        return;
+      }
+      router.push(`/find/recommend?zip=${zip}`);
+    } catch {
+      setSubmitting(false);
+      setError("Network error. Try again.");
+    }
   }
 
   return (
     <form onSubmit={onSubmit} noValidate aria-label="Enter your ZIP code" className="flex flex-col gap-3">
+      {/* Customer class toggle — only Residential is wired today.
+          Commercial is shown as a disabled "coming soon" affordance so
+          business visitors know it's on the roadmap without us faking
+          a recommendation flow we can't honestly back up yet. */}
+      <div role="radiogroup" aria-label="Customer class" className="flex items-center gap-2">
+        <span
+          role="radio"
+          aria-checked="true"
+          className="font-mono text-[10px] uppercase tracking-[0.25em] border border-accent text-accent px-3 py-1.5 cursor-default"
+        >
+          Residential
+        </span>
+        <span
+          role="radio"
+          aria-checked="false"
+          aria-disabled="true"
+          className="font-mono text-[10px] uppercase tracking-[0.25em] border border-foreground/15 text-muted-foreground/70 px-3 py-1.5 cursor-not-allowed select-none"
+          title="Business plan support is in development."
+        >
+          Commercial <span className="ml-1 text-foreground/40">· Coming Soon</span>
+        </span>
+      </div>
+
       <div className="flex items-stretch gap-3">
         <label htmlFor="hero-zip-input" className="sr-only">
           ZIP code

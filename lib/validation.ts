@@ -25,7 +25,7 @@ export type WaitlistInput = z.infer<typeof waitlistSchema>;
 export const recommendSchema = z.object({
   zip: z.string().trim().regex(/^\d{5}$/, "ZIP must be 5 digits."),
   monthlyUsageKwh: z.number().int().min(50).max(20_000).optional(),
-  limit: z.number().int().min(1).max(50).optional(),
+  limit: z.number().int().min(1).max(5000).optional(),
   weights: z
     .object({
       cost: z.number().min(0).max(1).optional(),
@@ -43,6 +43,9 @@ export const recommendSchema = z.object({
       prepaidOnly: z.boolean().optional(),
       excludePrepaid: z.boolean().optional(),
       maxMonthlyBill: z.number().min(0).optional(),
+      timeOfUseOnly: z.boolean().optional(),
+      maxBaseCharge: z.number().min(0).max(50).optional(),
+      maxEtf: z.number().min(0).max(1000).optional(),
     })
     .optional(),
 });

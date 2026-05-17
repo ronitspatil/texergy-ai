@@ -185,3 +185,25 @@
   background: oklch(0.7 0.2 45);
   color: oklch(0.08 0 0);
 }
+
+/* Always-visible scrollbar for the results plan container, so users see
+   the scroll affordance even on macOS (where overlay scrollbars are hidden
+   by default). Two-finger trackpad scroll already works — this just adds
+   the visual indicator. */
+.results-scroller {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+.results-scroller::-webkit-scrollbar {
+  width: 10px;
+}
+.results-scroller::-webkit-scrollbar-track {
+  background: transparent;
+}
+.results-scroller::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 0;
+}
+.results-scroller::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}

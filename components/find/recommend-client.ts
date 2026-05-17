@@ -1,9 +1,12 @@
 import type { RankedPlan } from "@/lib/ranking/types";
 import type { RecommendBody } from "@/lib/validation";
 import type {
+  BaseChargePref,
+  EtfPref,
   RateTypePref,
   RenewablePref,
   TermPref,
+  TimeOfUsePref,
   WizardState,
 } from "./wizard-types";
 
@@ -25,10 +28,18 @@ export function buildRecommendBody(state: WizardState): RecommendBody {
   const body: RecommendBody = {
     zip: state.zip,
     monthlyUsageKwh: state.monthlyUsageKwh,
-    limit: 20,
+    limit: 1000,
   };
 
-  const filters = buildFilters(state.rateTypePref, state.renewablePref, state.termPref, state.mode === "basic");
+  const filters = buildFilters(
+    state.rateTypePref,
+    state.renewablePref,
+    state.termPref,
+    state.timeOfUsePref,
+    state.baseChargePref,
+    state.etfPref,
+    state.mode === "basic",
+  );
   if (Object.keys(filters).length > 0) body.filters = filters;
 
   if (state.mode === "smart") {
@@ -48,6 +59,9 @@ function buildFilters(
   rate: RateTypePref,
   renew: RenewablePref,
   term: TermPref,
+  tou: TimeOfUsePref,
+  base: BaseChargePref,
+  etf: EtfPref,
   strict: boolean,
 ): NonNullable<RecommendBody["filters"]> {
   const out: NonNullable<RecommendBody["filters"]> = {};
@@ -62,14 +76,20 @@ function buildFilters(
   if (term === "monthToMonth") out.maxTermMonths = 1;
   else if (term === "short") out.maxTermMonths = 6;
   else if (term === "medium") {
-    // Smart mode keeps it as an upper bound; basic mode could also be exact.
-    // Upper bound works for both since shorter terms are usually acceptable.
     out.maxTermMonths = 12;
   } else if (term === "long" && strict) {
-    // No max term — we want long terms only. The API doesn't support a minimum
-    // term filter today, so in smart mode this question's "long" answer just
-    // raises rateStability bias implicitly via weights. Nothing to add here.
+    // Long-term filter not supported on the server today.
   }
+
+  if (tou === "only") out.timeOfUseOnly = true;
+
+  if (base === "zero") out.maxBaseCharge = 0;
+  else if (base === "atmost5") out.maxBaseCharge = 5;
+  else if (base === "atmost10") out.maxBaseCharge = 10;
+
+  if (etf === "none") out.maxEtf = 0;
+  else if (etf === "atmost100") out.maxEtf = 100;
+  else if (etf === "atmost200") out.maxEtf = 200;
 
   return out;
 }

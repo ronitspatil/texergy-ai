@@ -1,4 +1,4 @@
-import { estimateMonthlyBill } from "./cost.ts";
+import { assessBillCredits, estimateMonthlyBill } from "./cost.ts";
 import {
   type Breakdown,
   type PlanForScoring,
@@ -96,14 +96,18 @@ export function scoreAndRank(
       breakdown.rateStability * w.rateStability +
       breakdown.ratings * w.ratings;
 
+    const effectiveCentsPerKwh = usageKwh > 0 ? Math.round((r.monthlyUsd / usageKwh) * 1000) / 10 : 0;
+    const creditAssessment = assessBillCredits(usageKwh, r.plan.bill_credits);
     return {
       plan: r.plan,
       score: composite,
       estMonthlyBillUsd: round2(r.monthlyUsd),
       estAnnualCostUsd: round2(r.monthlyUsd * MONTHS_PER_YEAR),
+      effectiveCentsPerKwh,
       costSource: r.costSource,
+      creditAssessment,
       breakdown,
-      reasons: buildReasons(r.plan, r.monthlyUsd, breakdown, minCost, maxCost),
+      reasons: buildReasons(r.plan, r.monthlyUsd, breakdown, minCost, maxCost, creditAssessment),
     };
   });
 
@@ -139,6 +143,7 @@ function buildReasons(
   breakdown: Breakdown,
   minCost: number,
   maxCost: number,
+  credit: import("./types.ts").CreditAssessment | null,
 ): string[] {
   const reasons: string[] = [];
   const savingsVsAvg = (maxCost + minCost) / 2 - monthlyUsd;
@@ -154,13 +159,21 @@ function buildReasons(
   if ((plan.etf_amount ?? 0) === 0 && plan.term_months != null && plan.term_months <= 1) {
     reasons.push("Month-to-month — no termination fee");
   }
-  if (plan.bill_credits && plan.bill_credits.amount >= 25) {
-    reasons.push(
-      `$${plan.bill_credits.amount} bill credit at ${plan.bill_credits.threshold_kwh}+ kWh`,
-    );
+  // Bill credit: surface only when meaningful AND reliable. Cliff plans get
+  // a warning string further down instead.
+  if (credit && credit.amount >= 25 && credit.status === "safe") {
+    reasons.push(`$${credit.amount} bill credit kicks in at ${credit.threshold_kwh.toLocaleString()}+ kWh`);
   }
   if (breakdown.contractFlexibility >= 0.85) {
     reasons.push("Low contract burden");
+  }
+  // Cliff warning — high priority. Pushed last so it's seen even when slicing
+  // to 3 because we sort it to the front below.
+  if (credit && (credit.status === "cliff" || credit.status === "marginal")) {
+    const verb = credit.status === "cliff" ? "miss" : "barely clear";
+    reasons.unshift(
+      `⚠ $${credit.amount} bill credit needs ${credit.threshold_kwh.toLocaleString()}+ kWh — you may ${verb} it most months`,
+    );
   }
   return reasons.slice(0, 3); // keep UI tight
 }

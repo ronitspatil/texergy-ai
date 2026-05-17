@@ -126,9 +126,10 @@ async function loadCandidates(
     .select(`
       id, ptc_id, name, rep_id, tdu_id,
       rate_type, term_months, prepaid, renewable_pct,
+      time_of_use, simple_plan, new_customer_only, has_minimum_usage_fee,
       rate_500_kwh, rate_1000_kwh, rate_2000_kwh,
-      efl_url, enroll_url,
-      reps!inner ( id, name ),
+      efl_url, tos_url, yrac_url, enroll_url,
+      reps!inner ( id, name, logo_url ),
       tdus!inner ( id, code ),
       plan_details ( base_charge, etf_amount, minimum_usage_fee, energy_charge, tdu_charges, bill_credits )
     `)
@@ -140,15 +141,30 @@ async function loadCandidates(
   if (filters.maxTermMonths != null) query = query.lte("term_months", filters.maxTermMonths);
   if (filters.prepaidOnly === true) query = query.eq("prepaid", true);
   if (filters.excludePrepaid === true) query = query.eq("prepaid", false);
+  if (filters.timeOfUseOnly === true) query = query.eq("time_of_use", true);
 
   const { data, error } = await query;
   if (error) throw error;
 
-  return (data ?? []).map(rowToPlan);
+  let candidates = (data ?? []).map(rowToPlan);
+
+  // Filters that look at joined plan_details fields run in JS — Supabase's
+  // builder doesn't OR-with-NULL on related tables cleanly, and we want to
+  // include plans with unparsed details (benefit of the doubt).
+  if (filters.maxBaseCharge != null) {
+    const cap = filters.maxBaseCharge;
+    candidates = candidates.filter((p) => p.base_charge == null || p.base_charge <= cap);
+  }
+  if (filters.maxEtf != null) {
+    const cap = filters.maxEtf;
+    candidates = candidates.filter((p) => p.etf_amount == null || p.etf_amount <= cap);
+  }
+
+  return candidates;
 }
 
 function rowToPlan(row: Record<string, unknown>): PlanForScoring {
-  const rep = (row.reps as { id: number; name: string } | null) ?? { id: 0, name: "" };
+  const rep = (row.reps as { id: number; name: string; logo_url?: string | null } | null) ?? { id: 0, name: "", logo_url: null };
   const tdu = (row.tdus as { id: number; code: string } | null) ?? { id: 0, code: "" };
   // Supabase returns 1:1 relations as objects, 1:many as arrays. plan_details
   // is 1:1 (plan_id is both FK and PK), so it comes back as an object — handle
@@ -164,16 +180,23 @@ function rowToPlan(row: Record<string, unknown>): PlanForScoring {
     name: row.name as string,
     rep_id: rep.id,
     rep_name: rep.name,
+    rep_logo_url: rep.logo_url ?? null,
     tdu_id: tdu.id,
     tdu_code: tdu.code,
     rate_type: (row.rate_type as RateType | null) ?? null,
     term_months: (row.term_months as number | null) ?? null,
     prepaid: Boolean(row.prepaid),
+    time_of_use: Boolean(row.time_of_use),
+    simple_plan: Boolean(row.simple_plan),
+    new_customer_only: Boolean(row.new_customer_only),
+    has_minimum_usage_fee: Boolean(row.has_minimum_usage_fee),
     renewable_pct: (row.renewable_pct as number | null) ?? null,
     rate_500_kwh: parseNum(row.rate_500_kwh),
     rate_1000_kwh: parseNum(row.rate_1000_kwh),
     rate_2000_kwh: parseNum(row.rate_2000_kwh),
     efl_url: (row.efl_url as string | null) ?? null,
+    tos_url: (row.tos_url as string | null) ?? null,
+    yrac_url: (row.yrac_url as string | null) ?? null,
     enroll_url: (row.enroll_url as string | null) ?? null,
     base_charge: parseNum(details.base_charge),
     etf_amount: parseNum(details.etf_amount),
