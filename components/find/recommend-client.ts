@@ -30,6 +30,9 @@ export function buildRecommendBody(state: WizardState): RecommendBody {
     monthlyUsageKwh: state.monthlyUsageKwh,
     limit: 1000,
   };
+  if (state.devices && state.devices.length > 0) {
+    body.devices = [...state.devices];
+  }
 
   const filters = buildFilters(
     state.rateTypePref,

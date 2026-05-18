@@ -7,6 +7,19 @@ export type TimeOfUsePref = "any" | "only" | "none";
 export type BaseChargePref = "any" | "zero" | "atmost5" | "atmost10";
 export type EtfPref = "any" | "none" | "atmost100" | "atmost200";
 
+/** Optional household-device flags collected on the profile step. Used to
+ *  bias the ranking — e.g. an EV or battery storage owner benefits from a
+ *  time-of-use plan, a solar customer cares about minimum-usage fees. Empty
+ *  array means "I don't have any of these". */
+export type DeviceFlag = "thermostat" | "ev" | "solar" | "storage";
+
+export const DEVICE_OPTIONS: { value: DeviceFlag; label: string }[] = [
+  { value: "thermostat", label: "Smart Thermostat" },
+  { value: "ev", label: "Electric Vehicle" },
+  { value: "solar", label: "Solar" },
+  { value: "storage", label: "Generator or Battery Storage" },
+];
+
 export type SortBy = "score" | "rate" | "term" | "bill" | "etf";
 
 export const SORT_OPTIONS: { value: SortBy; label: string }[] = [
@@ -37,6 +50,7 @@ export type WizardState = {
   timeOfUsePref: TimeOfUsePref;
   baseChargePref: BaseChargePref;
   etfPref: EtfPref;
+  devices: DeviceFlag[];
   providerIds: number[];
   sortBy: SortBy;
   weights: WeightsUI;

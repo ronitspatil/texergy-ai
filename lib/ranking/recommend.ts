@@ -54,7 +54,14 @@ export async function recommend(input: RecommendInput): Promise<{
   const market = toMarketContext(await readPriceHistory("TX", "RES"));
 
   // --- Score + rank --------------------------------------------------------
-  const ranked = scoreAndRank(candidates, usageKwh, input.weights ?? {}, limit, market);
+  const ranked = scoreAndRank(
+    candidates,
+    usageKwh,
+    input.weights ?? {},
+    limit,
+    market,
+    input.devices ?? [],
+  );
 
   const { data: tduRows } = await supabase
     .from("tdus")

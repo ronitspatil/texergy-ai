@@ -77,11 +77,16 @@ export type Filters = Partial<{
   maxEtf: number;
 }>;
 
+export type DeviceFlag = "thermostat" | "ev" | "solar" | "storage";
+
 export type RecommendInput = {
   zip: string;
   monthlyUsageKwh: number; // defaults to 1000 if caller doesn't supply
   weights?: Weights;
   filters?: Filters;
+  /** Optional household-device flags. Used to bias ranking: EV/storage owners
+   *  see a soft boost on time-of-use plans; solar owners on flexible terms. */
+  devices?: DeviceFlag[];
   limit?: number; // top-N to return, defaults to 10
 };
 

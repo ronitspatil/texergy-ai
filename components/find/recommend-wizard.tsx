@@ -33,6 +33,7 @@ export function RecommendWizard() {
     timeOfUsePref: "any",
     baseChargePref: "any",
     etfPref: "any",
+    devices: [],
     providerIds: [],
     sortBy: "score",
     weights: {

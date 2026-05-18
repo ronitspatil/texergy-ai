@@ -35,6 +35,10 @@ export const recommendSchema = z.object({
       ratings: z.number().min(0).max(1).optional(),
     })
     .optional(),
+  devices: z
+    .array(z.enum(["thermostat", "ev", "solar", "storage"]))
+    .max(8)
+    .optional(),
   filters: z
     .object({
       rateType: z.enum(["Fixed", "Variable", "Indexed"]).optional(),

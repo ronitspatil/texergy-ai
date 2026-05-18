@@ -1,6 +1,7 @@
 import { assessBillCredits, estimateMonthlyBill } from "./cost.ts";
 import {
   type Breakdown,
+  type DeviceFlag,
   type MarketContext,
   type PlanForScoring,
   type RankedPlan,
@@ -22,6 +23,7 @@ export function scoreAndRank(
   weights: Weights,
   limit: number,
   market: MarketContext | null = null,
+  devices: DeviceFlag[] = [],
 ): RankedPlan[] {
   const w = normalizeWeights(weights);
   if (candidates.length === 0) return [];
@@ -99,6 +101,19 @@ export function scoreAndRank(
   // user-review aggregation table.
   const ratingScore = (_plan: PlanForScoring) => 0.5;
 
+  // Device-based score tweaks. Modest by design — these are *priors*, not
+  // hard filters. EV / battery owners benefit from off-peak rate windows, so
+  // we nudge time-of-use plans up; solar owners get a small uplift on plans
+  // with no minimum-usage fee (so they aren't penalized in low-export months).
+  const hasEvOrStorage = devices.includes("ev") || devices.includes("storage");
+  const hasSolar = devices.includes("solar");
+  const deviceUplift = (plan: PlanForScoring): number => {
+    let u = 0;
+    if (hasEvOrStorage && plan.time_of_use) u += 0.04;
+    if (hasSolar && !plan.has_minimum_usage_fee) u += 0.02;
+    return u;
+  };
+
   // ----- Composite + reasons -----
   const ranked: RankedPlan[] = priced.map((r) => {
     const effectiveCentsPerKwh = usageKwh > 0 ? Math.round((r.monthlyUsd / usageKwh) * 1000) / 10 : 0;
@@ -122,7 +137,8 @@ export function scoreAndRank(
       breakdown.renewable * w.renewable +
       breakdown.contractFlexibility * w.contractFlexibility +
       breakdown.rateStability * w.rateStability +
-      breakdown.ratings * w.ratings;
+      breakdown.ratings * w.ratings +
+      deviceUplift(r.plan);
 
     const creditAssessment = assessBillCredits(usageKwh, r.plan.bill_credits);
     return {

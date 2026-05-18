@@ -7,6 +7,7 @@ import { SORT_OPTIONS } from "@/components/find/wizard-types";
 import { SectionLabel } from "@/components/ui/section-label";
 import { PlanCard } from "@/components/find/plan-card";
 import { ResultsSidebar } from "@/components/find/results-sidebar";
+import { CompareDialog } from "@/components/find/compare-dialog";
 import { buildRecommendBody, type ApiResponse } from "@/components/find/recommend-client";
 
 export function ResultsStep({
@@ -24,6 +25,22 @@ export function ResultsStep({
   // Mobile/tablet: sidebar starts closed and opens via the Refine toggle.
   // `lg:` overrides force the panel always-visible on desktop.
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Plan comparator: up to 3 selections, opens a full-screen side-by-side
+  // dialog. State lives here (not in wizard) because it's transient UI.
+  const COMPARE_MAX = 3;
+  const [compareIds, setCompareIds] = useState<number[]>([]);
+  const [comparing, setComparing] = useState(false);
+
+  function toggleCompare(planId: number) {
+    setCompareIds((ids) =>
+      ids.includes(planId)
+        ? ids.filter((x) => x !== planId)
+        : ids.length >= COMPARE_MAX
+          ? ids
+          : [...ids, planId],
+    );
+  }
 
   // Serialize the meaningful inputs so re-fetch triggers only when something
   // ranking-relevant changes (and not on, say, stepIndex).
@@ -259,7 +276,13 @@ export function ResultsStep({
                         show: { opacity: 1, y: 0, transition: { duration: 0.28, ease: [0.22, 1, 0.36, 1] } },
                       }}
                     >
-                      <PlanCard rank={i + 1} ranked={r} />
+                      <PlanCard
+                        rank={i + 1}
+                        ranked={r}
+                        selected={compareIds.includes(r.plan.id)}
+                        onToggleSelect={() => toggleCompare(r.plan.id)}
+                        selectionDisabled={compareIds.length >= COMPARE_MAX}
+                      />
                     </motion.li>
                   ))}
                 </motion.ol>
@@ -293,6 +316,86 @@ export function ResultsStep({
               ← Back to {state.mode === "smart" ? "weights" : "profile"}
             </button>
           </div>
+        </div>
+      </div>
+
+      <CompareBar
+        selected={sortedRanked.filter((r) => compareIds.includes(r.plan.id))}
+        max={COMPARE_MAX}
+        onRemove={(id) => toggleCompare(id)}
+        onClear={() => setCompareIds([])}
+        onOpen={() => setComparing(true)}
+      />
+      {comparing && (
+        <CompareDialog
+          plans={sortedRanked.filter((r) => compareIds.includes(r.plan.id))}
+          onClose={() => setComparing(false)}
+          onRemove={(id) => toggleCompare(id)}
+        />
+      )}
+    </div>
+  );
+}
+
+/** Sticky bottom strip showing the currently selected compare-set. Visible
+ *  whenever ≥1 plan is selected; "Compare" enabled at ≥2. Mirrors the
+ *  EnergyBot pattern: small footprint, immediate access to the dialog. */
+function CompareBar({
+  selected,
+  max,
+  onRemove,
+  onClear,
+  onOpen,
+}: {
+  selected: import("@/lib/ranking/types").RankedPlan[];
+  max: number;
+  onRemove: (planId: number) => void;
+  onClear: () => void;
+  onOpen: () => void;
+}) {
+  if (selected.length === 0) return null;
+  return (
+    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 backdrop-blur-sm">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 flex flex-col sm:flex-row sm:items-center gap-3">
+        <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground shrink-0">
+          Compare {selected.length}/{max}
+        </div>
+        <div className="flex flex-wrap items-center gap-2 flex-1 min-w-0">
+          {selected.map((r) => (
+            <div
+              key={r.plan.id}
+              className="flex items-center gap-2 border border-foreground/20 pl-3 pr-2 py-1.5 max-w-full"
+            >
+              <span className="font-mono text-[11px] text-foreground truncate max-w-[180px]">
+                {r.plan.rep_name} · {r.plan.name}
+              </span>
+              <button
+                type="button"
+                onClick={() => onRemove(r.plan.id)}
+                aria-label={`Remove ${r.plan.rep_name} ${r.plan.name} from comparison`}
+                className="text-muted-foreground hover:text-accent transition-colors font-mono text-sm leading-none"
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+        </div>
+        <div className="flex items-center gap-3 shrink-0">
+          <button
+            type="button"
+            onClick={onClear}
+            className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Clear
+          </button>
+          <button
+            type="button"
+            onClick={onOpen}
+            disabled={selected.length < 2}
+            className="border border-foreground bg-foreground text-background px-5 py-2 font-mono text-xs uppercase tracking-widest hover:bg-accent hover:border-accent hover:text-accent-foreground transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            Compare →
+          </button>
         </div>
       </div>
     </div>
