@@ -51,6 +51,7 @@ const args = process.argv.slice(2);
 const limitIdx = args.indexOf("--limit");
 const limit = limitIdx >= 0 ? parseInt(args[limitIdx + 1], 10) : null;
 const reparse = args.includes("--reparse");
+const retryFailures = args.includes("--retry-failures");
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -195,19 +196,33 @@ function parseEfl(text) {
 
 async function loadEligiblePlans() {
   // Pull all active plans with an EFL URL. If --reparse not set, exclude ones
-  // already parsed at this parser_version.
+  // already parsed at this parser_version. If --retry-failures is set,
+  // *include* only plans whose existing row at this parser_version has a
+  // non-empty parse_errors[] — useful for retrying transient fetch failures
+  // without redoing the ~530 already-successful parses.
   let query = supabase
     .from("plans")
-    .select("id, efl_url, plan_details ( plan_id, parser_version )")
+    .select("id, efl_url, plan_details ( plan_id, parser_version, parse_errors )")
     .eq("active", true)
     .not("efl_url", "is", null);
   const { data, error } = await query;
   if (error) throw error;
 
+  // Supabase returns 1:1 relations as objects and 1:many as arrays. plan_details
+  // is 1:1 (plan_id is both FK and PK), so normalize to an array for filter ops.
+  const detailsOf = (p) =>
+    Array.isArray(p.plan_details) ? p.plan_details : p.plan_details ? [p.plan_details] : [];
+
   let eligible = data;
-  if (!reparse) {
+  if (retryFailures) {
+    eligible = data.filter((p) =>
+      detailsOf(p).some(
+        (d) => d.parser_version === PARSER_VERSION && (d.parse_errors?.length ?? 0) > 0,
+      ),
+    );
+  } else if (!reparse) {
     eligible = data.filter(
-      (p) => !p.plan_details?.some((d) => d.parser_version === PARSER_VERSION),
+      (p) => !detailsOf(p).some((d) => d.parser_version === PARSER_VERSION),
     );
   }
   if (limit != null) eligible = eligible.slice(0, limit);

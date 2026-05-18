@@ -4,23 +4,39 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { RankedPlan } from "@/lib/ranking/types";
 
-export function PlanCard({ rank, ranked }: { rank: number; ranked: RankedPlan }) {
+export function PlanCard({
+  rank,
+  ranked,
+  selected = false,
+  onToggleSelect,
+  selectionDisabled = false,
+}: {
+  rank: number;
+  ranked: RankedPlan;
+  selected?: boolean;
+  onToggleSelect?: () => void;
+  selectionDisabled?: boolean;
+}) {
   const [open, setOpen] = useState(false);
   const { plan } = ranked;
 
   return (
     <article
       className={[
-        "group relative bg-card/40 transition-colors",
+        "group bg-card/40 transition-colors",
         open
           ? "bg-card border-l-2 border-l-accent"
           : "border-l-2 border-l-transparent hover:bg-card hover:border-l-accent/60",
       ].join(" ")}
     >
+      {/* Header block: relative so the chevron + Compare checkbox anchor to
+          the *collapsed header* height rather than the article's total height.
+          That keeps the Compare label fixed in place when the card expands. */}
+      <div className="relative">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="w-full text-left p-5 md:p-6 pr-12 md:pr-14 flex flex-col md:flex-row md:items-start md:gap-6 cursor-pointer"
+        className="w-full text-left p-5 md:p-6 pr-12 md:pr-14 pb-12 md:pb-14 flex flex-col md:flex-row md:items-start md:gap-6 cursor-pointer"
         aria-expanded={open}
         aria-label={`${plan.rep_name} ${plan.name} — click to ${open ? "collapse" : "expand"} details`}
       >
@@ -119,6 +135,37 @@ export function PlanCard({ rank, ranked }: { rank: number; ranked: RankedPlan })
           ▾
         </motion.span>
       </button>
+
+      {/* Compare-selection toggle. Lives outside the expand button so clicks
+          on the checkbox don't toggle the expanded body. Hidden entirely when
+          no onToggleSelect handler is passed (e.g. inside the compare dialog
+          itself or in pre-existing usages). */}
+      {onToggleSelect && (
+        <label
+          className={[
+            "absolute bottom-3 left-5 md:left-6 inline-flex items-center gap-2 cursor-pointer select-none",
+            !selected && selectionDisabled ? "opacity-40 cursor-not-allowed" : "",
+          ].join(" ")}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <input
+            type="checkbox"
+            checked={selected}
+            disabled={!selected && selectionDisabled}
+            onChange={onToggleSelect}
+            className="accent-accent"
+            aria-label={`Add ${plan.rep_name} ${plan.name} to comparison`}
+          />
+          <span
+            className={`font-mono text-[10px] uppercase tracking-[0.25em] ${
+              selected ? "text-accent" : "text-muted-foreground"
+            }`}
+          >
+            Compare
+          </span>
+        </label>
+      )}
+      </div>
 
       <AnimatePresence initial={false}>
         {open && (

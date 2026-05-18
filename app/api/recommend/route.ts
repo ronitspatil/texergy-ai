@@ -52,6 +52,7 @@ export async function POST(req: NextRequest) {
       monthlyUsageKwh: usageKwh,
       weights: parsed.data.weights,
       filters: parsed.data.filters,
+      devices: parsed.data.devices,
       limit: parsed.data.limit,
     });
     return NextResponse.json(result);

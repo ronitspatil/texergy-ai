@@ -1,15 +1,17 @@
 "use client";
 
 import type {
+  DeviceFlag,
   RateTypePref,
   RenewablePref,
   TermPref,
   WizardState,
 } from "@/components/find/wizard-types";
+import { DEVICE_OPTIONS } from "@/components/find/wizard-types";
 import { SectionLabel } from "@/components/ui/section-label";
 import { WizardFooter } from "@/components/find/wizard-footer";
 
-type Patch = Partial<Pick<WizardState, "monthlyUsageKwh" | "rateTypePref" | "renewablePref" | "termPref">>;
+type Patch = Partial<Pick<WizardState, "monthlyUsageKwh" | "rateTypePref" | "renewablePref" | "termPref" | "devices">>;
 
 export function QuestionsStep({
   state,
@@ -71,7 +73,17 @@ export function QuestionsStep({
           </div>
         </Field>
 
-        <Field label="02 / Rate type" help={isSmart ? "We'll bias toward your pick but won't hide alternatives." : "Hard filter — only plans of this type will appear."}>
+        <Field
+          label="02 / What's in your home? (optional)"
+          help="Used to lightly bias the ranking. EV or battery owners benefit from time-of-use plans; solar tilts away from minimum-usage fees."
+        >
+          <DeviceChecklist
+            value={state.devices}
+            onChange={(devices) => onChange({ devices })}
+          />
+        </Field>
+
+        <Field label="03 / Rate type" help={isSmart ? "We'll bias toward your pick but won't hide alternatives." : "Hard filter — only plans of this type will appear."}>
           <RadioRow
             value={state.rateTypePref}
             onChange={(v) => onChange({ rateTypePref: v as RateTypePref })}
@@ -84,7 +96,7 @@ export function QuestionsStep({
           />
         </Field>
 
-        <Field label="03 / Renewable energy" help="The % renewable content in your plan. State average is ~35%.">
+        <Field label="04 / Renewable energy" help="The % renewable content in your plan. State average is ~35%.">
           <RadioRow
             value={state.renewablePref}
             onChange={(v) => onChange({ renewablePref: v as RenewablePref })}
@@ -97,7 +109,7 @@ export function QuestionsStep({
           />
         </Field>
 
-        <Field label="04 / Contract length" help="Longer terms usually lock a better rate but mean higher ETF if you move.">
+        <Field label="05 / Contract length" help="Longer terms usually lock a better rate but mean higher ETF if you move.">
           <RadioRow
             value={state.termPref}
             onChange={(v) => onChange({ termPref: v as TermPref })}
@@ -113,6 +125,61 @@ export function QuestionsStep({
       </div>
 
       <WizardFooter onBack={onBack} onNext={onNext} nextLabel={isSmart ? "Set weights →" : "See matches →"} />
+    </div>
+  );
+}
+
+/** Multi-select checklist of household devices. Selecting any device removes
+ *  the "none" affordance; clicking "I don't have any" clears all selections.
+ *  Empty array = "none". */
+function DeviceChecklist({
+  value,
+  onChange,
+}: {
+  value: DeviceFlag[];
+  onChange: (v: DeviceFlag[]) => void;
+}) {
+  const has = (d: DeviceFlag) => value.includes(d);
+  const noneSelected = value.length === 0;
+
+  function toggle(d: DeviceFlag) {
+    onChange(has(d) ? value.filter((x) => x !== d) : [...value, d]);
+  }
+
+  return (
+    <div className="flex flex-col gap-2 max-w-xl">
+      {DEVICE_OPTIONS.map((o) => {
+        const checked = has(o.value);
+        return (
+          <label
+            key={o.value}
+            className={`flex items-center gap-3 border px-4 py-3 cursor-pointer transition-colors ${
+              checked
+                ? "border-accent text-accent"
+                : "border-foreground/20 text-foreground hover:border-foreground/40"
+            }`}
+          >
+            <input
+              type="checkbox"
+              checked={checked}
+              onChange={() => toggle(o.value)}
+              className="accent-accent"
+            />
+            <span className="font-mono text-sm">{o.label}</span>
+          </label>
+        );
+      })}
+      <button
+        type="button"
+        onClick={() => onChange([])}
+        className={`mt-1 border px-4 py-3 text-left font-mono text-sm transition-colors ${
+          noneSelected
+            ? "border-accent text-accent"
+            : "border-foreground/15 text-muted-foreground hover:border-foreground/40 hover:text-foreground"
+        }`}
+      >
+        I don&apos;t have any of these devices
+      </button>
     </div>
   );
 }
