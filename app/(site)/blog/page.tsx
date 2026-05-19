@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import NewsletterForm from "@/components/NewsletterForm";
 
 export const metadata: Metadata = {
   title: "Blog — Texergy AI",
@@ -65,16 +66,11 @@ export default function BlogPage() {
         ))}
       </div>
 
-      <div className="mt-20 text-center">
-        <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-6">
+      <div className="mt-20">
+        <p className="text-center font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-6">
           Want these in your inbox the moment they go live?
         </p>
-        <a
-          href="/#waitlist"
-          className="inline-flex items-center gap-3 border border-foreground/20 bg-accent text-accent-foreground px-6 py-3 font-mono text-xs uppercase tracking-widest hover:border-accent transition-colors duration-200"
-        >
-          Join the Waitlist
-        </a>
+        <NewsletterForm source="blog" />
       </div>
     </article>
   );

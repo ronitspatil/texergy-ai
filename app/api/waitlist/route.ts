@@ -119,7 +119,10 @@ export async function POST(req: NextRequest) {
   // even if the welcome email hiccupped.
   if (inserted) {
     try {
-      const result = await sendWaitlistConfirmation(email, zip ?? null);
+      // referrer="blog" comes from the blog page's subscribe form; everything
+      // else (home-page waitlist, embedded forms) gets the early-access copy.
+      const context = referrer === "blog" ? "blog" : "waitlist";
+      const result = await sendWaitlistConfirmation(email, zip ?? null, context);
       if (result.ok) {
         // Log only the Resend message id — never the email address (PII).
         console.log(

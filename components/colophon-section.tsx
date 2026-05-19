@@ -117,7 +117,7 @@ export function ColophonSection() {
           <ul className="space-y-2">
             <li className="h-5 flex items-center font-mono text-xs text-foreground/80">About Texergy AI</li>
             <li className="h-5 flex items-center font-mono text-xs text-foreground/80">
-              Blog <span className="ml-0.5 text-[9px] text-muted-foreground/60 uppercase tracking-wide">Soon</span>
+              <a href="/blog" className="hover:text-accent transition-colors duration-200">Blog</a>
             </li>
             <li className="h-5 flex items-center font-mono text-xs text-foreground/80">
               Press <span className="ml-0.5 text-[9px] text-muted-foreground/60 uppercase tracking-wide">Soon</span>
@@ -145,7 +145,7 @@ export function ColophonSection() {
               Energy Usage Calculator <span className="ml-0.5 text-[9px] text-muted-foreground/60 uppercase tracking-wide">Soon</span>
             </li>
             <li className="h-5 flex items-center font-mono text-xs text-foreground/80">
-              Texas Energy 101 <span className="ml-0.5 text-[9px] text-muted-foreground/60 uppercase tracking-wide">Soon</span>
+              <a href="/texas-energy-101" className="hover:text-accent transition-colors duration-200">Texas Energy 101</a>
             </li>
             <li className="h-5 flex items-center font-mono text-xs text-foreground/80">
               ESID Lookup <span className="ml-0.5 text-[9px] text-muted-foreground/60 uppercase tracking-wide">Soon</span>
