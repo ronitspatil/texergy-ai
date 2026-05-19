@@ -70,31 +70,33 @@ export function scoreAndRank(
     return 0.5 * etfPart + 0.5 * termPart;
   };
 
-  // Rate stability: Fixed > Indexed > Variable, by user-research convention.
-  // Variable plans are now scored against *real* historical volatility (EIA TX
-  // residential trailing-12-month std-dev / avg) when available. Calm market
-  // → Variable scores closer to Indexed; volatile market → drops toward 0.2.
+  // Rate stability: Fixed > Variable. Variable plans are scored against *real*
+  // historical volatility (EIA TX residential trailing-12-month std-dev / avg)
+  // when available. Calm market → Variable scores near 0.65; volatile → 0.20.
   // CoV scaling: 0% → 0.65, 5% → 0.40, ≥15% → 0.20.
   const cov = market ? market.trailingStdCents / Math.max(1e-6, market.trailingAvgCents) : null;
   const variableScore = cov == null ? 0.25 : Math.max(0.2, 0.65 - cov * 3);
   const stabilityScore = (rt: PlanForScoring["rate_type"]) => {
     if (rt === "Fixed") return 1;
-    if (rt === "Indexed") return 0.5;
     if (rt === "Variable") return variableScore;
     return 0.5; // unknown — neutral
   };
 
-  // Market-anchored cost signal: how far below the EIA TX trailing-12mo avg is
-  // this plan's effective cents/kWh? Output 0..1 where 1 = ≥20% below avg, 0 =
-  // at-or-above avg. Blended into the cost score at 20% weight below so it
-  // nudges genuinely below-market plans up without overwhelming the relative
-  // (within-TDU) cost normalization.
+  // Historical-pricing signal sourced from EIA: how far below the TX residential
+  // trailing-12mo average is this plan's effective cents/kWh? Output 0..1 where
+  // 1 = ≥20% below avg, 0 = at-or-above avg. Returned alongside `marketDelta`
+  // (the raw diagnostic ratio) so the UI can show the underlying number.
   const marketDeltaScore = (effectiveCents: number): number | null => {
     if (!market || market.trailingAvgCents <= 0) return null;
     const ratio = (market.trailingAvgCents - effectiveCents) / market.trailingAvgCents;
     if (ratio <= 0) return 0;
     return Math.min(1, ratio / 0.2);
   };
+
+  // Weather-forecast axis is a deliberate stub at 0.5 (neutral) until the
+  // forecast pipeline is wired. Surfacing the slider now reserves the shape of
+  // the API so we can fill it in without breaking saved weights.
+  const weatherScore = (_plan: PlanForScoring) => 0.5;
 
   // Ratings: placeholder neutral 0.5. We strip JD Power because it's stale
   // (2012 vintage in some rows). Real signal will come from a future
@@ -118,17 +120,19 @@ export function scoreAndRank(
   const ranked: RankedPlan[] = priced.map((r) => {
     const effectiveCentsPerKwh = usageKwh > 0 ? Math.round((r.monthlyUsd / usageKwh) * 1000) / 10 : 0;
     const md = marketDeltaScore(effectiveCentsPerKwh);
-    // Blend market delta (vs. EIA trailing avg) into the cost score at 20%.
-    // Falls back to pure relative-cost when no market context is available.
-    const relCost = costScore(r.monthlyUsd);
-    const blendedCost = md == null ? relCost : 0.8 * relCost + 0.2 * md;
+    // Historical pricing is its own axis now. When EIA data is unavailable we
+    // fall back to 0.5 (neutral) so the axis contributes a tie value rather
+    // than dragging scores down.
+    const histPricing = md ?? 0.5;
 
     const breakdown: Breakdown = {
-      cost: blendedCost,
+      cost: costScore(r.monthlyUsd),
       renewable: renewScore(r.renewablePct),
       contractFlexibility: flexScore(r.etfUsd, r.termMonths),
       rateStability: stabilityScore(r.rateType),
       ratings: ratingScore(r.plan),
+      historicalPricing: histPricing,
+      weatherForecast: weatherScore(r.plan),
       marketDelta: md,
     };
 
@@ -138,6 +142,8 @@ export function scoreAndRank(
       breakdown.contractFlexibility * w.contractFlexibility +
       breakdown.rateStability * w.rateStability +
       breakdown.ratings * w.ratings +
+      breakdown.historicalPricing * w.historicalPricing +
+      breakdown.weatherForecast * w.weatherForecast +
       deviceUplift(r.plan);
 
     const creditAssessment = assessBillCredits(usageKwh, r.plan.bill_credits);
@@ -165,7 +171,9 @@ function normalizeWeights(weights: Weights): Required<Weights> {
     merged.renewable +
     merged.contractFlexibility +
     merged.rateStability +
-    merged.ratings;
+    merged.ratings +
+    merged.historicalPricing +
+    merged.weatherForecast;
   if (total <= 0) return { ...DEFAULT_WEIGHTS };
   return {
     cost: merged.cost / total,
@@ -173,6 +181,8 @@ function normalizeWeights(weights: Weights): Required<Weights> {
     contractFlexibility: merged.contractFlexibility / total,
     rateStability: merged.rateStability / total,
     ratings: merged.ratings / total,
+    historicalPricing: merged.historicalPricing / total,
+    weatherForecast: merged.weatherForecast / total,
   };
 }
 

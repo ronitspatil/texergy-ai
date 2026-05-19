@@ -2,7 +2,7 @@
 // it can be imported from server, edge, or client code without dragging in
 // supabase-js etc.
 
-export type RateType = "Fixed" | "Variable" | "Indexed";
+export type RateType = "Fixed" | "Variable";
 
 /** Persisted plan + parsed EFL details, joined and flattened for scoring. */
 export type PlanForScoring = {
@@ -52,6 +52,11 @@ export type Weights = Partial<{
   contractFlexibility: number;
   rateStability: number;
   ratings: number;
+  /** How much the plan beats the EIA TX-residential trailing-12mo average. */
+  historicalPricing: number;
+  /** Placeholder for seasonal / forecast-driven biasing. Neutral until the
+   *  forecast pipeline is wired up. */
+  weatherForecast: number;
 }>;
 
 /** Hard filters — applied before scoring to prune the candidate set. */
@@ -96,9 +101,15 @@ export type Breakdown = {
   contractFlexibility: number;
   rateStability: number;
   ratings: number;
-  /** Optional sub-feature blended into `cost`: how far below the trailing
-   *  EIA TX-residential average this plan is. 0..1 where 1 = ≥20% below avg.
-   *  Null when no market context was available. */
+  /** Historical-pricing axis: how far below the EIA TX-residential trailing-12mo
+   *  average this plan's effective rate is. 0..1 where 1 = ≥20% below avg.
+   *  Falls back to 0.5 (neutral) when no market context is available, so the
+   *  axis still contributes a tie value rather than dragging scores down. */
+  historicalPricing: number;
+  /** Weather-forecast axis. Placeholder neutral 0.5 until the forecast feed
+   *  is wired. */
+  weatherForecast: number;
+  /** Raw EIA-vs-plan ratio for diagnostics. Null when no market context. */
   marketDelta: number | null;
 };
 
@@ -133,11 +144,13 @@ export type RankedPlan = {
 };
 
 export const DEFAULT_WEIGHTS: Required<Weights> = {
-  cost: 0.5,
+  cost: 0.4,
   renewable: 0.1,
   contractFlexibility: 0.15,
   rateStability: 0.15,
   ratings: 0.1,
+  historicalPricing: 0.1,
+  weatherForecast: 0,
 };
 
 export const DEFAULT_USAGE_KWH = 1000;

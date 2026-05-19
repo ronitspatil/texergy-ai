@@ -46,9 +46,9 @@ const experiments = [
     span: "col-span-1 row-span-1",
   },
   {
-    title: "Weights",
+    title: "Weather Forecasts",
     medium: "Variable 07",
-    description: "Your priorities decide how strongly savings, stability, renewable content, and simplicity influence matches.",
+    description: "Texas weather is a major driver of electricity usage. Texergy factors expected conditions into how a plan will actually cost you.",
     span: "col-span-1 row-span-1",
   },
 ]
@@ -164,7 +164,7 @@ function WorkCard({
     <article
       ref={cardRef}
       className={cn(
-        "group relative border border-border/40 p-5 flex flex-col justify-between transition-all duration-500 cursor-pointer overflow-hidden",
+        "group relative border border-border/40 p-5 flex flex-col justify-between transition-all duration-500 overflow-hidden",
         experiment.span,
         isActive && "border-accent/60",
       )}

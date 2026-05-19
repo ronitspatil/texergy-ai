@@ -22,6 +22,21 @@ export const waitlistSchema = z.object({
 
 export type WaitlistInput = z.infer<typeof waitlistSchema>;
 
+export const newsletterSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .min(5, "Please enter a valid email.")
+    .max(254, "Email is too long.")
+    .email("Please enter a valid email."),
+  source: z.string().trim().max(40).optional(),
+  // Honeypot — same pattern as waitlist.
+  website: z.string().max(200).optional(),
+});
+
+export type NewsletterInput = z.infer<typeof newsletterSchema>;
+
 export const recommendSchema = z.object({
   zip: z.string().trim().regex(/^\d{5}$/, "ZIP must be 5 digits."),
   monthlyUsageKwh: z.number().int().min(50).max(20_000).optional(),
@@ -41,7 +56,7 @@ export const recommendSchema = z.object({
     .optional(),
   filters: z
     .object({
-      rateType: z.enum(["Fixed", "Variable", "Indexed"]).optional(),
+      rateType: z.enum(["Fixed", "Variable"]).optional(),
       minRenewablePct: z.number().int().min(0).max(100).optional(),
       maxTermMonths: z.number().int().min(0).max(120).optional(),
       prepaidOnly: z.boolean().optional(),

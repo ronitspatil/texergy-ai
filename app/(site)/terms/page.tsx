@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Terms of Service — Texergy AI",
-  description: "The rules of using Texergy AI during early access.",
+  title: "Terms of Service | Texergy AI",
+  description: "The rules of using Texergy AI during the beta.",
 };
 
 export default function TermsPage() {
@@ -16,7 +16,7 @@ export default function TermsPage() {
           THE AGREEMENT, KEPT SHORT.
         </h1>
         <p className="mt-6 font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
-          Last updated: April 27, 2026
+          Last updated: May 20, 2026
         </p>
       </header>
 
@@ -26,10 +26,10 @@ export default function TermsPage() {
             What this is
           </h2>
           <p className="font-mono text-sm">
-            Texergy AI (&ldquo;we&rdquo;, &ldquo;us&rdquo;) is an early-access
+            Texergy AI (&ldquo;we&rdquo;, &ldquo;us&rdquo;) is a public beta
             tool that helps Texas residents shortlist retail electricity plans
-            available in their service area. By joining the waitlist or using
-            the site, you agree to these terms.
+            available in their service area. By using the site, you agree to
+            these terms.
           </p>
         </section>
 
@@ -38,8 +38,8 @@ export default function TermsPage() {
             Plan recommendations are guidance, not advice
           </h2>
           <p className="font-mono text-sm mb-3">
-            Plan rankings reflect our model&apos;s read of publicly-available data
-            from{" "}
+            Plan rankings reflect our model&apos;s read of publicly-available
+            data from{" "}
             <a
               href="https://www.powertochoose.org/"
               className="text-accent hover:underline underline-offset-4"
@@ -48,10 +48,17 @@ export default function TermsPage() {
             >
               Power to Choose
             </a>
-            , normalized to estimate real cost at typical usage levels. They are{" "}
-            <em>not</em> personalized financial advice and don&apos;t account
-            for every individual circumstance (e.g., unusual usage curves, a
-            roommate paying half your bill, time-shifted EV charging).
+            , normalized to estimate real cost at your usage level. They are{" "}
+            <em>not</em>{" "}personalized financial advice and don&apos;t account
+            for every individual circumstance (for example, unusual usage
+            curves, a roommate paying half your bill, or time-shifted EV
+            charging).
+          </p>
+          <p className="font-mono text-sm mb-3">
+            The Ask Texergy Bot feature uses a third-party large language model
+            (Google Gemini) to summarize and compare the plan data you provide
+            it. Its output can be wrong or incomplete. Treat it as a starting
+            point, not a verdict.
           </p>
           <p className="font-mono text-sm">
             You&apos;re responsible for reading the official Electricity Facts
@@ -66,8 +73,8 @@ export default function TermsPage() {
           </h2>
           <ul className="list-disc list-outside ml-5 space-y-3 marker:text-accent/60 font-mono text-sm">
             <li>Don&apos;t try to bypass abuse protections, scrape the site at scale, or interfere with other users.</li>
-            <li>Don&apos;t impersonate someone else when joining the waitlist.</li>
             <li>Don&apos;t reverse-engineer or attempt to defeat the site&apos;s security or anti-abuse systems.</li>
+            <li>Don&apos;t use the Ask Texergy Bot feature to generate or extract content unrelated to electricity plan comparison.</li>
             <li>Don&apos;t use the site to send spam, abuse, or threats to anyone.</li>
           </ul>
           <p className="mt-4 font-mono text-sm">
@@ -77,12 +84,14 @@ export default function TermsPage() {
 
         <section>
           <h2 className="font-[var(--font-bebas)] text-3xl tracking-tight text-foreground mb-4">
-            No account required (for now)
+            No account required
           </h2>
           <p className="font-mono text-sm">
-            During early access there&apos;s no login. Your only identifier is
-            the email you put on the waitlist. If we add accounts later,
-            we&apos;ll update these terms before that change takes effect.
+            The beta works without a login or saved profile. Your wizard
+            answers live in your browser session and the optional Smart Meter
+            Texas CSV is parsed locally without leaving your device. If we add
+            user accounts later, we&apos;ll update these terms before that
+            change takes effect.
           </p>
         </section>
 
@@ -91,9 +100,9 @@ export default function TermsPage() {
             What we own, what you own
           </h2>
           <p className="font-mono text-sm mb-3">
-            The site, design, code, and ranking model are ours. The email
-            address (and optional ZIP) you submit are yours — you grant us a
-            limited license to use them for the purposes described in our{" "}
+            The site, design, code, and ranking model are ours. The ZIP code,
+            usage details, and any meter data you provide are yours. You grant
+            us a limited license to use them for the purposes described in our{" "}
             <a
               href="/privacy"
               className="text-accent hover:underline underline-offset-4"
@@ -112,8 +121,9 @@ export default function TermsPage() {
             >
               Power to Choose
             </a>{" "}
-            (Texas Public Utility Commission) and is the property of those
-            sources and their respective providers.
+            (Texas Public Utility Commission), historical pricing context from
+            the U.S. Energy Information Administration, and is the property of
+            those sources and their respective providers.
           </p>
         </section>
 
@@ -122,9 +132,9 @@ export default function TermsPage() {
             Service is provided &ldquo;as is&rdquo;
           </h2>
           <p className="font-mono text-sm">
-            Early access means the service is still maturing. We don&apos;t
-            warranty uninterrupted availability, accuracy of every data point,
-            or freedom from bugs. You use the site at your own risk.
+            The beta is still maturing. We don&apos;t warranty uninterrupted
+            availability, accuracy of every data point, or freedom from bugs.
+            You use the site at your own risk.
           </p>
         </section>
 
@@ -134,8 +144,8 @@ export default function TermsPage() {
           </h2>
           <p className="font-mono text-sm">
             We may update these terms as the product evolves. Material changes
-            will be emailed to anyone on the waitlist at least 14 days before
-            taking effect; continued use after that constitutes acceptance.
+            will be posted on this page at least 14 days before taking effect.
+            Continued use after that constitutes acceptance.
           </p>
         </section>
 
@@ -144,8 +154,9 @@ export default function TermsPage() {
             Governing law
           </h2>
           <p className="font-mono text-sm">
-            These terms are governed by the laws of the State of Texas. Disputes
-            go to the state or federal courts located in Collin County, Texas.
+            These terms are governed by the laws of the State of Texas.
+            Disputes go to the state or federal courts located in Collin
+            County, Texas.
           </p>
         </section>
 

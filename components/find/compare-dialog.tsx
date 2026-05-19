@@ -1,8 +1,163 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { RankedPlan } from "@/lib/ranking/types";
+
+const SUGGESTED_QUESTIONS = [
+  "Which plan is cheapest for me overall?",
+  "What are the biggest tradeoffs between these plans?",
+  "Which plan is safest if my usage fluctuates month to month?",
+  "How risky are the bill credits in these plans?",
+];
+
+function AskBot({ plans }: { plans: RankedPlan[] }) {
+  const [question, setQuestion] = useState("");
+  const [answer, setAnswer] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function ask(q: string) {
+    const trimmed = q.trim();
+    if (!trimmed || loading) return;
+    setLoading(true);
+    setError(null);
+    setAnswer(null);
+    try {
+      const payload = {
+        question: trimmed,
+        plans: plans.map((r) => ({
+          rep_name: r.plan.rep_name,
+          name: r.plan.name,
+          rate_type: r.plan.rate_type,
+          term_months: r.plan.term_months,
+          renewable_pct: r.plan.renewable_pct,
+          base_charge: r.plan.base_charge,
+          etf_amount: r.plan.etf_amount,
+          time_of_use: r.plan.time_of_use,
+          bill_credits: r.plan.bill_credits,
+          effectiveCentsPerKwh: r.effectiveCentsPerKwh,
+          estMonthlyBillUsd: r.estMonthlyBillUsd,
+          estAnnualCostUsd: r.estAnnualCostUsd,
+          reasons: r.reasons,
+        })),
+      };
+      const res = await fetch("/api/ask-bot", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = (await res.json().catch(() => ({}))) as {
+        ok?: boolean;
+        answer?: string;
+        reason?: string;
+      };
+      if (res.status === 429) {
+        setError(
+          data.reason === "global_rate_limited"
+            ? "Texergy Bot is taking a breather — we've hit the daily AI cap. Try again tomorrow."
+            : "You're asking faster than the bot can keep up. Wait a few minutes and try again.",
+        );
+      } else if (!res.ok || !data.ok || !data.answer) {
+        setError("Texergy Bot is unavailable right now. Try again in a moment.");
+      } else {
+        setAnswer(data.answer);
+      }
+    } catch {
+      setError("Network error. Try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <section
+      aria-label="Ask Texergy Bot"
+      className="max-w-7xl mx-auto mt-12 border border-border/60 bg-background/40 p-6 md:p-8"
+    >
+      <div className="flex items-baseline justify-between gap-4 flex-wrap">
+        <div>
+          <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">
+            AI Insight
+          </div>
+          <h3 className="mt-2 font-[var(--font-bebas)] text-2xl md:text-3xl tracking-tight leading-none">
+            ASK TEXERGY BOT.
+          </h3>
+        </div>
+        <p className="font-mono text-[11px] text-muted-foreground max-w-md">
+          Grounded in the {plans.length} {plans.length === 1 ? "plan" : "plans"} above. No marketing
+          fluff, no invented numbers.
+        </p>
+      </div>
+
+      <div className="mt-5 flex flex-wrap gap-2">
+        {SUGGESTED_QUESTIONS.map((q) => (
+          <button
+            key={q}
+            type="button"
+            disabled={loading}
+            onClick={() => {
+              setQuestion(q);
+              void ask(q);
+            }}
+            className="border border-border/60 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground hover:border-accent hover:text-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {q}
+          </button>
+        ))}
+      </div>
+
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          void ask(question);
+        }}
+        className="mt-5 flex flex-col sm:flex-row gap-3"
+      >
+        <input
+          type="text"
+          value={question}
+          onChange={(e) => setQuestion(e.target.value)}
+          placeholder="Ask about these plans…"
+          maxLength={500}
+          disabled={loading}
+          aria-label="Your question"
+          className="flex-1 bg-transparent border border-border/60 px-3 py-2.5 font-mono text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-accent transition-colors"
+        />
+        <button
+          type="submit"
+          disabled={loading || question.trim().length === 0}
+          className="border border-foreground bg-foreground text-background px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.2em] hover:bg-accent hover:border-accent hover:text-accent-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading ? "Thinking…" : "Ask →"}
+        </button>
+      </form>
+
+      {error && (
+        <div
+          role="alert"
+          className="mt-5 border border-destructive/50 bg-destructive/5 px-4 py-3 font-mono text-xs text-destructive"
+        >
+          {error}
+        </div>
+      )}
+
+      {answer && (
+        <div className="mt-5 border-l-2 border-accent bg-background/60 px-5 py-4">
+          <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-accent mb-2">
+            Texergy Bot
+          </div>
+          <div className="font-mono text-sm text-foreground/90 leading-relaxed whitespace-pre-wrap">
+            {answer}
+          </div>
+          <div className="mt-3 font-mono text-[10px] text-muted-foreground">
+            AI-generated. Verify rates and terms against each plan's EFL before enrolling.
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
 
 /** Full-screen side-by-side comparison of 2–3 selected plans. Each plan is a
  *  column; rows are individual fields. Modeled after EnergyBot's "compare
@@ -284,6 +439,8 @@ export function CompareDialog({
               </tfoot>
             </table>
           </div>
+
+          {plans.length > 0 && <AskBot plans={plans} />}
 
           {plans.length === 0 && (
             <div className="max-w-3xl mx-auto mt-8 border border-border p-6 font-mono text-sm text-muted-foreground">

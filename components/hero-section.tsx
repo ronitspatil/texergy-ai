@@ -10,7 +10,7 @@ import { HeroZipForm } from "@/components/hero-zip-form"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 
-const IS_PRODUCT_MODE = process.env.NEXT_PUBLIC_APP_MODE === "product"
+const IS_PRODUCT_MODE = process.env.NEXT_PUBLIC_APP_MODE !== "waitlist"
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -38,15 +38,8 @@ export function HeroSection() {
   }, [])
 
   return (
-    <section ref={sectionRef} id="hero" className="relative min-h-screen flex items-center pl-6 md:pl-28 pr-6 md:pr-12">
+    <section ref={sectionRef} id="hero" className="relative min-h-screen flex items-center pl-6 md:pl-28 pr-6 md:pr-12 pt-16 md:pt-20 pb-12">
       <AnimatedNoise opacity={0.03} />
-
-      {/* Left vertical labels */}
-      <div className="hidden md:block absolute left-4 md:left-6 top-1/2 -translate-y-1/2">
-        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground -rotate-90 origin-left block whitespace-nowrap">
-          TEXAS
-        </span>
-      </div>
 
       {/* Main content */}
       <div ref={contentRef} className="flex-1 w-full">

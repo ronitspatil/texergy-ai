@@ -3,12 +3,14 @@ import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
 
 export const metadata: Metadata = {
-  title: "Electric Utilities (TDUs) — Texergy AI",
+  title: "Electric Utilities (TDUs) | Texergy AI",
   description:
     "The Transmission & Distribution Utilities (TDUs) that own the wires in deregulated Texas, with plan counts available in each footprint.",
 };
 
-export const dynamic = "force-dynamic";
+// ISR: the daily cron calls revalidatePath('/electric-utilities') after
+// ingest, so this fallback only matters if the cron misses a day.
+export const revalidate = 86400;
 
 type TduRow = {
   id: number;

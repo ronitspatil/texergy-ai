@@ -126,6 +126,35 @@
   * {
     @apply border-border outline-ring/50;
   }
+
+  /* Cursor hygiene: anything clickable should get the pointer; nothing else
+     should. Default user-agent styling on <button> is the arrow cursor, which
+     fights the intent that real buttons feel clickable. Inputs (text/number/
+     email/search/tel/url/password/textarea) keep their text cursor; everything
+     else not in this list inherits the page default. */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  a[href],
+  summary,
+  label[for],
+  select:not(:disabled),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled),
+  input[type="range"]:not(:disabled),
+  input[type="submit"]:not(:disabled),
+  input[type="reset"]:not(:disabled),
+  input[type="button"]:not(:disabled),
+  input[type="file"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [aria-disabled="true"],
+  select:disabled,
+  input:disabled,
+  textarea:disabled {
+    cursor: not-allowed;
+  }
   html {
     overflow-x: hidden;
     max-width: 100vw;

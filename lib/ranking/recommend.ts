@@ -12,6 +12,15 @@ import {
 
 const PTC_BASE = "https://api.powertochoose.org/api/PowerToChoose";
 
+// PTC tags a small minority of plans as "Indexed". Editorially we treat the
+// Texas retail market as Fixed vs. Variable only — indexed rates float with
+// market, so we collapse them into Variable for display and scoring.
+function normalizeRateType(raw: string | null): RateType | null {
+  if (raw === "Fixed") return "Fixed";
+  if (raw === "Variable" || raw === "Indexed") return "Variable";
+  return null;
+}
+
 function getServerClient(): SupabaseClient {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -200,7 +209,7 @@ function rowToPlan(row: Record<string, unknown>): PlanForScoring {
     rep_logo_url: rep.logo_url ?? null,
     tdu_id: tdu.id,
     tdu_code: tdu.code,
-    rate_type: (row.rate_type as RateType | null) ?? null,
+    rate_type: normalizeRateType(row.rate_type as string | null),
     term_months: (row.term_months as number | null) ?? null,
     prepaid: Boolean(row.prepaid),
     time_of_use: Boolean(row.time_of_use),

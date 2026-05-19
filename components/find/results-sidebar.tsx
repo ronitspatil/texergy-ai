@@ -45,6 +45,13 @@ export function ResultsSidebar({
         </div>
       </Block>
 
+      <Block label="Provider">
+        <ProviderMultiSelect
+          selectedIds={state.providerIds}
+          onChange={(ids) => onUpdate({ providerIds: ids })}
+        />
+      </Block>
+
       <Block label="Rate type">
         <Chips
           value={state.rateTypePref}
@@ -52,7 +59,6 @@ export function ResultsSidebar({
             { value: "any", label: "Any" },
             { value: "Fixed", label: "Fixed" },
             { value: "Variable", label: "Var" },
-            { value: "Indexed", label: "Idx" },
           ]}
           onChange={(v) => onUpdate({ rateTypePref: v as RateTypePref })}
         />
@@ -63,6 +69,7 @@ export function ResultsSidebar({
           value={state.renewablePref}
           options={[
             { value: "any", label: "Any" },
+            { value: "atleast25", label: "25%+" },
             { value: "atleast50", label: "50%+" },
             { value: "atleast90", label: "90%+" },
             { value: "only100", label: "100" },
@@ -123,20 +130,13 @@ export function ResultsSidebar({
         />
       </Block>
 
-      <Block label="Provider">
-        <ProviderMultiSelect
-          selectedIds={state.providerIds}
-          onChange={(ids) => onUpdate({ providerIds: ids })}
-        />
-      </Block>
-
       {isSmart && (
-        <Block label="Weights">
+        <CollapsibleBlock label="Weights">
           <WeightSliders
             weights={state.weights}
             onChange={(weights) => onUpdate({ weights })}
           />
-        </Block>
+        </CollapsibleBlock>
       )}
     </div>
   );
@@ -147,6 +147,44 @@ function Block({ label, children }: { label: string; children: React.ReactNode }
     <div>
       <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent mb-3">{label}</div>
       {children}
+    </div>
+  );
+}
+
+function CollapsibleBlock({
+  label,
+  children,
+  defaultOpen = false,
+}: {
+  label: string;
+  children: React.ReactNode;
+  defaultOpen?: boolean;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="w-full flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.3em] text-accent mb-3 hover:text-accent/70 transition-colors"
+      >
+        <span>{label}</span>
+        <span
+          aria-hidden="true"
+          className={`inline-flex h-3 w-3 items-center justify-center text-accent transition-transform duration-300 ${open ? "rotate-45" : ""}`}
+        >
+          <svg width="9" height="9" viewBox="0 0 14 14" fill="none">
+            <path
+              d="M7 1.5v11M1.5 7h11"
+              stroke="currentColor"
+              strokeWidth="1.4"
+              strokeLinecap="round"
+            />
+          </svg>
+        </span>
+      </button>
+      {open && children}
     </div>
   );
 }
@@ -252,7 +290,10 @@ function ProviderMultiSelect({
         </span>
       </button>
       {open && (
-        <div className="absolute z-20 mt-1 w-full max-h-72 overflow-y-auto border border-foreground/25 bg-background shadow-lg">
+        <div
+          data-lenis-prevent="true"
+          className="absolute z-20 mt-1 w-full max-h-72 overflow-y-auto overscroll-contain border border-foreground/25 bg-background shadow-lg"
+        >
           <div className="sticky top-0 bg-background border-b border-border/40 p-2">
             <input
               type="text"
@@ -303,7 +344,9 @@ const SLIDER_FACTORS: { key: keyof WeightsUI; label: string }[] = [
   { key: "cost", label: "Cost" },
   { key: "renewable", label: "Renew" },
   { key: "contractFlexibility", label: "Flex" },
-  { key: "rateStability", label: "Stable" },
+  { key: "rateStability", label: "Rate pref" },
+  { key: "historicalPricing", label: "History" },
+  { key: "weatherForecast", label: "Weather" },
   { key: "ratings", label: "Rating" },
 ];
 

@@ -75,7 +75,8 @@ function buildFilters(
   // treat a non-"any" pick as a filter — the user opted in to that strictness.
   if (rate !== "any") out.rateType = rate;
 
-  if (renew === "atleast50") out.minRenewablePct = 50;
+  if (renew === "atleast25") out.minRenewablePct = 25;
+  else if (renew === "atleast50") out.minRenewablePct = 50;
   else if (renew === "atleast90") out.minRenewablePct = 90;
   else if (renew === "only100") out.minRenewablePct = 100;
 

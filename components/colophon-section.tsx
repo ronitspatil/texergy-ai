@@ -5,7 +5,7 @@ import { SectionLabel } from "@/components/ui/section-label"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 
-const IS_PRODUCT_MODE = process.env.NEXT_PUBLIC_APP_MODE === "product"
+const IS_PRODUCT_MODE = process.env.NEXT_PUBLIC_APP_MODE !== "waitlist"
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -28,7 +28,7 @@ export function ColophonSection() {
           ease: "power3.out",
           scrollTrigger: {
             trigger: headerRef.current,
-            start: "top 85%",
+            start: "top bottom",
             toggleActions: "play none none reverse",
           },
         })
@@ -45,7 +45,7 @@ export function ColophonSection() {
           ease: "power3.out",
           scrollTrigger: {
             trigger: gridRef.current,
-            start: "top 85%",
+            start: "top bottom",
             toggleActions: "play none none reverse",
           },
         })
@@ -74,13 +74,15 @@ export function ColophonSection() {
     <section
       ref={sectionRef}
       id="colophon"
-      className="relative pt-32 pb-10 md:pb-12 pl-6 md:pl-28 pr-6 md:pr-12 border-t border-border/30"
+      className={`relative pb-6 md:pb-8 pl-6 md:pl-28 pr-6 md:pr-12 border-t border-border/30 ${IS_PRODUCT_MODE ? "pt-12 md:pt-14" : "pt-32"}`}
     >
-      {/* Section header */}
-      <div ref={headerRef} className="mb-16">
-        <SectionLabel>07 / Coming soon</SectionLabel>
-        <h2 className="mt-4 font-[var(--font-bebas)] text-5xl md:text-7xl tracking-tight">TEXERGY AI</h2>
-      </div>
+      {/* Section header — hidden in product mode since "Coming soon" no longer fits. */}
+      {!IS_PRODUCT_MODE && (
+        <div ref={headerRef} className="mb-16">
+          <SectionLabel>07 / Coming soon</SectionLabel>
+          <h2 className="mt-4 font-[var(--font-bebas)] text-5xl md:text-7xl tracking-tight">TEXERGY AI</h2>
+        </div>
+      )}
 
       {/* Multi-column layout */}
       <div ref={gridRef} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-x-8 gap-y-10 md:gap-x-10 lg:gap-x-6 xl:gap-x-10">
@@ -115,18 +117,20 @@ export function ColophonSection() {
         <div className="col-span-1">
           <h4 className="font-mono text-[9px] uppercase tracking-[0.3em] text-muted-foreground mb-5">Company</h4>
           <ul className="space-y-2">
-            <li className="h-5 flex items-center font-mono text-xs text-foreground/80">About Texergy AI</li>
             <li className="h-5 flex items-center font-mono text-xs text-foreground/80">
-              Blog <span className="ml-0.5 text-[9px] text-muted-foreground/60 uppercase tracking-wide">Soon</span>
+              <a href="/about" className="hover:text-accent transition-colors duration-200">About Texergy AI</a>
             </li>
             <li className="h-5 flex items-center font-mono text-xs text-foreground/80">
-              Press <span className="ml-0.5 text-[9px] text-muted-foreground/60 uppercase tracking-wide">Soon</span>
+              <a href="/blog" className="hover:text-accent transition-colors duration-200">Blog</a>
             </li>
             <li className="h-5 flex items-center font-mono text-xs text-foreground/80">
               <a href="mailto:ronit@texergy.ai?subject=Partnership%20with%20Texergy%20AI" className="hover:text-accent transition-colors duration-200">Partner With Us</a>
             </li>
             <li className="h-5 flex items-center font-mono text-xs text-foreground/80">
               <a href="mailto:hello@texergy.ai" className="hover:text-accent transition-colors duration-200">Support</a>
+            </li>
+            <li className="h-5 flex items-center font-mono text-xs text-foreground/80">
+              Press <span className="ml-0.5 text-[9px] text-muted-foreground/60 uppercase tracking-wide">Soon</span>
             </li>
           </ul>
         </div>
@@ -142,10 +146,10 @@ export function ColophonSection() {
               <a href="https://www.puc.texas.gov" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors duration-200">PUCT</a>
             </li>
             <li className="h-5 flex items-center font-mono text-xs text-foreground/80">
-              Energy Usage Calculator <span className="ml-0.5 text-[9px] text-muted-foreground/60 uppercase tracking-wide">Soon</span>
+              <a href="/texas-energy-101" className="hover:text-accent transition-colors duration-200">Texas Energy 101</a>
             </li>
             <li className="h-5 flex items-center font-mono text-xs text-foreground/80">
-              Texas Energy 101 <span className="ml-0.5 text-[9px] text-muted-foreground/60 uppercase tracking-wide">Soon</span>
+              Energy Usage Calculator <span className="ml-0.5 text-[9px] text-muted-foreground/60 uppercase tracking-wide">Soon</span>
             </li>
             <li className="h-5 flex items-center font-mono text-xs text-foreground/80">
               ESID Lookup <span className="ml-0.5 text-[9px] text-muted-foreground/60 uppercase tracking-wide">Soon</span>
@@ -201,7 +205,7 @@ export function ColophonSection() {
       {/* Bottom copyright */}
       <div
         ref={footerRef}
-        className="mt-24 pt-8 border-t border-border/20 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+        className="mt-12 pt-6 border-t border-border/20 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
       >
         <p className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
           © 2026 Texergy AI. All rights reserved.
