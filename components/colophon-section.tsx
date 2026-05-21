@@ -115,7 +115,7 @@ export function ColophonSection() {
 
         {/* Company */}
         <div className="col-span-1">
-          <h4 className="font-mono text-[9px] uppercase tracking-[0.3em] text-muted-foreground mb-5">Company</h4>
+          <h4 className="font-mono text-[9px] uppercase tracking-[0.3em] text-muted-foreground mb-5">Texergy AI</h4>
           <ul className="space-y-2">
             <li className="h-5 flex items-center font-mono text-xs text-foreground/80">
               <a href="/about" className="hover:text-accent transition-colors duration-200">About Texergy AI</a>
@@ -153,6 +153,9 @@ export function ColophonSection() {
             </li>
             <li className="h-5 flex items-center font-mono text-xs text-foreground/80">
               ESID Lookup <span className="ml-0.5 text-[9px] text-muted-foreground/60 uppercase tracking-wide">Soon</span>
+            </li>
+            <li className="h-5 flex items-center font-mono text-xs text-foreground/80">
+              Savings Calculator <span className="ml-0.5 text-[9px] text-muted-foreground/60 uppercase tracking-wide">Soon</span>
             </li>
           </ul>
         </div>

@@ -123,6 +123,14 @@ export type MarketContext = {
   latestPeriod: string | null;
 };
 
+/** Per-month seasonal context for weatherForecast scoring. Indexed Jan=0..Dec=11.
+ *  Higher monthlyVolatilityWeights[i] = historically more expensive/volatile.
+ *  Derived from a hardcoded TX prior + EIA monthly aggregates. */
+export type SeasonalContext = {
+  monthlyVolatilityWeights: number[];
+  empiricallyAnchored: boolean;
+};
+
 export type CreditAssessment = {
   threshold_kwh: number;
   amount: number;

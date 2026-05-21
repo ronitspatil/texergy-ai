@@ -5,6 +5,7 @@ import {
   type MarketContext,
   type PlanForScoring,
   type RankedPlan,
+  type SeasonalContext,
   type Weights,
   DEFAULT_WEIGHTS,
 } from "./types.ts";
@@ -24,6 +25,8 @@ export function scoreAndRank(
   limit: number,
   market: MarketContext | null = null,
   devices: DeviceFlag[] = [],
+  seasonal: SeasonalContext | null = null,
+  today: Date = new Date(),
 ): RankedPlan[] {
   const w = normalizeWeights(weights);
   if (candidates.length === 0) return [];
@@ -93,10 +96,30 @@ export function scoreAndRank(
     return Math.min(1, ratio / 0.2);
   };
 
-  // Weather-forecast axis is a deliberate stub at 0.5 (neutral) until the
-  // forecast pipeline is wired. Surfacing the slider now reserves the shape of
-  // the API so we can fill it in without breaking saved weights.
-  const weatherScore = (_plan: PlanForScoring) => 0.5;
+  // Weather/seasonal axis. For each plan, project the months its contract
+  // would cover starting today, sum the per-month volatility weight, and
+  // normalize to 0..1. Fixed plans benefit from high exposure (locks in
+  // before TX summer / winter spikes); Variable plans get penalized for it
+  // (rate floats with the volatility). Month-to-month plans stay near
+  // neutral since the user can switch out before a peak.
+  const startMonth = today.getUTCMonth(); // 0-11
+  const weatherScore = (plan: PlanForScoring): number => {
+    if (!seasonal) return 0.5;
+    const termMonths = plan.term_months ?? 12;
+    if (termMonths <= 0) return 0.5;
+    let exposure = 0;
+    const horizon = Math.min(termMonths, 24); // cap so 36mo plans don't double-count seasons
+    for (let i = 0; i < horizon; i++) {
+      exposure += seasonal.monthlyVolatilityWeights[(startMonth + i) % 12];
+    }
+    const avgExposure = exposure / horizon;
+    // avgExposure typically falls in ~0.85-1.20 for TX. Map [0.85, 1.15] → [0, 1].
+    const normalized = Math.max(0, Math.min(1, (avgExposure - 0.85) / 0.30));
+    if (termMonths <= 1) return 0.5 + 0.2 * (0.5 - normalized); // m2m slight tilt toward mild exposure
+    if (plan.rate_type === "Fixed") return normalized;
+    if (plan.rate_type === "Variable") return 1 - normalized;
+    return 0.5;
+  };
 
   // Ratings: placeholder neutral 0.5. We strip JD Power because it's stale
   // (2012 vintage in some rows). Real signal will come from a future

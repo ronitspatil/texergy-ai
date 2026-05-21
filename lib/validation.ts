@@ -48,6 +48,8 @@ export const recommendSchema = z.object({
       contractFlexibility: z.number().min(0).max(1).optional(),
       rateStability: z.number().min(0).max(1).optional(),
       ratings: z.number().min(0).max(1).optional(),
+      historicalPricing: z.number().min(0).max(1).optional(),
+      weatherForecast: z.number().min(0).max(1).optional(),
     })
     .optional(),
   devices: z
