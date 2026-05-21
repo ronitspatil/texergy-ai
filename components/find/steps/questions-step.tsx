@@ -56,18 +56,23 @@ export function QuestionsStep({
             <span className="font-mono text-sm text-muted-foreground">kWh / mo</span>
           </div>
           <div className="mt-4 grid grid-cols-3 gap-2 max-w-md">
-            {[500, 1000, 2000].map((preset) => (
+            {[
+              { kwh: 500, label: "Apartment" },
+              { kwh: 1000, label: "Avg. Home" },
+              { kwh: 2000, label: "Large Home" },
+            ].map(({ kwh, label }) => (
               <button
-                key={preset}
+                key={kwh}
                 type="button"
-                onClick={() => onChange({ monthlyUsageKwh: preset })}
-                className={`border px-3 py-2 font-mono text-xs uppercase tracking-widest transition-colors ${
-                  state.monthlyUsageKwh === preset
+                onClick={() => onChange({ monthlyUsageKwh: kwh })}
+                className={`flex flex-col items-center gap-1 border px-3 py-2 font-mono uppercase tracking-widest transition-colors ${
+                  state.monthlyUsageKwh === kwh
                     ? "border-accent text-accent"
                     : "border-foreground/25 text-muted-foreground hover:border-foreground/50 hover:text-foreground"
                 }`}
               >
-                {preset >= 1000 ? `${preset / 1000}k` : preset}
+                <span className="text-xs">{label}</span>
+                <span className="text-[10px] opacity-70">{kwh >= 1000 ? `${kwh / 1000}k` : kwh} kWh</span>
               </button>
             ))}
           </div>
