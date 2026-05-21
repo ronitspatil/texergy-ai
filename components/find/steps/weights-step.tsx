@@ -20,27 +20,27 @@ const PRESETS: { id: string; label: string; weights: WeightsUI }[] = [
   {
     id: "balanced",
     label: "Balanced",
-    weights: { cost: 40, renewable: 10, contractFlexibility: 15, rateStability: 15, ratings: 10, historicalPricing: 10, weatherForecast: 0 },
+    weights: { cost: 35, renewable: 10, contractFlexibility: 10, rateStability: 15, ratings: 10, historicalPricing: 10, weatherForecast: 10 },
   },
   {
     id: "cheapest",
     label: "Cheapest",
-    weights: { cost: 70, renewable: 5, contractFlexibility: 5, rateStability: 5, ratings: 5, historicalPricing: 10, weatherForecast: 0 },
+    weights: { cost: 60, renewable: 5, contractFlexibility: 5, rateStability: 5, ratings: 5, historicalPricing: 10, weatherForecast: 10 },
   },
   {
     id: "greenest",
     label: "Greenest",
-    weights: { cost: 25, renewable: 50, contractFlexibility: 5, rateStability: 5, ratings: 5, historicalPricing: 10, weatherForecast: 0 },
+    weights: { cost: 25, renewable: 45, contractFlexibility: 5, rateStability: 5, ratings: 5, historicalPricing: 10, weatherForecast: 5 },
   },
   {
     id: "flexible",
     label: "Most Flexible",
-    weights: { cost: 30, renewable: 5, contractFlexibility: 45, rateStability: 5, ratings: 5, historicalPricing: 10, weatherForecast: 0 },
+    weights: { cost: 30, renewable: 5, contractFlexibility: 40, rateStability: 5, ratings: 5, historicalPricing: 10, weatherForecast: 5 },
   },
   {
     id: "stable",
     label: "Most Stable",
-    weights: { cost: 25, renewable: 5, contractFlexibility: 5, rateStability: 45, ratings: 5, historicalPricing: 15, weatherForecast: 0 },
+    weights: { cost: 20, renewable: 5, contractFlexibility: 5, rateStability: 40, ratings: 5, historicalPricing: 10, weatherForecast: 15 },
   },
 ];
 
