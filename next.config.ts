@@ -47,6 +47,14 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   turbopack: { root: projectRoot },
+  // Disable App Router's client-side back/forward cache. Without this, the
+  // home page is restored from the router cache on browser-back, leaving
+  // GSAP ScrollTrigger + framer-motion + the split-flap intro stuck in
+  // their pre-navigation state (hero text invisible, hover effects dead).
+  // Setting both staleTimes to 0 forces a fresh render on every nav.
+  experimental: {
+    staleTimes: { dynamic: 0, static: 30 },
+  },
   async headers() {
     // Next.js merges header rules across matching patterns; for duplicate
     // header names the *later* rule wins. So put the most-general rule

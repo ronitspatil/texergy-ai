@@ -1,6 +1,6 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { scoreAndRank } from "./score.ts";
-import { readPriceHistory, toMarketContext } from "../price-history.ts";
+import { readPriceHistory, toMarketContext, deriveSeasonalContext } from "../price-history.ts";
 import {
   type Filters,
   type PlanForScoring,
@@ -57,10 +57,12 @@ export async function recommend(input: RecommendInput): Promise<{
   // --- Load candidate plans ------------------------------------------------
   const candidates = await loadCandidates(supabase, tduIds, filters);
 
-  // --- Market context (EIA TX residential history) ------------------------
-  // Loaded once per request; gracefully degrades to null when the table is
-  // empty so scoring still works in fresh / test environments.
-  const market = toMarketContext(await readPriceHistory("TX", "RES"));
+  // --- Market + seasonal context (EIA TX residential history) -------------
+  // Single fetch, two derivations: trailing aggregates (marketDelta + stability)
+  // and per-month volatility weights (weatherForecast axis).
+  const priceHistory = await readPriceHistory("TX", "RES");
+  const market = toMarketContext(priceHistory);
+  const seasonal = deriveSeasonalContext(priceHistory);
 
   // --- Score + rank --------------------------------------------------------
   const ranked = scoreAndRank(
@@ -70,6 +72,7 @@ export async function recommend(input: RecommendInput): Promise<{
     limit,
     market,
     input.devices ?? [],
+    seasonal,
   );
 
   const { data: tduRows } = await supabase
