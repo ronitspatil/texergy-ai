@@ -39,13 +39,13 @@ export function RecommendWizard() {
     providerIds: [],
     sortBy: "score",
     weights: {
-      cost: 40,
+      cost: 35,
       renewable: 10,
-      contractFlexibility: 15,
+      contractFlexibility: 10,
       rateStability: 15,
       ratings: 10,
       historicalPricing: 10,
-      weatherForecast: 0,
+      weatherForecast: 10,
     },
     stepIndex: 0,
   }));
