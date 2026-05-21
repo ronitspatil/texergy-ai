@@ -37,7 +37,7 @@ export type WeightsUI = {
   renewable: number;
   contractFlexibility: number;
   rateStability: number;
-  ratings: number;
+  billTransparency: number;
   historicalPricing: number;
   weatherForecast: number;
 };

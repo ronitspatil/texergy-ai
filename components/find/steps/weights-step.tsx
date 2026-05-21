@@ -13,34 +13,34 @@ const FACTORS: { key: keyof WeightsUI; label: string; blurb: string }[] = [
   { key: "rateStability",       label: "Rate preference",   blurb: "How much your preferred rate type should pull matches toward it." },
   { key: "historicalPricing",   label: "Historical pricing", blurb: "Favors plans priced below the EIA Texas residential trailing-12-month average." },
   { key: "weatherForecast",     label: "Seasonality",       blurb: "Favors Fixed plans whose term covers TX summer/winter price-spike windows; penalizes Variable plans for the same exposure." },
-  { key: "ratings",             label: "Ratings",           blurb: "Provider reputation (placeholder for now)." },
+  { key: "billTransparency",    label: "Bill transparency", blurb: "Favors plans whose bill stays close to the advertised rate — penalizes bill credits, minimum-usage fees, and steep tier cliffs between 500/1000/2000 kWh." },
 ];
 
 const PRESETS: { id: string; label: string; weights: WeightsUI }[] = [
   {
     id: "balanced",
     label: "Balanced",
-    weights: { cost: 35, renewable: 10, contractFlexibility: 10, rateStability: 15, ratings: 10, historicalPricing: 10, weatherForecast: 10 },
+    weights: { cost: 35, renewable: 10, contractFlexibility: 10, rateStability: 15, billTransparency: 10, historicalPricing: 10, weatherForecast: 10 },
   },
   {
     id: "cheapest",
     label: "Cheapest",
-    weights: { cost: 60, renewable: 5, contractFlexibility: 5, rateStability: 5, ratings: 5, historicalPricing: 10, weatherForecast: 10 },
+    weights: { cost: 60, renewable: 5, contractFlexibility: 5, rateStability: 5, billTransparency: 5, historicalPricing: 10, weatherForecast: 10 },
   },
   {
     id: "greenest",
     label: "Greenest",
-    weights: { cost: 25, renewable: 45, contractFlexibility: 5, rateStability: 5, ratings: 5, historicalPricing: 10, weatherForecast: 5 },
+    weights: { cost: 25, renewable: 45, contractFlexibility: 5, rateStability: 5, billTransparency: 5, historicalPricing: 10, weatherForecast: 5 },
   },
   {
     id: "flexible",
     label: "Most Flexible",
-    weights: { cost: 30, renewable: 5, contractFlexibility: 40, rateStability: 5, ratings: 5, historicalPricing: 10, weatherForecast: 5 },
+    weights: { cost: 30, renewable: 5, contractFlexibility: 40, rateStability: 5, billTransparency: 5, historicalPricing: 10, weatherForecast: 5 },
   },
   {
     id: "stable",
     label: "Most Stable",
-    weights: { cost: 20, renewable: 5, contractFlexibility: 5, rateStability: 40, ratings: 5, historicalPricing: 10, weatherForecast: 15 },
+    weights: { cost: 20, renewable: 5, contractFlexibility: 5, rateStability: 40, billTransparency: 5, historicalPricing: 10, weatherForecast: 15 },
   },
 ];
 

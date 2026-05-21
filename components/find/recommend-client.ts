@@ -54,7 +54,7 @@ export function buildRecommendBody(state: WizardState): RecommendBody {
       renewable: state.weights.renewable / 100,
       contractFlexibility: state.weights.contractFlexibility / 100,
       rateStability: state.weights.rateStability / 100,
-      ratings: state.weights.ratings / 100,
+      billTransparency: state.weights.billTransparency / 100,
       historicalPricing: state.weights.historicalPricing / 100,
       weatherForecast: state.weights.weatherForecast / 100,
     };

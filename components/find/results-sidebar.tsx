@@ -347,7 +347,7 @@ const SLIDER_FACTORS: { key: keyof WeightsUI; label: string }[] = [
   { key: "rateStability", label: "Rate pref" },
   { key: "historicalPricing", label: "History" },
   { key: "weatherForecast", label: "Weather" },
-  { key: "ratings", label: "Rating" },
+  { key: "billTransparency", label: "Transparency" },
 ];
 
 function WeightSliders({

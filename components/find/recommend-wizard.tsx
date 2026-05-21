@@ -43,7 +43,7 @@ export function RecommendWizard() {
       renewable: 10,
       contractFlexibility: 10,
       rateStability: 15,
-      ratings: 10,
+      billTransparency: 10,
       historicalPricing: 10,
       weatherForecast: 10,
     },

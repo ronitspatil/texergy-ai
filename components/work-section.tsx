@@ -40,9 +40,9 @@ const experiments = [
     span: "col-span-2 row-span-1",
   },
   {
-    title: "Ratings",
+    title: "Bill Transparency",
     medium: "Variable 06",
-    description: "Provider reputation, support quality, plan clarity, and customer signals help balance price with trust.",
+    description: "Surfaces plans whose bill matches the advertised rate. Penalizes bill-credit thresholds, minimum-usage fees, and steep tier cliffs between 500, 1,000, and 2,000 kWh.",
     span: "col-span-1 row-span-1",
   },
   {

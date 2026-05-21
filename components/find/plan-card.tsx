@@ -252,7 +252,7 @@ function ScoreBars({ breakdown }: { breakdown: import("@/lib/ranking/types").Bre
     { key: "renewable", label: "Renewable" },
     { key: "contractFlexibility", label: "Flexibility" },
     { key: "rateStability", label: "Stability" },
-    { key: "ratings", label: "Ratings" },
+    { key: "billTransparency", label: "Transparency" },
   ];
   return (
     <div>
