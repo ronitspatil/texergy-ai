@@ -70,6 +70,10 @@ export function RecommendWizard() {
     [steps, state.stepIndex],
   );
 
+  useEffect(() => {
+    if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "auto" });
+  }, [state.stepIndex]);
+
   if (!/^\d{5}$/.test(zipFromUrl)) return null;
 
   return (
