@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { SortBy, WizardState } from "@/components/find/wizard-types";
 import { SORT_OPTIONS } from "@/components/find/wizard-types";
@@ -22,6 +22,9 @@ export function ResultsStep({
   const [data, setData] = useState<ApiResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  // Holds the AbortController for the in-flight request so we can cancel it
+  // when the user changes a filter before the previous fetch resolves.
+  const abortRef = useRef<AbortController | null>(null);
   // Mobile/tablet: sidebar starts closed and opens via the Refine toggle.
   // `lg:` overrides force the panel always-visible on desktop.
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -75,6 +78,12 @@ export function ResultsStep({
   );
 
   const fetchRecommendations = useCallback(async () => {
+    // Cancel any in-flight request before starting a new one. This prevents
+    // stale responses from overwriting fresher results when filters change rapidly.
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     setLoading(true);
     setError(null);
     try {
@@ -82,21 +91,27 @@ export function ResultsStep({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(buildRecommendBody(state)),
+        signal: controller.signal,
       });
       const body = (await res.json().catch(() => ({}))) as ApiResponse & { error?: string };
       if (!res.ok) throw new Error(body.error ?? `HTTP ${res.status}`);
       setData(body);
     } catch (err) {
+      // AbortError is not a real failure — a newer request is already underway.
+      if (err instanceof Error && err.name === "AbortError") return;
       setError(err instanceof Error ? err.message : "Could not fetch recommendations.");
       setData(null);
     } finally {
-      setLoading(false);
+      // Only clear loading if this controller is still the active one.
+      if (abortRef.current === controller) setLoading(false);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps -- inputKey covers all relevant fields
   }, [inputKey]);
 
   useEffect(() => {
     fetchRecommendations();
+    // Cancel any in-flight request if the component unmounts (e.g., user navigates back).
+    return () => { abortRef.current?.abort(); };
   }, [fetchRecommendations]);
 
   // Client-side sort: applied on top of the server-ranked list. "score" keeps

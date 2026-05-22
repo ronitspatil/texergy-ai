@@ -75,14 +75,15 @@ export async function recommend(input: RecommendInput): Promise<{
     seasonal,
   );
 
-  const { data: tduRows } = await supabase
-    .from("tdus")
-    .select("code")
-    .in("id", tduIds);
+  // TDU codes are already on every candidate row (joined via tdus!inner).
+  // Extract them directly instead of making a redundant second DB round trip.
+  const tduCodes = Array.from(
+    new Set(candidates.map((c) => c.tdu_code).filter((code): code is string => Boolean(code))),
+  ).sort();
 
   return {
     ranked,
-    tduCodes: (tduRows ?? []).map((r) => r.code),
+    tduCodes,
     candidateCount: candidates.length,
   };
 }
@@ -99,10 +100,12 @@ async function resolveZipToTdus(supabase: SupabaseClient, zip: string): Promise<
     .eq("zip", zip);
   if (cached && cached.length > 0) return cached.map((r) => r.tdu_id as number);
 
-  // Cache miss — ask PTC, then backfill our cache.
+  // Cache miss — ask PTC, then backfill our cache in a single batch upsert.
   const tduIds = await fetchTdusForZipFromPtc(supabase, zip);
-  for (const tduId of tduIds) {
-    await supabase.from("service_areas").upsert({ zip, tdu_id: tduId });
+  if (tduIds.length > 0) {
+    await supabase
+      .from("service_areas")
+      .upsert(tduIds.map((tdu_id) => ({ zip, tdu_id })));
   }
   return tduIds;
 }

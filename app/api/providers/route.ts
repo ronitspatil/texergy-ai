@@ -10,6 +10,10 @@ export const dynamic = "force-dynamic";
  *  dropdown. Limited to REPs that have at least one active plan so the list
  *  doesn't show defunct companies.
  */
+// Providers list is stable between plan ingests (happens at most daily).
+// Cache for 1 hour at the CDN edge so repeated page loads don't hammer the DB.
+const CACHE_SECONDS = 3600;
+
 export async function GET() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -20,26 +24,28 @@ export async function GET() {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
-  // Pull active plans' distinct rep_ids, then resolve names.
-  const { data: planRows } = await supabase
-    .from("plans")
-    .select("rep_id")
-    .eq("active", true);
-  const repIds = Array.from(
-    new Set((planRows ?? []).map((r) => Number((r as { rep_id: number }).rep_id))),
-  );
-  if (repIds.length === 0) return NextResponse.json({ providers: [] });
-
+  // Single query: join reps to active plans so we only return REPs that have
+  // at least one live plan. Using !inner forces a filtering inner join instead
+  // of two separate round trips.
   const { data: reps } = await supabase
     .from("reps")
-    .select("id, name")
-    .in("id", repIds)
+    .select("id, name, plans!inner(id)")
+    .eq("plans.active", true)
     .order("name", { ascending: true });
 
-  return NextResponse.json({
-    providers: (reps ?? []).map((r) => ({
-      id: Number(r.id),
-      name: String(r.name),
-    })),
-  });
+  const providers = Array.from(
+    // Deduplicate by rep id in case the join returns multiple plan rows per rep.
+    new Map(
+      (reps ?? []).map((r) => [Number(r.id), { id: Number(r.id), name: String(r.name) }]),
+    ).values(),
+  );
+
+  return NextResponse.json(
+    { providers },
+    {
+      headers: {
+        "Cache-Control": `public, max-age=${CACHE_SECONDS}, s-maxage=${CACHE_SECONDS}, stale-while-revalidate=300`,
+      },
+    },
+  );
 }

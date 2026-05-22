@@ -6,8 +6,11 @@ import { timingSafeEqual } from "node:crypto";
 
 export function verifyCronRequest(req: Request): { ok: true } | { ok: false; status: number; message: string } {
   const secret = process.env.CRON_SECRET;
+  // Return 401 rather than 500: leaking that the secret is misconfigured lets
+  // an attacker know which attack surface to probe. Generic "invalid token" is
+  // correct — the caller can't do anything useful without the right secret anyway.
   if (!secret || secret.length < 16) {
-    return { ok: false, status: 500, message: "CRON_SECRET not configured on server" };
+    return { ok: false, status: 401, message: "invalid token" };
   }
   const header = req.headers.get("authorization") ?? "";
   const provided = header.startsWith("Bearer ") ? header.slice(7) : "";

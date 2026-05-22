@@ -5,7 +5,7 @@ import { rateLimit } from "@/lib/rate-limit";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const IP_SALT = process.env.IP_HASH_SALT ?? "texergy-default-salt-change-me";
+const IP_SALT = process.env.IP_HASH_SALT ?? "texergy-dev-salt-not-for-production";
 
 // Two-tier limit: protects the user from accidental loops AND the daily Gemini
 // free-tier quota from a noisy IP. Enforced in dev too — the whole point is to
@@ -98,6 +98,11 @@ Ground rules:
 - Output plain text only. Do NOT use markdown formatting: no **bold**, no *italics*, no backticks, no headings. Plain hyphens are fine for bulleted lists.`;
 
 export async function POST(req: NextRequest) {
+  // Warn if IP_HASH_SALT is missing in production (rate limit security risk).
+  if (!process.env.IP_HASH_SALT && process.env.NODE_ENV === "production") {
+    console.warn("⚠️ IP_HASH_SALT not set in production. Rate limiting uses fallback salt — update env vars.");
+  }
+
   if (!isSameOrigin(req)) {
     return NextResponse.json({ ok: false, reason: "forbidden" }, { status: 403 });
   }

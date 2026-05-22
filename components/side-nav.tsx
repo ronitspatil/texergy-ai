@@ -50,7 +50,7 @@ export function SideNav() {
   return (
     <nav
       aria-label="Primary"
-      className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 border border-border/40 bg-background/80 backdrop-blur-md shadow-sm"
+      className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 border border-border/40 bg-background/80 backdrop-blur-md shadow-sm max-w-[calc(100vw-24px)] overflow-x-auto"
     >
       <button
         type="button"

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import type {
   BaseChargePref,
@@ -169,16 +170,23 @@ function EditWeightsButton({
       >
         Edit weights →
       </button>
-      <AnimatePresence>
-        {open && (
-          <EditWeightsDialog
-            draft={draft}
-            onDraftChange={setDraft}
-            onCancel={() => setOpen(false)}
-            onSave={save}
-          />
+      {/* Portal renders the dialog at document.body so it isn't clipped by any
+          ancestor CSS transform (framer-motion's y-animation on the wizard
+          step breaks position:fixed when the dialog is a descendant). */}
+      {typeof document !== "undefined" &&
+        createPortal(
+          <AnimatePresence>
+            {open && (
+              <EditWeightsDialog
+                draft={draft}
+                onDraftChange={setDraft}
+                onCancel={() => setOpen(false)}
+                onSave={save}
+              />
+            )}
+          </AnimatePresence>,
+          document.body,
         )}
-      </AnimatePresence>
     </>
   );
 }

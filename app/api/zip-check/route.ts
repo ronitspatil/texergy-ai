@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { createHash } from "node:crypto";
+import { rateLimit } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -7,6 +9,17 @@ export const dynamic = "force-dynamic";
 const PTC_BASE = "https://api.powertochoose.org/api/PowerToChoose";
 
 type PtcPlan = { company_tdu_id?: string };
+
+function getClientIp(req: NextRequest): string {
+  const fwd = req.headers.get("x-forwarded-for");
+  if (fwd) return fwd.split(",")[0]!.trim();
+  return req.headers.get("x-real-ip") ?? "unknown";
+}
+
+function hashIp(ip: string): string {
+  const salt = process.env.IP_HASH_SALT ?? "texergy-dev-salt-not-for-production";
+  return createHash("sha256").update(`${salt}:${ip}`).digest("hex");
+}
 
 function isSameOrigin(req: NextRequest): boolean {
   const origin = req.headers.get("origin");
@@ -40,6 +53,20 @@ function getServerClient() {
 export async function POST(req: NextRequest) {
   if (!isSameOrigin(req)) {
     return NextResponse.json({ ok: false, reason: "forbidden" }, { status: 403 });
+  }
+
+  // Rate limit: 30 ZIP lookups per hour per IP. Each lookup may call the PTC
+  // external API, so we want to block enumeration/scraping attempts.
+  const ipHash = hashIp(getClientIp(req));
+  const limit = rateLimit(`zip-check:${ipHash}`, { windowMs: 60 * 60 * 1000, max: 30 });
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { ok: false, reason: "rate_limited" },
+      {
+        status: 429,
+        headers: { "Retry-After": Math.ceil((limit.resetAt - Date.now()) / 1000).toString() },
+      },
+    );
   }
   if (!(req.headers.get("content-type") ?? "").includes("application/json")) {
     return NextResponse.json({ ok: false, reason: "bad_content_type" }, { status: 415 });
