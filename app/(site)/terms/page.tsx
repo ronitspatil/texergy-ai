@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Terms of Service | Texergy AI",
   description: "The rules of using Texergy AI during the beta.",
+  robots: { index: false, follow: true },
 };
 
 export default function TermsPage() {

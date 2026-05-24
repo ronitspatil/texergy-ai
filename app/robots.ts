@@ -6,8 +6,10 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/admin/", "/api/"],
+        disallow: ["/admin/", "/api/", "/find/recommend"],
       },
     ],
+    sitemap: "https://texergy.ai/sitemap.xml",
+    host: "https://texergy.ai",
   };
 }

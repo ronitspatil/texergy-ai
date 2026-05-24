@@ -21,9 +21,14 @@ const bebasNeue = Bebas_Neue({
 });
 
 export const metadata: Metadata = {
-  title: "Texergy AI | Shop Texas Energy Smarter",
+  metadataBase: new URL("https://texergy.ai"),
+  title: {
+    default: "Texergy AI | Shop Texas Energy Smarter",
+    template: "%s | Texergy AI",
+  },
   description:
     "AI-powered electricity plan shopping for Texas residents and businesses. Enter your ZIP, set your priorities, and find the right plan in minutes. Join the waitlist today.",
+  applicationName: "Texergy AI",
   keywords: [
     "Texas electricity",
     "electricity plans",
@@ -32,11 +37,14 @@ export const metadata: Metadata = {
     "ERCOT",
     "power to choose",
   ],
+  alternates: { canonical: "/" },
   openGraph: {
     title: "Texergy AI",
     description:
       "AI-powered electricity plan recommendations for Texas residents.",
     type: "website",
+    url: "https://texergy.ai",
+    siteName: "Texergy AI",
   },
   robots: { index: true, follow: true },
   icons: {
@@ -47,6 +55,39 @@ export const metadata: Metadata = {
     apple: "/logo.svg",
   },
 };
+
+// Tells search engines we're one entity ("Texergy AI") with a canonical site,
+// logo, and primary search action — drives the brand card + sitelinks on
+// Google results for "texergy" queries.
+const STRUCTURED_DATA = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": "https://texergy.ai/#organization",
+    name: "Texergy AI",
+    url: "https://texergy.ai",
+    logo: "https://texergy.ai/logo.svg",
+    description:
+      "AI-powered electricity plan recommendations for Texas residents.",
+    areaServed: { "@type": "State", name: "Texas" },
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": "https://texergy.ai/#website",
+    url: "https://texergy.ai",
+    name: "Texergy AI",
+    publisher: { "@id": "https://texergy.ai/#organization" },
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: "https://texergy.ai/?q={search_term_string}",
+      },
+      "query-input": "required name=search_term_string",
+    },
+  },
+];
 
 export const viewport: Viewport = {
   themeColor: "#ffffff",
@@ -69,6 +110,10 @@ export default function RootLayout({
         className="font-sans antialiased overflow-x-hidden"
         suppressHydrationWarning
       >
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(STRUCTURED_DATA) }}
+        />
         <div className="noise-overlay" aria-hidden="true" />
         <RefreshToHome />
         <SmoothScroll>{children}</SmoothScroll>

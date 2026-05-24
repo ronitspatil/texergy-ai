@@ -4,6 +4,7 @@ export const metadata: Metadata = {
   title: "Disclaimer | Texergy AI",
   description:
     "Plan rankings on Texergy AI are informational estimates, not advice or guarantees.",
+  robots: { index: false, follow: true },
 };
 
 export default function DisclaimerPage() {

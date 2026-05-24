@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Privacy Policy | Texergy AI",
   description: "What we collect, what we don't, and how to delete it.",
+  robots: { index: false, follow: true },
 };
 
 export default function PrivacyPage() {
