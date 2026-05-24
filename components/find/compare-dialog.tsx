@@ -316,7 +316,7 @@ export function CompareDialog({
                   {plans.map((r) => (
                     <Cell key={r.plan.id}>
                       <span className="font-[var(--font-bebas)] text-lg sm:text-2xl tracking-tight text-foreground">
-                        {r.effectiveCentsPerKwh.toFixed(1)}
+                        {(r.effectiveCentsPerKwh ?? 0).toFixed(1)}
                         <span className="text-xs sm:text-base text-muted-foreground ml-1">¢/kWh</span>
                       </span>
                     </Cell>
@@ -340,12 +340,12 @@ export function CompareDialog({
                 </Row>
                 <Row label="Est. monthly bill">
                   {plans.map((r) => (
-                    <Cell key={r.plan.id}>${r.estMonthlyBillUsd.toFixed(2)}</Cell>
+                    <Cell key={r.plan.id}>${(r.estMonthlyBillUsd ?? 0).toFixed(2)}</Cell>
                   ))}
                 </Row>
                 <Row label="Est. annual cost">
                   {plans.map((r) => (
-                    <Cell key={r.plan.id}>${r.estAnnualCostUsd.toFixed(2)}</Cell>
+                    <Cell key={r.plan.id}>${(r.estAnnualCostUsd ?? 0).toFixed(2)}</Cell>
                   ))}
                 </Row>
                 <Row label="Renewable">

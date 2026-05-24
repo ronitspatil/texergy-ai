@@ -10,7 +10,8 @@ import { HeroZipForm } from "@/components/hero-zip-form"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 
-const IS_PRODUCT_MODE = process.env.NEXT_PUBLIC_APP_MODE !== "waitlist"
+// See app/page.tsx for context — product mode is permanent.
+const IS_PRODUCT_MODE = true
 
 gsap.registerPlugin(ScrollTrigger)
 

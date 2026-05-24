@@ -10,6 +10,21 @@ import { ResultsSidebar } from "@/components/find/results-sidebar";
 import { CompareDialog } from "@/components/find/compare-dialog";
 import { buildRecommendBody, type ApiResponse } from "@/components/find/recommend-client";
 
+const ZONE_LABELS: Record<string, string> = {
+  COAST: "Houston coast",
+  EAST: "East Texas",
+  FWEST: "Far west Texas",
+  NCENT: "DFW / north central",
+  NORTH: "north Texas",
+  SCENT: "Austin / central Texas",
+  SOUTH: "south Texas",
+  WEST: "west Texas",
+};
+
+function describeZone(zone: string): string {
+  return ZONE_LABELS[zone] ?? "your ERCOT zone";
+}
+
 export function ResultsStep({
   state,
   onUpdate,
@@ -146,7 +161,7 @@ export function ResultsStep({
       <h2 className="font-[family-name:var(--font-bebas)] text-foreground text-[clamp(2rem,5vw,4rem)] leading-[0.95] tracking-tight mb-2">
         HERE&apos;S WHAT <span className="text-accent">FITS.</span>
       </h2>
-      <p className="font-mono text-xs sm:text-sm text-muted-foreground mb-8 sm:mb-10">
+      <p className="font-mono text-xs sm:text-sm text-muted-foreground mb-2">
         {loading
           ? "Crunching plans…"
           : error
@@ -155,6 +170,15 @@ export function ResultsStep({
               ? `${data.ranked.length} plans available in ${data.tduCodes.join(", ") || "your area"}`
               : ""}
       </p>
+      {!loading && !error && data?.profile && (
+        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground/70 mb-8 sm:mb-10">
+          <span className="text-accent">●</span>{" "}
+          {data.profile.source === "meter_api"
+            ? `Bill estimates based on ${describeZone(data.profile.weatherZone)} load curve`
+            : `Bill estimates based on a typical Texas home`}
+        </p>
+      )}
+      {!data?.profile && !loading && !error && <div className="mb-8 sm:mb-10" />}
 
       {/* Mobile/tablet: Refine toggle. Hidden on lg+ where the sidebar is
           always visible. */}

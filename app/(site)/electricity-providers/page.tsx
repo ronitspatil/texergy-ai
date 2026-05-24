@@ -3,9 +3,10 @@ import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
 
 export const metadata: Metadata = {
-  title: "Electricity Providers | Texergy AI",
+  title: "Electricity Providers",
   description:
     "Texas retail electricity providers (REPs) currently in Texergy AI's dataset, with plan counts and links to each company.",
+  robots: { index: false, follow: false },
 };
 
 // ISR: the daily cron calls revalidatePath('/electricity-providers') after
@@ -103,7 +104,7 @@ export default async function ElectricityProvidersPage() {
               <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 font-mono text-xs text-muted-foreground">
                 {rep.website_url && (
                   <a
-                    href={rep.website_url}
+                    href={absoluteUrl(rep.website_url)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="hover:text-accent transition-colors"
@@ -141,9 +142,15 @@ export default async function ElectricityProvidersPage() {
   );
 }
 
+function absoluteUrl(url: string): string {
+  // Schemeless URLs (e.g. "www.example.com") would be resolved as relative
+  // paths by browsers and crawlers — yielding 404s under our domain. Force https.
+  return /^https?:\/\//i.test(url) ? url : `https://${url}`;
+}
+
 function prettyHost(url: string): string {
   try {
-    return new URL(url).host.replace(/^www\./, "");
+    return new URL(absoluteUrl(url)).host.replace(/^www\./, "");
   } catch {
     return url;
   }

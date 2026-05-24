@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | Texergy AI",
+  title: "Privacy Policy",
   description: "What we collect, what we don't, and how to delete it.",
   robots: { index: false, follow: true },
 };
@@ -17,7 +17,7 @@ export default function PrivacyPage() {
           YOUR DATA, IN PLAIN ENGLISH.
         </h1>
         <p className="mt-6 font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
-          Last updated: May 20, 2026
+          Last updated: May 25, 2026
         </p>
       </header>
 
@@ -40,6 +40,16 @@ export default function PrivacyPage() {
             entirely in your browser. We never upload, store, or transmit the
             raw file. Only the resulting monthly average kWh leaves your
             browser, and only so we can rank plans against it.
+          </p>
+          <p className="font-mono text-sm mb-3">
+            When we generate recommendations and when you use the &ldquo;Find
+            your TDU&rdquo; lookup, your ZIP code is sent to MeterPlan
+            (meterplan.com), a third-party utility-data service, so we can
+            (a) resolve the Transmission &amp; Distribution Utility (TDU) that
+            serves your address and (b) fetch the typical residential
+            electricity load curve for your ERCOT weather zone. MeterPlan
+            receives only the ZIP — no other information about you — and we
+            cache results so the same ZIP isn&apos;t repeatedly re-queried.
           </p>
           <p className="font-mono text-sm mb-3">
             If you ask a question in the &ldquo;Ask Texergy Bot&rdquo; feature
@@ -115,6 +125,11 @@ export default function PrivacyPage() {
             newsletter records are stored in our Supabase database. Plan and
             utility records describe the market, not you, and are the same for
             every visitor.
+          </p>
+          <p className="font-mono text-sm mb-3">
+            Typical residential load curves fetched from MeterPlan are cached
+            in memory on our server for up to seven days, keyed by ERCOT
+            weather zone (eight in total). The cache is not keyed by user.
           </p>
           <p className="font-mono text-sm">
             Confirmation and newsletter emails are delivered through a trusted

@@ -65,17 +65,17 @@ export function HeroZipForm() {
       onSubmit={onSubmit}
       noValidate
       aria-label="Enter your ZIP code"
-      className="relative w-full max-w-2xl mx-auto flex flex-col gap-6 border border-foreground/15 bg-background/20 backdrop-blur-[2px] p-9 md:p-12"
+      className="relative w-full max-w-2xl mx-auto flex flex-col gap-6 border border-foreground/30 focus-within:border-accent/60 bg-background/40 backdrop-blur-[2px] p-9 md:p-12 transition-colors duration-200 shadow-[0_0_0_1px_rgba(0,0,0,0.02),0_24px_48px_-32px_rgba(0,0,0,0.18)]"
     >
       <div className="flex items-center justify-between gap-4">
         <span className="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground">
           Get Started
         </span>
         <a
-          href="#signals"
+          href="/savings-calculator"
           className="font-mono text-xs uppercase tracking-[0.25em] text-muted-foreground hover:text-accent transition-colors"
         >
-          How It Works
+          See How Much You Can Save →
         </a>
       </div>
 

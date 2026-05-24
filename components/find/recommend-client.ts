@@ -14,6 +14,11 @@ export type ApiResponse = {
   ranked: RankedPlan[];
   tduCodes: string[];
   candidateCount: number;
+  profile: {
+    source: "meter_api" | "bundled_static";
+    weatherZone: string;
+    profileType: string;
+  } | null;
 };
 
 /** Convert wizard UI state into the POST body the /api/recommend route expects.

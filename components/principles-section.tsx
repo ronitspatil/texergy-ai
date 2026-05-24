@@ -99,7 +99,7 @@ export function PrinciplesSection() {
       {/* Section header */}
       <div ref={headerRef} className="mb-24">
         <SectionLabel>04 / Why Us</SectionLabel>
-        <h2 className="mt-4 font-[var(--font-bebas)] text-5xl md:text-7xl tracking-tight">WHY TEXERGY</h2>
+        <h2 className="mt-4 font-[var(--font-bebas)] text-5xl md:text-7xl tracking-tight">WHY TEXERGY?</h2>
       </div>
 
       {/* Staggered principles */}

@@ -1,6 +1,7 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { scoreAndRank } from "./score.ts";
 import { readPriceHistory, toMarketContext, deriveSeasonalContext } from "../price-history.ts";
+import { getUsageProfile, type UsageProfile } from "../usage-profile/index.ts";
 import {
   type Filters,
   type PlanForScoring,
@@ -42,6 +43,7 @@ export async function recommend(input: RecommendInput): Promise<{
   ranked: RankedPlan[];
   tduCodes: string[];
   candidateCount: number;
+  profile: { source: "meter_api" | "bundled_static"; weatherZone: string; profileType: string } | null;
 }> {
   const supabase = getServerClient();
   const usageKwh = input.monthlyUsageKwh ?? DEFAULT_USAGE_KWH;
@@ -51,7 +53,7 @@ export async function recommend(input: RecommendInput): Promise<{
   // --- ZIP → TDU resolution ------------------------------------------------
   const tduIds = await resolveZipToTdus(supabase, input.zip);
   if (tduIds.length === 0) {
-    return { ranked: [], tduCodes: [], candidateCount: 0 };
+    return { ranked: [], tduCodes: [], candidateCount: 0, profile: null };
   }
 
   // --- Load candidate plans ------------------------------------------------
@@ -64,6 +66,22 @@ export async function recommend(input: RecommendInput): Promise<{
   const market = toMarketContext(priceHistory);
   const seasonal = deriveSeasonalContext(priceHistory);
 
+  // --- Usage profile -------------------------------------------------------
+  // Best-effort: gives the engine a per-month projection so bill-credit
+  // reliability and seasonal pricing rank honestly. Resolution chain handles
+  // its own failure modes (Meter API → bundled static); the engine still
+  // works if this returns null. We swallow any unexpected throw and degrade.
+  let profile: UsageProfile | null = null;
+  try {
+    const hasSolar = (input.devices ?? []).includes("solar");
+    profile = await getUsageProfile(input.zip, usageKwh * 12, {
+      profileType: hasSolar ? "RESHIDG" : "RESHIWR",
+    });
+  } catch (err) {
+    console.warn("[recommend] usage profile unavailable, falling back to flat math", err);
+    profile = null;
+  }
+
   // --- Score + rank --------------------------------------------------------
   const ranked = scoreAndRank(
     candidates,
@@ -73,6 +91,8 @@ export async function recommend(input: RecommendInput): Promise<{
     market,
     input.devices ?? [],
     seasonal,
+    new Date(),
+    profile,
   );
 
   // TDU codes are already on every candidate row (joined via tdus!inner).
@@ -85,6 +105,13 @@ export async function recommend(input: RecommendInput): Promise<{
     ranked,
     tduCodes,
     candidateCount: candidates.length,
+    profile: profile
+      ? {
+          source: profile.source,
+          weatherZone: profile.weatherZone,
+          profileType: profile.profileType,
+        }
+      : null,
   };
 }
 

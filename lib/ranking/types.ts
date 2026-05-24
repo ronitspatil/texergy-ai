@@ -34,7 +34,20 @@ export type PlanForScoring = {
   base_charge: number | null;
   etf_amount: number | null;
   minimum_usage_fee: number | null;
-  energy_charge: { type: "flat"; cents_per_kwh: number } | null;
+  energy_charge:
+    | { type: "flat"; cents_per_kwh: number }
+    | {
+        type: "tou";
+        default_cents_per_kwh: number;
+        windows: Array<{
+          label: string;
+          start_hour: number;
+          end_hour: number;
+          days: "all" | "weekdays" | "weekends";
+          cents_per_kwh: number;
+        }>;
+      }
+    | null;
   tdu_charges: { per_kwh_cents: number | null; per_month_usd: number | null } | null;
   bill_credits: { amount: number; threshold_kwh: number } | null;
 
@@ -142,10 +155,16 @@ export type CreditAssessment = {
 export type RankedPlan = {
   plan: PlanForScoring;
   score: number; // 0..1 composite
-  estMonthlyBillUsd: number; // at the user's monthly kWh
+  estMonthlyBillUsd: number; // at the user's monthly kWh (annual / 12)
   estAnnualCostUsd: number;
-  effectiveCentsPerKwh: number; // all-in cost per kWh = estMonthlyBillUsd / usageKwh * 100
+  /** 12-element projected bills (Jan..Dec) when a usage profile is available.
+   *  Null when the engine fell back to flat math (no profile). */
+  monthlyBillsUsd: number[] | null;
+  effectiveCentsPerKwh: number; // all-in cost per kWh = estAnnualCost / annualKwh * 100
   costSource: "parsed_efl" | "ptc_headline"; // which path produced the cost
+  /** Source of the shape used to project usage across the year. Null when
+   *  the engine ranked on flat math without a profile. */
+  profileSource: "meter_api" | "bundled_static" | null;
   creditAssessment: CreditAssessment | null;
   breakdown: Breakdown;
   reasons: string[]; // human-readable highlights for the UI

@@ -14,6 +14,16 @@ const REPRESENTATIVE_ZIPS: Record<string, string> = {
 
 const PTC_BASE = "https://api.powertochoose.org/api/PowerToChoose";
 
+// PTC sometimes returns schemeless URLs (e.g. "www.example.com"). Storing
+// these raw poisons hrefs at render time (browsers treat them as relative
+// paths, yielding 404s under our domain). Normalize at ingest.
+function normalizeWebsite(url: string | null | undefined): string | null {
+  if (!url) return null;
+  const trimmed = url.trim();
+  if (!trimmed) return null;
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+}
+
 type PtcPlan = {
   plan_id: string | number;
   company_id: string;
@@ -140,7 +150,7 @@ export async function runIngestPlans(opts: {
           name: plan.company_name,
           logo_url: plan.company_logo ?? null,
           phone: plan.enroll_phone ?? null,
-          website_url: plan.website ?? null,
+          website_url: normalizeWebsite(plan.website),
         })
         .eq("id", existing.id);
       repCache.set(ptcCompanyId, { id: existing.id });
@@ -157,7 +167,7 @@ export async function runIngestPlans(opts: {
           ptc_company_id: ptcCompanyId,
           logo_url: plan.company_logo ?? null,
           phone: plan.enroll_phone ?? null,
-          website_url: plan.website ?? null,
+          website_url: normalizeWebsite(plan.website),
         })
         .select("id")
         .single();

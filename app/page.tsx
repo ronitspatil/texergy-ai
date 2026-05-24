@@ -4,13 +4,16 @@ import { WorkSection } from "@/components/work-section";
 import { PrinciplesSection } from "@/components/principles-section";
 import { WaitlistSection } from "@/components/waitlist-section";
 import { FaqSection } from "@/components/faq-section";
+import { ToolsSection } from "@/components/tools-section";
 import { ColophonSection } from "@/components/colophon-section";
 import { SideNav } from "@/components/side-nav";
 
-// Product is now the default. Set NEXT_PUBLIC_APP_MODE="waitlist" on the
-// production deploy (texergy.ai) to fall back to the waitlist landing; staging
-// and local development get the product view without any env override.
-const IS_PRODUCT_MODE = process.env.NEXT_PUBLIC_APP_MODE !== "waitlist";
+// Product mode is permanent. The previous env-gated split
+// (NEXT_PUBLIC_APP_MODE="waitlist") was retired once the product landing
+// became the canonical experience on both texergy.ai and staging. The
+// waitlist UI branches stay in the codebase so a future campaign can
+// resurrect them by flipping this constant back to an env check.
+const IS_PRODUCT_MODE = true;
 
 export default function Page() {
   return (
@@ -25,6 +28,7 @@ export default function Page() {
         <PrinciplesSection />
         {!IS_PRODUCT_MODE && <WaitlistSection />}
         <FaqSection />
+        <ToolsSection />
         <ColophonSection />
       </div>
     </main>

@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Service Areas | Texergy AI",
+  title: "Service Areas",
   description:
     "Major Texas cities where Texergy AI can rank retail electricity plans, grouped by Transmission & Distribution Utility (TDU).",
+  robots: { index: false, follow: false },
 };
 
 type TduArea = {

@@ -4,7 +4,7 @@ import { verifyToken } from "@/lib/newsletter-token";
 import UnsubscribeConfirm from "@/components/UnsubscribeConfirm";
 
 export const metadata: Metadata = {
-  title: "Unsubscribe | Texergy AI",
+  title: "Unsubscribe",
   description: "Confirm that you'd like to unsubscribe from the Texergy AI newsletter.",
   // Don't index this URL; the token is meant for one recipient.
   robots: { index: false, follow: false },

@@ -5,7 +5,8 @@ import { SectionLabel } from "@/components/ui/section-label"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 
-const IS_PRODUCT_MODE = process.env.NEXT_PUBLIC_APP_MODE !== "waitlist"
+// See app/page.tsx for context — product mode is permanent.
+const IS_PRODUCT_MODE = true
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -149,13 +150,13 @@ export function ColophonSection() {
               <a href="/texas-energy-101" className="hover:text-accent transition-colors duration-200">Texas Energy 101</a>
             </li>
             <li className="h-5 flex items-center font-mono text-xs text-foreground/80">
-              Usage Calculator <span className="ml-0.5 text-[9px] text-muted-foreground/60 uppercase tracking-wide">Soon</span>
+              <a href="/savings-calculator" className="hover:text-accent transition-colors duration-200">Savings Calculator</a>
             </li>
             <li className="h-5 flex items-center font-mono text-xs text-foreground/80">
-              ESID Lookup <span className="ml-0.5 text-[9px] text-muted-foreground/60 uppercase tracking-wide">Soon</span>
+              <a href="/usage-calculator" className="hover:text-accent transition-colors duration-200">Usage Calculator</a>
             </li>
             <li className="h-5 flex items-center font-mono text-xs text-foreground/80">
-              Savings Calculator <span className="ml-0.5 text-[9px] text-muted-foreground/60 uppercase tracking-wide">Soon</span>
+              <a href="/esid-lookup" className="hover:text-accent transition-colors duration-200">ESID Lookup</a>
             </li>
           </ul>
         </div>

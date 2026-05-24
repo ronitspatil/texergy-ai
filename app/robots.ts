@@ -6,7 +6,14 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/admin/", "/api/", "/find/recommend"],
+        disallow: [
+          "/admin/",
+          "/api/",
+          "/find/recommend",
+          "/electricity-providers",
+          "/service-areas",
+          "/electric-utilities",
+        ],
       },
     ],
     sitemap: "https://texergy.ai/sitemap.xml",

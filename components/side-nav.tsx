@@ -3,12 +3,13 @@
 import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 
-const IS_PRODUCT_MODE = process.env.NEXT_PUBLIC_APP_MODE !== "waitlist"
+// See app/page.tsx for context — product mode is permanent.
+const IS_PRODUCT_MODE = true
 
 const navItems = [
   { id: "hero", label: "Home" },
   { id: "signals", label: "How It Works" },
-  { id: "work", label: "Variables" },
+  { id: "work", label: "Engine" },
   { id: "principles", label: "Why Us" },
   ...(IS_PRODUCT_MODE
     ? []
