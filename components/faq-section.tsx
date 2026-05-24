@@ -118,6 +118,10 @@ export function FaqSection() {
           {FAQS.map((f, i) => (
             <details
               key={f.q}
+              // `name` makes <details> mutually exclusive within the group
+              // (HTML5 accordion semantics, no JS required). Opening one
+              // automatically closes any other with the same name.
+              name="faq-accordion"
               className="group border border-border/40 hover:border-accent/40 transition-colors duration-300 cursor-pointer"
             >
               <summary className="flex items-start justify-between gap-6 px-6 py-5 list-none [&::-webkit-details-marker]:hidden">
@@ -152,8 +156,11 @@ export function FaqSection() {
           ))}
         </div>
 
-        {/* Min-height matches collapsed FAQ list height so boxes stay aligned at top/bottom */}
-        <div className="flex flex-col justify-between lg:sticky lg:top-32 lg:self-start lg:min-h-[418px]">
+        {/* Min-height matches collapsed FAQ list height so boxes stay aligned at top/bottom.
+            `gap-3` adds breathing room when stacked on mobile; `lg:gap-0`
+            removes it on desktop where `justify-between` + min-height handles
+            spacing. */}
+        <div className="flex flex-col gap-3 lg:gap-0 justify-between lg:sticky lg:top-32 lg:self-start lg:min-h-[418px]">
           <ContactCard
             label="Still curious?"
             heading="ASK US ANYTHING."

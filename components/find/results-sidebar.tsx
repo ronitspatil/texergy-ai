@@ -73,8 +73,7 @@ export function ResultsSidebar({
             { value: "any", label: "Any" },
             { value: "atleast25", label: "25%+" },
             { value: "atleast50", label: "50%+" },
-            { value: "atleast90", label: "90%+" },
-            { value: "only100", label: "100" },
+            { value: "only100", label: "100%" },
           ]}
           onChange={(v) => onUpdate({ renewablePref: v as RenewablePref })}
         />

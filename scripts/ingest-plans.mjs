@@ -316,6 +316,27 @@ async function main() {
     await finishRun(run.id, "ok", counts);
     console.log("✓ done");
     console.log(JSON.stringify(counts, null, 2));
+
+    // Bust the ISR cache on data-driven public pages so the new plan counts
+    // show up immediately instead of waiting for the 24h fallback. Skips
+    // silently if SITE_URL or ADMIN_TOKEN aren't set (local-only run).
+    const siteUrl = process.env.SITE_URL ?? "https://texergy.ai";
+    const adminToken = process.env.ADMIN_TOKEN;
+    if (adminToken) {
+      try {
+        const r = await fetch(`${siteUrl}/api/admin/revalidate`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${adminToken}` },
+        });
+        if (r.ok) {
+          console.log(`↻ revalidated ${siteUrl} (status ${r.status})`);
+        } else {
+          console.warn(`↻ revalidate failed: HTTP ${r.status}`);
+        }
+      } catch (e) {
+        console.warn(`↻ revalidate error: ${e.message}`);
+      }
+    }
   } catch (err) {
     console.error("✗ ingest failed:", err.message);
     await finishRun(run.id, "error", counts, err.message);

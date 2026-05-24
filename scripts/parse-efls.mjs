@@ -11,6 +11,7 @@
  *   node scripts/parse-efls.mjs              # parse all eligible plans
  *   node scripts/parse-efls.mjs --limit 20   # parse up to 20 (for testing)
  *   node scripts/parse-efls.mjs --reparse    # ignore existing rows, redo all
+ *   node scripts/parse-efls.mjs --url-changed  # only plans whose efl_url no longer matches plan_details.source_url
  *
  * Reads NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY from .env.local.
  */
@@ -19,7 +20,10 @@ import { createClient } from "@supabase/supabase-js";
 import { extractText, getDocumentProxy } from "unpdf";
 import { existsSync, readFileSync } from "node:fs";
 
-const PARSER_VERSION = "tier-a-v1";
+// v2 = adds Free Nights / Free Weekends detection. Bump in lock-step with
+// lib/jobs/parse-efls.ts so the weekly cron and the CLI agree on what
+// constitutes a "stale" plan_details row.
+const PARSER_VERSION = "tier-a-v2";
 const PARSER_TIER = "text";
 const REQUEST_DELAY_MS = 150;     // be polite to small REP CDNs
 const FETCH_TIMEOUT_MS = 20_000;
@@ -52,6 +56,11 @@ const limitIdx = args.indexOf("--limit");
 const limit = limitIdx >= 0 ? parseInt(args[limitIdx + 1], 10) : null;
 const reparse = args.includes("--reparse");
 const retryFailures = args.includes("--retry-failures");
+// --url-changed: re-parse plans where plans.efl_url no longer matches
+// plan_details.source_url (covers genuine URL changes after a fresh PTC
+// ingest, AND new plans whose source_url is still null). Mirrors the
+// gating logic used by the weekly cron's runParseEflsChanged.
+const urlChanged = args.includes("--url-changed");
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -98,6 +107,16 @@ function toFloat(s) {
   return Number.isFinite(n) ? n : null;
 }
 
+// Convert a 12-hour reading ("9", "pm") to a 0–23 hour. Mirrors the helper
+// in lib/jobs/efl-parse.ts. 12am → 0, 12pm → 12.
+function parseHour12(hourStr, ampm) {
+  const h = parseInt(hourStr, 10);
+  if (!Number.isFinite(h) || h < 1 || h > 12) return null;
+  const isPm = /p/i.test(ampm);
+  if (h === 12) return isPm ? 12 : 0;
+  return isPm ? h + 12 : h;
+}
+
 // Parse one EFL's extracted text into structured fields.
 // Returns { base_charge, etf_amount, minimum_usage_fee, energy_charge,
 //           tdu_charges, raw_text, parse_errors }.
@@ -120,6 +139,31 @@ function parseEfl(text) {
     energy_charge = { type: "flat", cents_per_kwh: toFloat(energyMatch[1]) };
   } else {
     errors.push("energy_charge_not_found");
+  }
+
+  // TIME-OF-USE DETECTION — Free Nights / Free Weekends. Conservative: only
+  // promotes the energy_charge to type:"tou" when an explicit phrase + hour
+  // window is parseable. Keeps the flat schema otherwise.
+  if (energy_charge && energy_charge.type === "flat" && energy_charge.cents_per_kwh != null) {
+    const windows = [];
+    const nightsMatch = t.match(
+      /Free\s*Nights?[^.]{0,120}?(\d{1,2})(?:[:.]\d{2})?\s*(a\.?m\.?|p\.?m\.?)\s*(?:to|until|–|—|-)\s*(\d{1,2})(?:[:.]\d{2})?\s*(a\.?m\.?|p\.?m\.?)/i,
+    );
+    if (nightsMatch) {
+      const start = parseHour12(nightsMatch[1], nightsMatch[2]);
+      const end = parseHour12(nightsMatch[3], nightsMatch[4]);
+      if (start != null && end != null) {
+        windows.push({ label: "Free Nights", start_hour: start, end_hour: end, days: "all", cents_per_kwh: 0 });
+      } else {
+        errors.push("free_nights_hours_unparseable");
+      }
+    }
+    if (/Free\s*Weekends?\b/i.test(t)) {
+      windows.push({ label: "Free Weekends", start_hour: 0, end_hour: 24, days: "weekends", cents_per_kwh: 0 });
+    }
+    if (windows.length > 0) {
+      energy_charge = { type: "tou", default_cents_per_kwh: energy_charge.cents_per_kwh, windows };
+    }
   }
 
   // BASE CHARGE ($/month). Many REPs genuinely have no base charge — null
@@ -202,7 +246,7 @@ async function loadEligiblePlans() {
   // without redoing the ~530 already-successful parses.
   let query = supabase
     .from("plans")
-    .select("id, efl_url, plan_details ( plan_id, parser_version, parse_errors )")
+    .select("id, efl_url, plan_details ( plan_id, parser_version, parse_errors, source_url )")
     .eq("active", true)
     .not("efl_url", "is", null);
   const { data, error } = await query;
@@ -220,6 +264,12 @@ async function loadEligiblePlans() {
         (d) => d.parser_version === PARSER_VERSION && (d.parse_errors?.length ?? 0) > 0,
       ),
     );
+  } else if (urlChanged) {
+    eligible = data.filter((p) => {
+      const d = detailsOf(p)[0];
+      const sourceUrl = d?.source_url ?? null;
+      return p.efl_url && sourceUrl !== p.efl_url;
+    });
   } else if (!reparse) {
     eligible = data.filter(
       (p) => !detailsOf(p).some((d) => d.parser_version === PARSER_VERSION),
@@ -229,12 +279,16 @@ async function loadEligiblePlans() {
   return eligible;
 }
 
-async function upsertDetails(planId, parsed) {
+async function upsertDetails(planId, parsed, sourceUrl) {
   const row = {
     plan_id: planId,
     parsed_at: new Date().toISOString(),
     parser_version: PARSER_VERSION,
     parser_tier: PARSER_TIER,
+    // Stamp source_url so future runs with --url-changed can detect when
+    // PTC swaps in a new URL for the same plan. Also prevents retrying the
+    // same broken URL every run.
+    source_url: sourceUrl,
     base_charge: parsed.base_charge,
     etf_amount: parsed.etf_amount,
     minimum_usage_fee: parsed.minimum_usage_fee,
@@ -261,7 +315,7 @@ async function main() {
       const buf = await fetchPdf(plan.efl_url);
       const text = await extractEflText(buf);
       const result = parseEfl(text);
-      await upsertDetails(plan.id, result);
+      await upsertDetails(plan.id, result, plan.efl_url);
       parsed++;
       // Brief log every 50 to show progress without spamming
       if (parsed % 50 === 0) {
@@ -277,7 +331,7 @@ async function main() {
         energy_charge: null, bill_credits: null, tdu_charges: null,
         raw_text: null,
         parse_errors: [`fetch_or_extract_failed:${reason}`.slice(0, 200)],
-      }).catch(() => {});
+      }, plan.efl_url).catch(() => {});
     }
     await sleep(REQUEST_DELAY_MS);
   }

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Texas Energy 101 | Texergy AI",
+  title: "Texas Energy 101",
   description:
     "A plain-language guide to the Texas retail electricity market: deregulation, ERCOT, TDUs, REPs, plan types, EFLs, the 1000 kWh average-rate problem, bill credits, ETFs, and how to compare plans.",
 };

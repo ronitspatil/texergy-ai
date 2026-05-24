@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
+import { TduLookup } from "@/components/electric-utilities/tdu-lookup";
 
 export const metadata: Metadata = {
-  title: "Electric Utilities (TDUs) | Texergy AI",
+  title: "Electric Utilities (TDUs)",
   description:
     "The Transmission & Distribution Utilities (TDUs) that own the wires in deregulated Texas, with plan counts available in each footprint.",
+  robots: { index: false, follow: false },
 };
 
 // ISR: the daily cron calls revalidatePath('/electric-utilities') after
@@ -84,6 +86,8 @@ export default async function ElectricUtilitiesPage() {
           the five TDUs we cover.
         </p>
       </header>
+
+      <TduLookup />
 
       <ul className="space-y-10">
         {utilities.map((tdu) => (

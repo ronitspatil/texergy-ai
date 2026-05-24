@@ -1,4 +1,4 @@
-import { assessBillCredits, estimateMonthlyBill } from "./cost.ts";
+import { assessBillCredits, estimateAnnualBillFromProfile, estimateMonthlyBill } from "./cost.ts";
 import {
   type Breakdown,
   type DeviceFlag,
@@ -9,6 +9,7 @@ import {
   type Weights,
   DEFAULT_WEIGHTS,
 } from "./types.ts";
+import type { UsageProfile } from "../usage-profile/index.ts";
 
 const MONTHS_PER_YEAR = 12;
 
@@ -27,17 +28,40 @@ export function scoreAndRank(
   devices: DeviceFlag[] = [],
   seasonal: SeasonalContext | null = null,
   today: Date = new Date(),
+  profile: UsageProfile | null = null,
 ): RankedPlan[] {
   const w = normalizeWeights(weights);
   if (candidates.length === 0) return [];
 
   // ----- Pass 1: raw metrics -----
+  // When a usage profile is available, price each plan over 12 projected
+  // months (catches per-month bill-credit reliability + seasonality). When
+  // it isn't, fall back to the legacy flat-month math so the engine keeps
+  // working with no external dependency.
   const raw = candidates.map((plan) => {
+    if (profile) {
+      const annual = estimateAnnualBillFromProfile(plan, profile);
+      if (annual != null) {
+        return {
+          plan,
+          monthlyUsd: annual.annualUsd / 12,
+          monthlyBills: annual.monthly,
+          costSource: annual.source,
+          freeWindowFraction: annual.freeWindowFraction,
+          renewablePct: plan.renewable_pct ?? 0,
+          etfUsd: plan.etf_amount ?? 0,
+          termMonths: plan.term_months ?? 0,
+          rateType: plan.rate_type,
+        };
+      }
+    }
     const cost = estimateMonthlyBill(plan, usageKwh);
     return {
       plan,
       monthlyUsd: cost?.usd ?? null,
+      monthlyBills: null as number[] | null,
       costSource: cost?.source ?? null,
+      freeWindowFraction: null as number | null,
       renewablePct: plan.renewable_pct ?? 0,
       etfUsd: plan.etf_amount ?? 0,
       termMonths: plan.term_months ?? 0,
@@ -46,9 +70,12 @@ export function scoreAndRank(
   });
 
   // Drop plans we genuinely can't price — they can't be honestly ranked on
-  // cost, and cost is the dominant factor. Surface them only in a separate
-  // "unrated" bucket later if we ever want that.
-  const priced = raw.filter((r): r is typeof r & { monthlyUsd: number; costSource: NonNullable<typeof r.costSource> } => r.monthlyUsd != null);
+  // cost, and cost is the dominant factor. Reject null, undefined, AND NaN
+  // (the latter sneaks through `!= null` and would later serialize as `null`
+  // in the JSON response, breaking downstream `.toFixed` calls in the UI).
+  const priced = raw.filter((r): r is typeof r & { monthlyUsd: number; costSource: NonNullable<typeof r.costSource> } =>
+    r.monthlyUsd != null && Number.isFinite(r.monthlyUsd),
+  );
   if (priced.length === 0) return [];
 
   // ----- Pass 2: normalize -----
@@ -194,11 +221,13 @@ export function scoreAndRank(
       score: composite,
       estMonthlyBillUsd: round2(r.monthlyUsd),
       estAnnualCostUsd: round2(r.monthlyUsd * MONTHS_PER_YEAR),
+      monthlyBillsUsd: r.monthlyBills ? r.monthlyBills.map(round2) : null,
       effectiveCentsPerKwh,
       costSource: r.costSource,
+      profileSource: profile?.source ?? null,
       creditAssessment,
       breakdown,
-      reasons: buildReasons(r.plan, r.monthlyUsd, breakdown, minCost, maxCost, creditAssessment, market, effectiveCentsPerKwh),
+      reasons: buildReasons(r.plan, r.monthlyUsd, breakdown, minCost, maxCost, creditAssessment, market, effectiveCentsPerKwh, r.freeWindowFraction),
     };
   });
 
@@ -241,8 +270,17 @@ function buildReasons(
   credit: import("./types.ts").CreditAssessment | null,
   market: MarketContext | null,
   effectiveCentsPerKwh: number,
+  freeWindowFraction: number | null,
 ): string[] {
   const reasons: string[] = [];
+
+  // TOU plans: lead with the most decision-relevant number — the % of *your*
+  // usage that lands in the free window. Anything under ~25% is rarely worth
+  // it; over ~50% it's typically a clear win.
+  if (freeWindowFraction != null && freeWindowFraction > 0) {
+    const pct = Math.round(freeWindowFraction * 100);
+    reasons.push(`${pct}% of your usage falls in the free window`);
+  }
 
   if (plan.renewable_pct != null && plan.renewable_pct >= 80) {
     reasons.push(`${plan.renewable_pct}% renewable energy`);

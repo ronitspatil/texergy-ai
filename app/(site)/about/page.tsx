@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "About | Texergy AI",
+  title: "About",
   description:
     "Why Texergy AI exists, what it does differently, and what we will and won't do with your data.",
 };

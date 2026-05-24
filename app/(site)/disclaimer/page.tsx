@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Disclaimer | Texergy AI",
+  title: "Disclaimer",
   description:
     "Plan rankings on Texergy AI are informational estimates, not advice or guarantees.",
   robots: { index: false, follow: true },
@@ -18,7 +18,7 @@ export default function DisclaimerPage() {
           INFORMATIONAL. NOT ADVICE.
         </h1>
         <p className="mt-6 font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
-          Last updated: May 21, 2026
+          Last updated: May 25, 2026
         </p>
       </header>
 
@@ -43,9 +43,20 @@ export default function DisclaimerPage() {
           </h2>
           <ul className="list-disc list-outside ml-5 space-y-3 marker:text-accent/60 font-mono text-sm">
             <li>
-              We model monthly usage as a single kWh figure. Real bills depend
-              on month-to-month variance, time-of-day patterns, weather, and
-              billing-cycle alignment.
+              We project your usage across the year using the typical
+              residential load curve for your ERCOT weather zone (sourced from
+              ERCOT&apos;s published residential profiles via MeterPlan),
+              scaled to the annual kWh you provided. Real bills depend on how
+              closely your home matches that typical curve &mdash; appliance
+              mix, HVAC efficiency, occupancy, and weather all push actual
+              usage higher or lower than the model.
+            </li>
+            <li>
+              For time-of-use plans (Free Nights, Free Weekends, summer/winter
+              splits), we estimate the fraction of your usage that lands in
+              each rate window using the same typical curve. If your real
+              schedule shifts more usage into or out of the free window than
+              typical, the projection will be off.
             </li>
             <li>
               Electricity Facts Label (EFL) parsing can miss or misread
@@ -57,8 +68,9 @@ export default function DisclaimerPage() {
               may lag the current ones by a billing cycle.
             </li>
             <li>
-              Bill-credit reliability is modeled probabilistically &mdash; we
-              don&apos;t know your actual usage curve.
+              Bill-credit reliability is modeled probabilistically across
+              projected months &mdash; we don&apos;t know your actual usage
+              variance.
             </li>
             <li>
               Provider promotions, sign-up bonuses, and one-time fees are not
@@ -127,8 +139,19 @@ export default function DisclaimerPage() {
               Power to Choose
             </a>{" "}
             (Texas Public Utility Commission). Historical pricing context
-            comes from the U.S. Energy Information Administration. Neither
-            entity endorses or is affiliated with Texergy AI.
+            comes from the U.S. Energy Information Administration. ZIP-to-TDU
+            mappings and typical residential load curves come from{" "}
+            <a
+              href="https://meterplan.com/"
+              className="text-accent hover:underline underline-offset-4"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              MeterPlan
+            </a>
+            , which sources its load profiles from ERCOT&apos;s published
+            residential profiles. None of these entities endorse or are
+            affiliated with Texergy AI.
           </p>
         </section>
 

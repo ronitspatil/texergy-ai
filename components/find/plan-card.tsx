@@ -110,11 +110,11 @@ export function PlanCard({
             avg price
           </div>
           <div className="font-[family-name:var(--font-bebas)] text-4xl md:text-5xl tracking-tight text-foreground tabular-nums leading-none mt-1">
-            {ranked.effectiveCentsPerKwh.toFixed(1)}
+            {(ranked.effectiveCentsPerKwh ?? 0).toFixed(1)}
             <span className="text-2xl text-muted-foreground ml-1">¢/kWh</span>
           </div>
           <div className="font-mono text-[11px] text-muted-foreground tabular-nums mt-2">
-            ~ ${Math.round(ranked.estMonthlyBillUsd)}/mo est.
+            ~ ${Math.round(ranked.estMonthlyBillUsd ?? 0)}/mo est.
           </div>
           <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground mt-1">
             {ranked.costSource === "parsed_efl" ? "from EFL" : "from PTC avg"}
@@ -181,6 +181,12 @@ export function PlanCard({
                 <ScoreBars breakdown={ranked.breakdown} />
                 <Details ranked={ranked} />
               </div>
+              {ranked.monthlyBillsUsd && (
+                <MonthlyBillStrip
+                  monthly={ranked.monthlyBillsUsd}
+                  profileSource={ranked.profileSource}
+                />
+              )}
               <div className="mt-6 pt-6 border-t border-border/60 flex flex-col sm:flex-row sm:flex-wrap gap-3">
                 {plan.efl_url && (
                   <a
@@ -299,14 +305,16 @@ function Details({ ranked }: { ranked: RankedPlan }) {
         <Row label="Annual estimate" value={`$${Math.round(ranked.estAnnualCostUsd).toLocaleString()}`} />
         <Row
           label="Energy charge"
-          value={
-            plan.energy_charge
-              ? `${plan.energy_charge.cents_per_kwh}¢ / kWh`
-              : plan.rate_1000_kwh != null
-                ? `${plan.rate_1000_kwh}¢ / kWh (avg @ 1000)`
-                : "—"
-          }
+          value={energyChargeLabel(plan)}
         />
+        {plan.energy_charge?.type === "tou" && (
+          <Row
+            label="Free windows"
+            value={plan.energy_charge.windows
+              .map((w) => `${w.label}${w.days !== "all" ? ` (${w.days})` : ""}`)
+              .join(", ")}
+          />
+        )}
         <Row label="Base charge" value={plan.base_charge != null ? `$${plan.base_charge.toFixed(2)} / mo` : "—"} />
         <Row label="Termination fee" value={plan.etf_amount != null ? `$${plan.etf_amount.toFixed(0)}` : "—"} />
         {plan.bill_credits && ranked.creditAssessment && (
@@ -331,6 +339,79 @@ function Details({ ranked }: { ranked: RankedPlan }) {
       </dl>
     </div>
   );
+}
+
+function MonthlyBillStrip({
+  monthly,
+  profileSource,
+}: {
+  monthly: number[];
+  profileSource: RankedPlan["profileSource"];
+}) {
+  const MONTH_LABELS = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
+  const max = Math.max(...monthly, 1);
+  const min = Math.min(...monthly);
+  const peakIdx = monthly.indexOf(max);
+  const lowIdx = monthly.indexOf(min);
+  return (
+    <div className="mt-6 pt-6 border-t border-border/60">
+      <div className="flex items-baseline justify-between mb-3">
+        <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-accent">
+          Projected monthly bill
+        </div>
+        <div className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground/60">
+          {profileSource === "meter_api"
+            ? "ERCOT load curve"
+            : profileSource === "bundled_static"
+              ? "Typical TX home"
+              : ""}
+        </div>
+      </div>
+      <div className="grid grid-cols-12 gap-1.5 items-end h-24">
+        {monthly.map((usd, i) => {
+          const heightPct = Math.max(6, (usd / max) * 100);
+          const isPeak = i === peakIdx;
+          const isLow = i === lowIdx;
+          return (
+            <div key={i} className="flex flex-col items-center justify-end gap-1.5 h-full">
+              <span
+                className={`font-mono text-[9px] tabular-nums leading-none ${
+                  isPeak ? "text-accent" : isLow ? "text-foreground" : "text-muted-foreground/60"
+                }`}
+              >
+                {Math.round(usd)}
+              </span>
+              <div
+                className={`w-full transition-colors ${
+                  isPeak ? "bg-accent" : isLow ? "bg-foreground/40" : "bg-foreground/15"
+                }`}
+                style={{ height: `${heightPct}%` }}
+                aria-hidden="true"
+              />
+              <span className="font-mono text-[9px] uppercase text-muted-foreground/60 leading-none">
+                {MONTH_LABELS[i]}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+      <p className="mt-3 font-mono text-[10px] text-muted-foreground/70 leading-relaxed">
+        Peak <span className="text-accent">${Math.round(max)}</span> in {fullMonth(peakIdx)}; low{" "}
+        <span className="text-foreground">${Math.round(min)}</span> in {fullMonth(lowIdx)}.
+      </p>
+    </div>
+  );
+}
+
+function fullMonth(idx: number): string {
+  return ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][idx] ?? "";
+}
+
+function energyChargeLabel(plan: RankedPlan["plan"]): string {
+  const e = plan.energy_charge;
+  if (e?.type === "flat") return `${e.cents_per_kwh}¢ / kWh`;
+  if (e?.type === "tou") return `${e.default_cents_per_kwh}¢ / kWh (regular rate)`;
+  return plan.rate_1000_kwh != null ? `${plan.rate_1000_kwh}¢ / kWh (avg @ 1000)` : "—";
 }
 
 function Row({ label, value }: { label: string; value: string }) {

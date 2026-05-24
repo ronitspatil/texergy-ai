@@ -6,7 +6,10 @@ import { extractText, getDocumentProxy } from "unpdf";
 import { parseEfl } from "./efl-parse";
 import { Deadline, getServiceClient, sleep } from "./supabase";
 
-const PARSER_VERSION = "tier-a-v1";
+// v2: adds time-of-use detection (Free Nights / Free Weekends) — every plan
+// parsed against v1 is stale even if its EFL URL is unchanged, so the
+// loader below also re-picks rows whose parser_version is behind.
+const PARSER_VERSION = "tier-a-v2";
 const PARSER_TIER = "text";
 const REQUEST_DELAY_MS = 150;
 const FETCH_TIMEOUT_MS = 20_000;
@@ -39,11 +42,15 @@ type EligiblePlan = {
 
 async function loadChangedPlans(limit?: number): Promise<EligiblePlan[]> {
   const supabase = getServiceClient();
-  // Pull all active plans with an EFL URL and their current source_url.
-  // Filter in JS for "URL changed since last parse" — simpler than a SQL join here.
+  // Pull all active plans with an EFL URL and their current source_url +
+  // parser_version. A plan is eligible when EITHER:
+  //   - the EFL URL has changed since the last parse (new content), OR
+  //   - the existing row was written by an older parser_version (schema
+  //     additions like TOU detection need a one-time reparse of the whole
+  //     catalog so previously-flat plans get re-evaluated).
   const { data, error } = await supabase
     .from("plans")
-    .select("id, efl_url, plan_details ( source_url )")
+    .select("id, efl_url, plan_details ( source_url, parser_version )")
     .eq("active", true)
     .not("efl_url", "is", null);
   if (error) throw error;
@@ -52,7 +59,10 @@ async function loadChangedPlans(limit?: number): Promise<EligiblePlan[]> {
   for (const p of data ?? []) {
     const details = Array.isArray(p.plan_details) ? p.plan_details[0] : p.plan_details;
     const sourceUrl: string | null = details?.source_url ?? null;
-    if (p.efl_url && sourceUrl !== p.efl_url) {
+    const parserVersion: string | null = details?.parser_version ?? null;
+    const urlChanged = sourceUrl !== p.efl_url;
+    const versionStale = parserVersion !== PARSER_VERSION;
+    if (p.efl_url && (urlChanged || versionStale)) {
       eligible.push({ id: p.id, efl_url: p.efl_url });
     }
   }

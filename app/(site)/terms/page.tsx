@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Terms of Service | Texergy AI",
+  title: "Terms of Service",
   description: "The rules of using Texergy AI during the beta.",
   robots: { index: false, follow: true },
 };
@@ -17,7 +17,7 @@ export default function TermsPage() {
           THE AGREEMENT, KEPT SHORT.
         </h1>
         <p className="mt-6 font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
-          Last updated: May 20, 2026
+          Last updated: May 25, 2026
         </p>
       </header>
 
@@ -123,8 +123,19 @@ export default function TermsPage() {
               Power to Choose
             </a>{" "}
             (Texas Public Utility Commission), historical pricing context from
-            the U.S. Energy Information Administration, and is the property of
-            those sources and their respective providers.
+            the U.S. Energy Information Administration, ZIP-to-TDU mappings
+            and typical residential load curves from{" "}
+            <a
+              href="https://meterplan.com/"
+              className="text-accent hover:underline underline-offset-4"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              MeterPlan
+            </a>{" "}
+            (which derives load profiles from ERCOT&apos;s published residential
+            profiles), and is the property of those sources and their
+            respective providers.
           </p>
         </section>
 
