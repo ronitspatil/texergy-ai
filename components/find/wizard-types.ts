@@ -42,10 +42,29 @@ export type WeightsUI = {
   weatherForecast: number;
 };
 
+/** One month of the WattBuy 12-month forecast. `cost` is null when WattBuy
+ *  didn't return a monthly_cost entry for that index. */
+export type UsageGraphPoint = { month: string; kwh: number; cost: number | null };
+
+/** Normalized WattBuy usage estimate, mirrored from /api/usage-estimate.
+ *  Stored on the wizard so the profile step, sidebar, and results graph can
+ *  all read the same forecast without re-fetching. */
+export type UsageEstimate = {
+  stateName: string | null;
+  estUsageAnnualKwh: number;
+  monthlyAvgKwh: number;
+  avgMonthlyCost: number | null;
+  estBill: { min: number; max: number } | null;
+  interpolated: boolean;
+  graph: UsageGraphPoint[];
+};
+
 export type WizardState = {
   zip: string;
   mode: Mode | null;
   monthlyUsageKwh: number;
+  /** Full WattBuy forecast once the user runs the estimator; null otherwise. */
+  usageEstimate: UsageEstimate | null;
   rateTypePref: RateTypePref;
   renewablePref: RenewablePref;
   termPref: TermPref;

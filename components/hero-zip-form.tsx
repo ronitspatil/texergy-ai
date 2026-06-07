@@ -17,7 +17,7 @@ export function HeroZipForm() {
   const [submitting, setSubmitting] = useState(false);
   // Customer class is residential-only today. Commercial is shown as a
   // disabled "Soon" affordance so business visitors see it's on the roadmap.
-  const customerClass = "residential" as const;
+  const customerClass: "residential" | "commercial" = "residential";
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -65,7 +65,7 @@ export function HeroZipForm() {
       onSubmit={onSubmit}
       noValidate
       aria-label="Enter your ZIP code"
-      className="relative w-full max-w-2xl mx-auto flex flex-col gap-6 border border-foreground/30 focus-within:border-accent/60 bg-background/40 backdrop-blur-[2px] p-9 md:p-12 transition-colors duration-200 shadow-[0_0_0_1px_rgba(0,0,0,0.02),0_24px_48px_-32px_rgba(0,0,0,0.18)]"
+      className="relative w-full max-w-2xl mx-auto flex flex-col gap-6 rounded-xl border border-border/50 focus-within:border-accent/50 bg-background/50 backdrop-blur-sm shadow-e2 focus-within:shadow-e3 p-7 sm:p-9 md:p-12 transition-all duration-200"
     >
       <div className="flex items-center justify-between gap-4">
         <span className="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground">
@@ -79,19 +79,31 @@ export function HeroZipForm() {
         </a>
       </div>
 
-      {/* Customer class toggle — only Residential is wired today, but Commercial
-          is still selectable so business visitors can express intent. Submitting
-          while Commercial is selected surfaces a graceful "in development" notice
-          rather than routing into the residential flow. */}
-      <div role="radiogroup" aria-label="Customer class" className="grid grid-cols-2 gap-2">
+      {/* Customer class — a connected segmented toggle. Residential is the only
+          live option today, so the sliding thumb rests on it; Commercial is a
+          muted, non-interactive "Soon" affordance. The thumb animates by index,
+          so enabling Commercial later is just a state flip. */}
+      <div
+        role="radiogroup"
+        aria-label="Customer class"
+        className="relative grid grid-cols-2 rounded-[10px] border border-foreground/20 bg-background/50 p-[3px]"
+      >
+        {/* Sliding thumb behind the active segment. */}
+        <motion.span
+          aria-hidden
+          className="pointer-events-none absolute top-[3px] bottom-[3px] left-[3px] w-[calc(50%-3px)] rounded-[7px] bg-muted-foreground shadow-e1"
+          initial={false}
+          animate={{ x: customerClass === "residential" ? "0%" : "100%" }}
+          transition={{ type: "spring", stiffness: 380, damping: 30 }}
+        />
         <button
           type="button"
           role="radio"
           aria-checked={true}
-          className="relative text-center font-mono text-[11px] sm:text-xs uppercase tracking-[0.15em] sm:tracking-[0.25em] px-2 sm:px-5 py-2.5 border border-accent text-accent cursor-default"
+          className="relative z-10 flex items-center justify-center whitespace-nowrap font-mono text-[10px] sm:text-xs uppercase tracking-[0.02em] sm:tracking-[0.25em] px-2 sm:px-5 py-2.5 text-background cursor-default"
         >
           Residential
-          <span className="ml-1.5 text-[8px] sm:text-[9px] tracking-[0.2em] text-accent align-middle">
+          <span className="ml-1.5 text-[8px] sm:text-[9px] tracking-[0.2em] text-background/70 align-middle">
             · Beta
           </span>
         </button>
@@ -101,11 +113,11 @@ export function HeroZipForm() {
           aria-checked="false"
           aria-disabled="true"
           disabled
-          className="relative text-center font-mono text-[11px] sm:text-xs uppercase tracking-[0.15em] sm:tracking-[0.25em] px-2 sm:px-5 py-2.5 border border-foreground/15 text-muted-foreground/60 cursor-not-allowed select-none"
+          className="relative z-10 flex items-center justify-center whitespace-nowrap font-mono text-[10px] sm:text-xs uppercase tracking-[0.02em] sm:tracking-[0.25em] px-2 sm:px-5 py-2.5 text-muted-foreground/50 cursor-not-allowed select-none"
           title="Commercial plans are in development."
         >
           Commercial
-          <span className="ml-1.5 text-[8px] sm:text-[9px] tracking-[0.2em] text-muted-foreground/50 align-middle">
+          <span className="ml-1.5 text-[8px] sm:text-[9px] tracking-[0.2em] text-muted-foreground/40 align-middle">
             · Soon
           </span>
         </button>
@@ -128,7 +140,7 @@ export function HeroZipForm() {
           }}
           aria-invalid={error != null}
           disabled={submitting}
-          className="flex-1 min-w-0 sm:w-52 sm:flex-none bg-background/60 border border-foreground/25 px-6 py-5 font-mono text-lg tracking-[0.3em] uppercase text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-accent focus:bg-background transition-colors disabled:opacity-60"
+          className="flex-1 min-w-0 sm:w-52 sm:flex-none rounded-[10px] bg-background border border-foreground/25 px-6 py-5 font-mono text-lg tracking-[0.3em] uppercase text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-accent transition-colors duration-200 disabled:opacity-60"
         />
         <motion.button
           type="submit"
@@ -136,7 +148,7 @@ export function HeroZipForm() {
           whileHover={!submitting ? { scale: 1.02 } : undefined}
           whileTap={!submitting ? { scale: 0.98 } : undefined}
           transition={{ type: "spring", stiffness: 380, damping: 26 }}
-          className="group inline-flex items-center justify-center gap-3 flex-1 border border-foreground/30 px-8 py-5 font-mono text-base uppercase tracking-widest text-foreground hover:border-accent hover:text-accent transition-colors disabled:opacity-60"
+          className="group inline-flex items-center justify-center gap-2.5 flex-1 rounded-[10px] border border-accent-light bg-accent-light px-8 py-5 font-mono text-base uppercase tracking-widest text-accent-foreground hover:bg-accent hover:border-accent transition-colors disabled:opacity-60"
         >
           <ScrambleTextOnHover text={submitting ? "Loading…" : "Find My Plan"} as="span" duration={0.6} />
           <BitmapChevron className="transition-transform duration-[400ms] ease-in-out group-hover:rotate-45" />

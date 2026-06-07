@@ -58,6 +58,9 @@ const limitIdx = args.indexOf("--limit");
 const limit = limitIdx >= 0 ? parseInt(args[limitIdx + 1], 10) : null;
 const tierIdx = args.indexOf("--tier");
 const tier = tierIdx >= 0 ? args[tierIdx + 1] : "cost_effective";
+// --retry-failures: re-submit plans even when their efl_url matches the last
+// LlamaParse attempt (llamaparse_source_url). Off by default to save credits.
+const retryFailures = args.includes("--retry-failures");
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -232,7 +235,7 @@ function round3(n) {
 async function loadEligiblePlans() {
   const { data, error } = await supabase
     .from("plans")
-    .select("id, name, efl_url, plan_details ( plan_id, parser_version, parse_errors )")
+    .select("id, name, efl_url, plan_details ( plan_id, parser_version, parse_errors, llamaparse_source_url )")
     .eq("active", true)
     .not("efl_url", "is", null);
   if (error) throw error;
@@ -240,22 +243,42 @@ async function loadEligiblePlans() {
   const detailsOf = (p) =>
     Array.isArray(p.plan_details) ? p.plan_details : p.plan_details ? [p.plan_details] : [];
 
-  // Eligible = any plan whose current row has a non-empty parse_errors[]. We
-  // intentionally include rows from the prior tier (tier-a-v1) so we can
-  // upgrade them in place.
+  // Eligible = any plan whose current row has a non-empty parse_errors[] AND
+  // whose efl_url differs from what we last submitted to LlamaParse
+  // (llamaparse_source_url). Without the URL gate a recurring run re-submits
+  // the same broken PDFs every night and burns credits. Pass --retry-failures
+  // to ignore the gate. We intentionally include rows from the prior tier
+  // (tier-a-v1) so we can upgrade them in place.
   let eligible = data.filter((p) =>
-    detailsOf(p).some((d) => (d.parse_errors?.length ?? 0) > 0),
+    detailsOf(p).some(
+      (d) =>
+        (d.parse_errors?.length ?? 0) > 0 &&
+        (retryFailures || d.llamaparse_source_url !== p.efl_url),
+    ),
   );
   if (limit != null) eligible = eligible.slice(0, limit);
   return eligible;
 }
 
-async function upsertDetails(planId, parsed) {
+// Stamp the URL we just submitted — success or failure — so the next run
+// skips this plan unless PTC publishes a new fact-sheet URL.
+async function stampSourceUrl(planId, eflUrl) {
+  const { error } = await supabase
+    .from("plan_details")
+    .update({ llamaparse_source_url: eflUrl })
+    .eq("plan_id", planId);
+  if (error) {
+    console.warn(`  could not stamp llamaparse_source_url for plan ${planId}: ${error.message}`);
+  }
+}
+
+async function upsertDetails(planId, parsed, eflUrl) {
   const row = {
     plan_id: planId,
     parsed_at: new Date().toISOString(),
     parser_version: PARSER_VERSION,
     parser_tier: PARSER_TIER,
+    llamaparse_source_url: eflUrl,
     base_charge: parsed.base_charge,
     etf_amount: parsed.etf_amount,
     minimum_usage_fee: parsed.minimum_usage_fee,
@@ -285,7 +308,7 @@ async function main() {
       const jobId = await submitJob(plan.efl_url);
       const markdown = await fetchResult(jobId);
       const result = parseEfl(markdown);
-      await upsertDetails(plan.id, result);
+      await upsertDetails(plan.id, result, plan.efl_url);
       if (result.energy_charge) {
         recovered++;
         if (recovered % 10 === 0) {
@@ -299,7 +322,9 @@ async function main() {
       const reason = (err.message || String(err)).slice(0, 120);
       llamaFailureReasons.set(reason, (llamaFailureReasons.get(reason) ?? 0) + 1);
       // Don't overwrite the existing row on hard LlamaParse failure — keep the
-      // Tier A error so we know not to retry forever.
+      // Tier A error so we know not to retry forever. Still stamp the URL so
+      // the nightly run doesn't re-burn credits on the same broken PDF.
+      await stampSourceUrl(plan.id, plan.efl_url);
     }
     await sleep(JOB_DELAY_MS);
   }

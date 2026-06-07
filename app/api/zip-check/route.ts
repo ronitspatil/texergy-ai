@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { createHash } from "node:crypto";
 import { rateLimit } from "@/lib/rate-limit";
+import { getClientIp, hashIp, isSameOrigin } from "@/lib/request-guard";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -9,28 +9,6 @@ export const dynamic = "force-dynamic";
 const PTC_BASE = "https://api.powertochoose.org/api/PowerToChoose";
 
 type PtcPlan = { company_tdu_id?: string };
-
-function getClientIp(req: NextRequest): string {
-  const fwd = req.headers.get("x-forwarded-for");
-  if (fwd) return fwd.split(",")[0]!.trim();
-  return req.headers.get("x-real-ip") ?? "unknown";
-}
-
-function hashIp(ip: string): string {
-  const salt = process.env.IP_HASH_SALT ?? "texergy-dev-salt-not-for-production";
-  return createHash("sha256").update(`${salt}:${ip}`).digest("hex");
-}
-
-function isSameOrigin(req: NextRequest): boolean {
-  const origin = req.headers.get("origin");
-  const host = req.headers.get("host");
-  if (!origin || !host) return false;
-  try {
-    return new URL(origin).host === host;
-  } catch {
-    return false;
-  }
-}
 
 function getServerClient() {
   return createClient(

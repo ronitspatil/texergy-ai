@@ -8,6 +8,8 @@ import { SectionLabel } from "@/components/ui/section-label";
 import { PlanCard } from "@/components/find/plan-card";
 import { ResultsSidebar } from "@/components/find/results-sidebar";
 import { CompareDialog } from "@/components/find/compare-dialog";
+import { UsageForecastChart } from "@/components/find/usage-forecast-chart";
+import { UsageEstimateModal } from "@/components/find/usage-estimate-modal";
 import { buildRecommendBody, type ApiResponse } from "@/components/find/recommend-client";
 
 const ZONE_LABELS: Record<string, string> = {
@@ -358,6 +360,10 @@ export function ResultsStep({
         </div>
       </div>
 
+      {!loading && !error && data && data.ranked.length > 0 && (
+        <UsageForecastSection state={state} onUpdate={onUpdate} />
+      )}
+
       <CompareBar
         selected={sortedRanked.filter((r) => compareIds.includes(r.plan.id))}
         max={COMPARE_MAX}
@@ -373,6 +379,80 @@ export function ResultsStep({
         />
       )}
     </div>
+  );
+}
+
+/** 12-month usage/cost forecast shown below the plan list. Only graphs once the
+ *  user has run an address-based estimate — WattBuy's ZIP-only output skews high
+ *  (its "average home in the area"), so we don't auto-fetch it here. Until then
+ *  we invite the user to personalize. Never blocks the plan list. */
+function UsageForecastSection({
+  state,
+  onUpdate,
+}: {
+  state: WizardState;
+  onUpdate: (patch: Partial<WizardState>) => void;
+}) {
+  const [estimateOpen, setEstimateOpen] = useState(false);
+  const estimate = state.usageEstimate;
+
+  return (
+    <section className="mt-12 sm:mt-16 border-t border-border/40 pt-10">
+      <SectionLabel className="block mb-3">Your usage forecast</SectionLabel>
+      <h3 className="font-[family-name:var(--font-bebas)] text-foreground text-[clamp(1.75rem,4vw,3rem)] leading-[0.95] tracking-tight mb-2">
+        WHAT YOU&apos;LL <span className="text-accent">USE.</span>
+      </h3>
+      <p className="font-mono text-xs text-muted-foreground mb-6 max-w-2xl">
+        {estimate
+          ? "Forecast from the details you entered."
+          : "Add your address for a personalized month-by-month forecast of your usage and cost."}
+      </p>
+
+      {estimate ? (
+        <>
+          <div className="border border-border/40 bg-background/40 p-4 sm:p-6">
+            <UsageForecastChart graph={estimate.graph} />
+          </div>
+          <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground/70">
+              <span className="text-accent">●</span> Estimated by WattBuy
+              {estimate.interpolated ? " · interpolated from area data" : ""}
+              {" · "}~{estimate.monthlyAvgKwh.toLocaleString()} kWh/mo avg
+              {estimate.avgMonthlyCost != null ? ` · ~$${estimate.avgMonthlyCost.toLocaleString()}/mo avg` : ""}
+            </p>
+            <button
+              type="button"
+              onClick={() => setEstimateOpen(true)}
+              className="font-mono text-[11px] text-accent underline underline-offset-4 decoration-accent/40 hover:decoration-accent transition-colors text-left"
+            >
+              Update my details →
+            </button>
+          </div>
+        </>
+      ) : (
+        <div className="border border-border/40 bg-background/40 p-6 flex flex-col sm:flex-row sm:items-center gap-4">
+          <p className="flex-1 font-mono text-xs text-muted-foreground leading-relaxed">
+            Want a month-by-month forecast of your usage and cost? Add a few home
+            details and we&apos;ll estimate it.
+          </p>
+          <button
+            type="button"
+            onClick={() => setEstimateOpen(true)}
+            className="shrink-0 border border-accent/60 px-5 py-2.5 font-mono text-[11px] uppercase tracking-widest text-foreground hover:bg-accent hover:border-accent hover:text-accent-foreground transition-colors"
+          >
+            Estimate my usage →
+          </button>
+        </div>
+      )}
+
+      {estimateOpen && (
+        <UsageEstimateModal
+          zip={state.zip}
+          onApply={(patch) => onUpdate(patch)}
+          onClose={() => setEstimateOpen(false)}
+        />
+      )}
+    </section>
   );
 }
 

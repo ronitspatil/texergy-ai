@@ -5,7 +5,6 @@ import { ScrambleTextOnHover } from "@/components/scramble-text"
 import { SplitFlapText, SplitFlapMuteToggle, SplitFlapAudioProvider } from "@/components/split-flap-text"
 import { AnimatedNoise } from "@/components/animated-noise"
 import { BitmapChevron } from "@/components/bitmap-chevron"
-import { SectionLabel } from "@/components/ui/section-label"
 import { HeroZipForm } from "@/components/hero-zip-form"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
@@ -44,7 +43,6 @@ export function HeroSection() {
 
       {/* Main content */}
       <div ref={contentRef} className="flex-1 w-full">
-        <SectionLabel className="block mb-6">01 / Home</SectionLabel>
         <SplitFlapAudioProvider>
           <div className="relative">
             <SplitFlapText text="TEXERGYAI" speed={80} accentIndices={[7, 8]} />

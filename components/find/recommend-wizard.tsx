@@ -30,6 +30,7 @@ export function RecommendWizard() {
     zip: zipFromUrl,
     mode: null,
     monthlyUsageKwh: 1000,
+    usageEstimate: null,
     rateTypePref: "any",
     renewablePref: "any",
     termPref: "any",

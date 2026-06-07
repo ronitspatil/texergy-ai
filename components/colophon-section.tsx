@@ -96,10 +96,7 @@ export function ColophonSection() {
               <a href="#signals" className="hover:text-accent transition-colors duration-200">How It Works</a>
             </li>
             <li className="h-5 flex items-center font-mono text-xs text-foreground/80">
-              <a href="#work" className="hover:text-accent transition-colors duration-200">Considered Variables</a>
-            </li>
-            <li className="h-5 flex items-center font-mono text-xs text-foreground/80">
-              <a href="#principles" className="hover:text-accent transition-colors duration-200">Why Us</a>
+              <a href="#work" className="hover:text-accent transition-colors duration-200">Smart Match</a>
             </li>
             <li className="h-5 flex items-center font-mono text-xs text-foreground/80">
               {IS_PRODUCT_MODE ? (

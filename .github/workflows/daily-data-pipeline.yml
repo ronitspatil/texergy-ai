@@ -1,0 +1,82 @@
+# Nightly data pipeline — keeps the plans database self-maintaining.
+#
+# Replaces the previous split setup (Supabase pg_cron + ingest-plans Edge
+# Function for ingest, Vercel crons for snapshot + EFL parsing). Those ran
+# under 60–150s budgets that the EFL backlog could never drain; an Actions
+# job gets hours, runs the canonical scripts/*.mjs unchanged, and emails the
+# repo owner automatically when a scheduled run fails.
+#
+# Steps (each idempotent, so a re-run is always safe):
+#   1. ingest-plans      — PTC API → reps/plans/tdus, soft-deletes unseen plans
+#   2. snapshot-prices   — per-TDU daily price distribution → plan_price_snapshots
+#   3. parse-efls        — Tier A text parser, only plans whose efl_url changed
+#   4. parse-efls-llamaparse — Tier B on Tier-A failures, URL-gated to save credits
+#   5. parse-efls-gemini — Tier C structured extraction on remaining failures,
+#                          URL-gated to save Gemini quota
+#
+# Snapshot runs even if ingest fails (it reads whatever is in `plans`), and
+# parsing failures don't mask ingest/snapshot success — hence `!cancelled()`.
+
+name: daily-data-pipeline
+
+on:
+  schedule:
+    - cron: "30 8 * * *" # 08:30 UTC, same slot the pg_cron job used
+  workflow_dispatch:
+
+concurrency:
+  group: daily-data-pipeline
+  cancel-in-progress: false
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      LLAMA_CLOUD_API_KEY: ${{ secrets.LLAMA_CLOUD_API_KEY }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}
+      SITE_URL: https://texergy.ai
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Ingest plans from Power to Choose
+        id: ingest
+        run: node scripts/ingest-plans.mjs
+
+      - name: Snapshot per-TDU prices
+        if: ${{ !cancelled() }}
+        run: node scripts/snapshot-prices.mjs
+
+      - name: Parse EFLs — Tier A (changed URLs)
+        if: ${{ !cancelled() }}
+        run: node scripts/parse-efls.mjs --url-changed
+
+      # Skips (rather than fails) when the LLAMA_CLOUD_API_KEY secret is unset.
+      - name: Parse EFLs — Tier B (LlamaParse on Tier-A failures)
+        if: ${{ !cancelled() && env.LLAMA_CLOUD_API_KEY != '' }}
+        run: node scripts/parse-efls-llamaparse.mjs
+
+      - name: Parse EFLs — Tier C (Gemini on remaining failures)
+        if: ${{ !cancelled() && env.GEMINI_API_KEY != '' }}
+        run: node scripts/parse-efls-gemini.mjs
+
+      # The ingest script pings revalidate too, but that fires before parsing
+      # has updated plan_details — this final ping makes the ISR'd provider /
+      # utility pages reflect tonight's parsed rates, not yesterday's.
+      - name: Revalidate site pages
+        if: ${{ !cancelled() && env.ADMIN_TOKEN != '' }}
+        run: |
+          curl -sf -X POST "$SITE_URL/api/admin/revalidate" \
+            -H "Authorization: Bearer $ADMIN_TOKEN" \
+            && echo "revalidated"

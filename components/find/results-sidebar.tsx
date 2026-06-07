@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
+import { UsageEstimateModal } from "@/components/find/usage-estimate-modal";
 import type {
   BaseChargePref,
   EtfPref,
@@ -25,6 +26,7 @@ export function ResultsSidebar({
   onUpdate: (patch: Partial<WizardState>) => void;
 }) {
   const isSmart = state.mode === "smart";
+  const [estimateOpen, setEstimateOpen] = useState(false);
 
   return (
     <div className="space-y-8">
@@ -45,7 +47,21 @@ export function ResultsSidebar({
         <div className="mt-1 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
           kWh / mo
         </div>
+        <button
+          type="button"
+          onClick={() => setEstimateOpen(true)}
+          className="mt-2 font-mono text-[11px] text-accent underline underline-offset-4 decoration-accent/40 hover:decoration-accent transition-colors"
+        >
+          Estimate my usage →
+        </button>
       </Block>
+      {estimateOpen && (
+        <UsageEstimateModal
+          zip={state.zip}
+          onApply={(patch) => onUpdate(patch)}
+          onClose={() => setEstimateOpen(false)}
+        />
+      )}
 
       <Block label="Provider">
         <ProviderMultiSelect

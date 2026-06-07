@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type {
   DeviceFlag,
   RateTypePref,
@@ -10,8 +11,9 @@ import type {
 import { DEVICE_OPTIONS } from "@/components/find/wizard-types";
 import { SectionLabel } from "@/components/ui/section-label";
 import { WizardFooter } from "@/components/find/wizard-footer";
+import { UsageEstimateModal } from "@/components/find/usage-estimate-modal";
 
-type Patch = Partial<Pick<WizardState, "monthlyUsageKwh" | "rateTypePref" | "renewablePref" | "termPref" | "devices">>;
+type Patch = Partial<Pick<WizardState, "monthlyUsageKwh" | "usageEstimate" | "rateTypePref" | "renewablePref" | "termPref" | "devices">>;
 
 export function QuestionsStep({
   state,
@@ -25,6 +27,7 @@ export function QuestionsStep({
   onNext: () => void;
 }) {
   const isSmart = state.mode === "smart";
+  const [estimateOpen, setEstimateOpen] = useState(false);
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -76,6 +79,18 @@ export function QuestionsStep({
               </button>
             ))}
           </div>
+          <button
+            type="button"
+            onClick={() => setEstimateOpen(true)}
+            className="mt-4 font-mono text-xs text-accent underline underline-offset-4 decoration-accent/40 hover:decoration-accent transition-colors"
+          >
+            Not sure? Estimate my usage →
+          </button>
+          {state.usageEstimate && (
+            <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground/70">
+              <span className="text-accent">●</span> Using WattBuy estimate
+            </p>
+          )}
         </Field>
 
         <Field
@@ -130,6 +145,14 @@ export function QuestionsStep({
       </div>
 
       <WizardFooter onBack={onBack} onNext={onNext} nextLabel={isSmart ? "Set weights →" : "See matches →"} />
+
+      {estimateOpen && (
+        <UsageEstimateModal
+          zip={state.zip}
+          onApply={(patch) => onChange(patch)}
+          onClose={() => setEstimateOpen(false)}
+        />
+      )}
     </div>
   );
 }
