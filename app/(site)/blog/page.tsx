@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import NewsletterForm from "@/components/NewsletterForm";
+import { BreadcrumbJsonLd } from "@/components/breadcrumb-jsonld";
 
 export const metadata: Metadata = {
   title: "Blog",
+  alternates: { canonical: "/blog" },
+  robots: { index: false, follow: true },
   description: "Field notes on the Texas electricity market.",
 };
 
@@ -28,6 +31,7 @@ const UPCOMING = [
 export default function BlogPage() {
   return (
     <article className="mx-auto max-w-4xl px-6 md:px-12">
+      <BreadcrumbJsonLd name="Blog" path="/blog" />
       <header className="mb-16">
         <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-accent">
           Blog

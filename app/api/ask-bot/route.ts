@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createHash } from "node:crypto";
 import { rateLimit } from "@/lib/rate-limit";
+import { getClientIp, hashIp, isSameOrigin } from "@/lib/request-guard";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-
-const IP_SALT = process.env.IP_HASH_SALT ?? "texergy-dev-salt-not-for-production";
 
 // Two-tier limit: protects the user from accidental loops AND the daily Gemini
 // free-tier quota from a noisy IP. Enforced in dev too — the whole point is to
@@ -14,16 +12,6 @@ const PER_IP_WINDOW_MS = 60 * 60 * 1000; // 1 hour
 const PER_IP_MAX = 10;
 const GLOBAL_WINDOW_MS = 24 * 60 * 60 * 1000; // 24 h
 const GLOBAL_MAX = 300;
-
-function getClientIp(req: NextRequest): string {
-  const fwd = req.headers.get("x-forwarded-for");
-  if (fwd) return fwd.split(",")[0]!.trim();
-  return req.headers.get("x-real-ip") ?? "unknown";
-}
-
-function hashIp(ip: string): string {
-  return createHash("sha256").update(`${IP_SALT}:${ip}`).digest("hex");
-}
 
 const MODEL = "gemini-2.5-flash-lite";
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
@@ -46,17 +34,6 @@ type PlanCtx = {
   estAnnualCostUsd: number;
   reasons: string[];
 };
-
-function isSameOrigin(req: NextRequest): boolean {
-  const origin = req.headers.get("origin");
-  const host = req.headers.get("host");
-  if (!origin || !host) return false;
-  try {
-    return new URL(origin).host === host;
-  } catch {
-    return false;
-  }
-}
 
 function formatPlan(p: PlanCtx, i: number): string {
   const term =

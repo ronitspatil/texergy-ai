@@ -37,7 +37,6 @@ export const metadata: Metadata = {
     "ERCOT",
     "power to choose",
   ],
-  alternates: { canonical: "/" },
   openGraph: {
     title: "Texergy AI",
     description:

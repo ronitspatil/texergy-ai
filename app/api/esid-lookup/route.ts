@@ -5,6 +5,8 @@
 // a free public lookup.
 
 import { NextRequest, NextResponse } from "next/server";
+import { rateLimit } from "@/lib/rate-limit";
+import { getClientIp, hashIp, isSameOrigin } from "@/lib/request-guard";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -12,20 +14,25 @@ export const dynamic = "force-dynamic";
 const UPSTREAM = "https://meterplan.com/api/v1/lookup-esi-id";
 const REQUEST_TIMEOUT_MS = 12_000;
 
-function isSameOrigin(req: NextRequest): boolean {
-  const origin = req.headers.get("origin");
-  const host = req.headers.get("host");
-  if (!origin || !host) return false;
-  try {
-    return new URL(origin).host === host;
-  } catch {
-    return false;
-  }
-}
-
 export async function POST(req: NextRequest) {
   if (!isSameOrigin(req)) {
     return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+  }
+
+  // Every call proxies a paid MeterPlan address lookup, so cap per-IP volume to
+  // stop the endpoint being abused as a free public address-search API.
+  const rl = rateLimit(`esid-lookup:${hashIp(getClientIp(req))}`, {
+    windowMs: 60 * 60 * 1000,
+    max: 20,
+  });
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { error: "Too many lookups. Try again later." },
+      {
+        status: 429,
+        headers: { "Retry-After": Math.ceil((rl.resetAt - Date.now()) / 1000).toString() },
+      },
+    );
   }
 
   let body: unknown;

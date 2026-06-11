@@ -4,23 +4,14 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { rateLimit } from "@/lib/rate-limit";
+import { getClientIp, hashIp, isSameOrigin } from "@/lib/request-guard";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const UPSTREAM = "https://meterplan.com/api/v1/get-utility-for-zip";
 const REQUEST_TIMEOUT_MS = 6_000;
-
-function isSameOrigin(req: NextRequest): boolean {
-  const origin = req.headers.get("origin");
-  const host = req.headers.get("host");
-  if (!origin || !host) return false;
-  try {
-    return new URL(origin).host === host;
-  } catch {
-    return false;
-  }
-}
 
 type UpstreamResponse = {
   zipCode?: string;
@@ -37,6 +28,21 @@ type LookupResult = UpstreamResponse & { source: "meter_api" | "supabase_cache" 
 export async function POST(req: NextRequest) {
   if (!isSameOrigin(req)) {
     return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+  }
+
+  // Proxies a paid MeterPlan lookup; cap per-IP volume to prevent scraping.
+  const limit = rateLimit(`utility-for-zip:${hashIp(getClientIp(req))}`, {
+    windowMs: 60 * 60 * 1000,
+    max: 40,
+  });
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { error: "Too many lookups. Try again later." },
+      {
+        status: 429,
+        headers: { "Retry-After": Math.ceil((limit.resetAt - Date.now()) / 1000).toString() },
+      },
+    );
   }
 
   let body: unknown;

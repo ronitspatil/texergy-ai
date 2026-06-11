@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { HeroSection } from "@/components/hero-section";
 import { SignalsSection } from "@/components/signals-section";
 import { WorkSection } from "@/components/work-section";
@@ -11,6 +12,10 @@ import { SideNav } from "@/components/side-nav";
 // waitlist UI branches stay in the codebase so a future campaign can
 // resurrect them by flipping this constant back to an env check.
 const IS_PRODUCT_MODE = true;
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 export default function Page() {
   return (

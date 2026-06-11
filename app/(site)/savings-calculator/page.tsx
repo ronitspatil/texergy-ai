@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import { SavingsCalculator } from "@/components/savings-calculator/savings-calculator";
+import { BreadcrumbJsonLd } from "@/components/breadcrumb-jsonld";
 
 export const metadata: Metadata = {
   title: "Savings Calculator",
+  alternates: { canonical: "/savings-calculator" },
+  robots: { index: false, follow: true },
   description:
     "Enter your most recent Texas electricity bill and see how much you could save by switching to the best available plan in your ZIP. Monthly bill, annual savings, and savings percentage in one shot.",
 };
@@ -10,6 +13,7 @@ export const metadata: Metadata = {
 export default function SavingsCalculatorPage() {
   return (
     <article className="mx-auto max-w-4xl px-6 md:px-12">
+      <BreadcrumbJsonLd name="Savings Calculator" path="/savings-calculator" />
       <header className="mb-16">
         <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-accent">
           Savings Calculator

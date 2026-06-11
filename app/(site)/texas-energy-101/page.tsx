@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BreadcrumbJsonLd } from "@/components/breadcrumb-jsonld";
 
 export const metadata: Metadata = {
   title: "Texas Energy 101",
+  alternates: { canonical: "/texas-energy-101" },
+  robots: { index: false, follow: true },
   description:
     "A plain-language guide to the Texas retail electricity market: deregulation, ERCOT, TDUs, REPs, plan types, EFLs, the 1000 kWh average-rate problem, bill credits, ETFs, and how to compare plans.",
 };
@@ -59,6 +62,7 @@ function P({ children }: { children: React.ReactNode }) {
 export default function TexasEnergy101Page() {
   return (
     <article className="mx-auto max-w-3xl px-6 md:px-12">
+      <BreadcrumbJsonLd name="Texas Energy 101" path="/texas-energy-101" />
       <header className="mb-16">
         <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-accent">
           Texas Energy 101

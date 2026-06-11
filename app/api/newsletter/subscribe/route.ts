@@ -1,35 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createHash } from "node:crypto";
 import { addNewsletterSubscriber } from "@/lib/db";
 import { sendNewsletterConfirmation } from "@/lib/email";
 import { signEmail } from "@/lib/newsletter-token";
 import { rateLimit } from "@/lib/rate-limit";
+import { getClientIp, hashIp, isSameOrigin } from "@/lib/request-guard";
 import { newsletterSchema } from "@/lib/validation";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const IP_SALT = process.env.IP_HASH_SALT ?? "texergy-default-salt-change-me";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://texergy.ai";
-
-function getClientIp(req: NextRequest): string {
-  const fwd = req.headers.get("x-forwarded-for");
-  if (fwd) return fwd.split(",")[0]!.trim();
-  return req.headers.get("x-real-ip") ?? "unknown";
-}
-function hashIp(ip: string): string {
-  return createHash("sha256").update(`${IP_SALT}:${ip}`).digest("hex");
-}
-function isSameOrigin(req: NextRequest): boolean {
-  const origin = req.headers.get("origin");
-  const host = req.headers.get("host");
-  if (!origin || !host) return false;
-  try {
-    return new URL(origin).host === host;
-  } catch {
-    return false;
-  }
-}
 
 export async function POST(req: NextRequest) {
   if (!isSameOrigin(req)) {

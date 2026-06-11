@@ -65,7 +65,7 @@ export function HeroZipForm() {
       onSubmit={onSubmit}
       noValidate
       aria-label="Enter your ZIP code"
-      className="relative w-full max-w-2xl mx-auto flex flex-col gap-6 rounded-xl border border-border/50 focus-within:border-accent/50 bg-background/50 backdrop-blur-sm shadow-e2 focus-within:shadow-e3 p-7 sm:p-9 md:p-12 transition-all duration-200"
+      className="relative w-full max-w-2xl mx-auto flex flex-col gap-6 rounded-xl border border-border/50 focus-within:border-accent/50 bg-background/25 backdrop-blur-sm shadow-e2 focus-within:shadow-e3 p-7 sm:p-9 md:p-12 transition-all duration-200"
     >
       <div className="flex items-center justify-between gap-4">
         <span className="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground">

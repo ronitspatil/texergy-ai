@@ -7,17 +7,17 @@
 .light {
   /* Backgrounds carry a faint burnt-orange wash (hue ~48, nudged chroma) so the
      "white" surfaces read as warm tinted paper rather than neutral cream. */
-  --background: oklch(0.991 0.009 48);
+  --background: oklch(0.991 0.036 48);
   --foreground: oklch(0.19 0.012 55);
-  --card: oklch(0.983 0.010 48);
+  --card: oklch(0.983 0.038 48);
   --card-foreground: oklch(0.19 0.012 55);
-  --popover: oklch(0.996 0.007 48);
+  --popover: oklch(0.996 0.029 48);
   --popover-foreground: oklch(0.19 0.012 55);
   --primary: oklch(0.19 0.012 55);
   --primary-foreground: oklch(0.99 0.004 80);
-  --secondary: oklch(0.953 0.009 48);
+  --secondary: oklch(0.953 0.036 48);
   --secondary-foreground: oklch(0.26 0.012 55);
-  --muted: oklch(0.918 0.009 48);
+  --muted: oklch(0.918 0.036 48);
   --muted-foreground: oklch(0.47 0.012 60);
   --accent: oklch(0.66 0.185 42);
   --accent-foreground: oklch(0.16 0.02 55);
@@ -34,7 +34,7 @@
   --input: oklch(0.965 0 0);
   --ring: oklch(0.7 0.2 45);
   --radius: 0rem;
-  --sidebar: oklch(0.978 0.009 48);
+  --sidebar: oklch(0.978 0.036 48);
   --sidebar-foreground: oklch(0.19 0.012 55);
   --sidebar-primary: oklch(0.66 0.185 42);
   --sidebar-primary-foreground: oklch(0.16 0.02 55);
@@ -46,10 +46,10 @@
   --scrollbar-track: oklch(0.991 0.009 48);
   --scrollbar-thumb: oklch(0.78 0.01 70);
   --scrollbar-thumb-hover: oklch(0.62 0.014 60);
-  --split-flap-bg: oklch(0.985 0.004 78);
+  --split-flap-bg: oklch(0.985 0.036 48);
   --split-flap-bg-active: oklch(0.94 0.02 60);
   --split-flap-text: oklch(0.16 0.02 55);
-  --split-flap-divider: oklch(0.2 0.02 50 / 0.16);
+  --split-flap-divider: oklch(0.2 0.02 50 / 0.09);
   /* Warm, layered elevation. Shadows are tinted toward the ink color rather
      than pure black so they sit naturally on the warm background. */
   --elevation-1: 0 1px 2px -1px oklch(0.2 0.02 55 / 0.1), 0 1px 3px oklch(0.2 0.02 55 / 0.05);

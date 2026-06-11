@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
+import { BreadcrumbJsonLd } from "@/components/breadcrumb-jsonld";
 
 export const metadata: Metadata = {
   title: "About",
+  alternates: { canonical: "/about" },
+  robots: { index: false, follow: true },
   description:
     "Why Texergy AI exists, what it does differently, and what we will and won't do with your data.",
 };
@@ -9,6 +12,7 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <article className="mx-auto max-w-3xl px-6 md:px-12">
+      <BreadcrumbJsonLd name="About" path="/about" />
       <header className="mb-16">
         <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-accent">
           About

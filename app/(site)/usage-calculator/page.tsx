@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { UsageCalculator } from "@/components/usage-calculator/usage-calculator";
+import { BreadcrumbJsonLd } from "@/components/breadcrumb-jsonld";
 
 export const metadata: Metadata = {
   title: "Usage Calculator",
+  alternates: { canonical: "/usage-calculator" },
+  robots: { index: false, follow: true },
   description:
     "Estimate your monthly Texas electricity usage in kWh by appliance. Pick your devices, set hours per day, and get a household total plus a bill estimate — then use the result to find a plan that actually fits.",
 };
@@ -11,6 +14,7 @@ export const metadata: Metadata = {
 export default function UsageCalculatorPage() {
   return (
     <article className="mx-auto max-w-5xl px-6 md:px-12">
+      <BreadcrumbJsonLd name="Usage Calculator" path="/usage-calculator" />
       <header className="mb-16">
         <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-accent">
           Usage Calculator

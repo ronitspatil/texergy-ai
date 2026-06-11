@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { EsidLookup } from "@/components/esid-lookup/esid-lookup";
+import { BreadcrumbJsonLd } from "@/components/breadcrumb-jsonld";
 
 export const metadata: Metadata = {
   title: "ESID Lookup",
+  alternates: { canonical: "/esid-lookup" },
+  robots: { index: false, follow: true },
   description:
     "Find the Electric Service Identifier (ESI ID) for any address in deregulated Texas. Free address-to-ESID lookup powered by the MeterPlan registry — used when switching providers, signing up for a new plan, or pulling Smart Meter Texas data.",
 };
@@ -51,6 +54,7 @@ const TDU_FORMATS: TduFormat[] = [
 export default function EsidLookupPage() {
   return (
     <article className="mx-auto max-w-5xl px-6 md:px-12">
+      <BreadcrumbJsonLd name="ESID Lookup" path="/esid-lookup" />
       <header className="mb-16">
         <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-accent">
           ESID Lookup
