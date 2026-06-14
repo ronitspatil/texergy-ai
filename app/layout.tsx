@@ -1,7 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Sans, IBM_Plex_Mono, Bebas_Neue } from "next/font/google";
+import { Suspense } from "react";
 import RefreshToHome from "@/components/RefreshToHome";
 import { SmoothScroll } from "@/components/smooth-scroll";
+import { PHProvider } from "@/components/posthog-provider";
+import { PostHogPageView } from "@/components/posthog-pageview";
 import "./globals.css";
 
 const ibmPlexSans = IBM_Plex_Sans({
@@ -113,9 +116,14 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(STRUCTURED_DATA) }}
         />
-        <div className="noise-overlay" aria-hidden="true" />
-        <RefreshToHome />
-        <SmoothScroll>{children}</SmoothScroll>
+        <PHProvider>
+          <Suspense fallback={null}>
+            <PostHogPageView />
+          </Suspense>
+          <div className="noise-overlay" aria-hidden="true" />
+          <RefreshToHome />
+          <SmoothScroll>{children}</SmoothScroll>
+        </PHProvider>
       </body>
     </html>
   );

@@ -12,7 +12,7 @@ const csp = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data:",
   "font-src 'self' data:",
-  `connect-src 'self'${isDev ? " ws: http://localhost:* http://127.0.0.1:*" : ""}`,
+  `connect-src 'self' https://*.sentry.io${isDev ? " ws: http://localhost:* http://127.0.0.1:*" : ""}`,
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",
@@ -54,6 +54,12 @@ const nextConfig: NextConfig = {
   // Setting both staleTimes to 0 forces a fresh render on every nav.
   experimental: {
     staleTimes: { dynamic: 0, static: 30 },
+  },
+  async rewrites() {
+    return [
+      { source: "/ingest/static/:path*", destination: "https://us-assets.i.posthog.com/static/:path*" },
+      { source: "/ingest/:path*", destination: "https://us.i.posthog.com/:path*" },
+    ];
   },
   async headers() {
     // Next.js merges header rules across matching patterns; for duplicate
