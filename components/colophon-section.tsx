@@ -1,18 +1,13 @@
 "use client"
 
 import { useRef, useEffect } from "react"
-import { SectionLabel } from "@/components/ui/section-label"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
-
-// See app/page.tsx for context — product mode is permanent.
-const IS_PRODUCT_MODE = true
 
 gsap.registerPlugin(ScrollTrigger)
 
 export function ColophonSection() {
   const sectionRef = useRef<HTMLElement>(null)
-  const headerRef = useRef<HTMLDivElement>(null)
   const gridRef = useRef<HTMLDivElement>(null)
   const footerRef = useRef<HTMLDivElement>(null)
 
@@ -20,21 +15,6 @@ export function ColophonSection() {
     if (!sectionRef.current) return
 
     const ctx = gsap.context(() => {
-      // Header slide in
-      if (headerRef.current) {
-        gsap.from(headerRef.current, {
-          x: -60,
-          opacity: 0,
-          duration: 1,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: headerRef.current,
-            start: "top bottom",
-            toggleActions: "play none none reverse",
-          },
-        })
-      }
-
       // Grid columns fade up with stagger
       if (gridRef.current) {
         const columns = gridRef.current.querySelectorAll(":scope > div")
@@ -75,15 +55,8 @@ export function ColophonSection() {
     <section
       ref={sectionRef}
       id="colophon"
-      className={`relative pb-6 md:pb-8 pl-6 md:pl-28 pr-6 md:pr-12 border-t border-border/30 ${IS_PRODUCT_MODE ? "pt-12 md:pt-14" : "pt-32"}`}
+      className="relative pb-6 md:pb-8 pl-6 md:pl-28 pr-6 md:pr-12 border-t border-border/30 pt-12 md:pt-14"
     >
-      {/* Section header — hidden in product mode since "Coming soon" no longer fits. */}
-      {!IS_PRODUCT_MODE && (
-        <div ref={headerRef} className="mb-16">
-          <SectionLabel>07 / Coming soon</SectionLabel>
-          <h2 className="mt-4 font-[var(--font-bebas)] text-5xl md:text-7xl tracking-tight">TEXERGY AI</h2>
-        </div>
-      )}
 
       {/* Multi-column layout */}
       <div ref={gridRef} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-x-8 gap-y-10 md:gap-x-10 lg:gap-x-6 xl:gap-x-10">
@@ -99,11 +72,7 @@ export function ColophonSection() {
               <a href="#work" className="hover:text-accent transition-colors duration-200">Smart Match</a>
             </li>
             <li className="h-5 flex items-center font-mono text-xs text-foreground/80">
-              {IS_PRODUCT_MODE ? (
-                <a href="#hero" className="hover:text-accent transition-colors duration-200">Find My Plan</a>
-              ) : (
-                <a href="#waitlist" className="hover:text-accent transition-colors duration-200">Early Access</a>
-              )}
+              <a href="#hero" className="hover:text-accent transition-colors duration-200">Find My Plan</a>
             </li>
             <li className="h-5 flex items-center font-mono text-xs text-foreground/80">
               <a href="#faq" className="hover:text-accent transition-colors duration-200">FAQ</a>

@@ -1,16 +1,11 @@
 "use client"
 
 import { useEffect, useRef } from "react"
-import { ScrambleTextOnHover } from "@/components/scramble-text"
 import { SplitFlapText, SplitFlapMuteToggle, SplitFlapAudioProvider } from "@/components/split-flap-text"
 import { AnimatedNoise } from "@/components/animated-noise"
-import { BitmapChevron } from "@/components/bitmap-chevron"
 import { HeroZipForm } from "@/components/hero-zip-form"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
-
-// See app/page.tsx for context — product mode is permanent.
-const IS_PRODUCT_MODE = true
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -41,7 +36,6 @@ export function HeroSection() {
     <section ref={sectionRef} id="hero" className="relative min-h-screen flex items-center pl-6 md:pl-28 pr-6 md:pr-12 pt-16 md:pt-20 pb-12">
       <AnimatedNoise opacity={0.03} />
 
-      {/* Main content */}
       <div ref={contentRef} className="flex-1 w-full">
         <SplitFlapAudioProvider>
           <div className="relative">
@@ -65,29 +59,10 @@ export function HeroSection() {
           </span>
         </p>
 
-        <div className={`flex flex-wrap items-center gap-8 ${IS_PRODUCT_MODE ? "mt-8 justify-center" : "mt-16"}`}>
-          {IS_PRODUCT_MODE ? (
-            <HeroZipForm />
-          ) : (
-            <a
-              href="#waitlist"
-              className="group inline-flex items-center gap-3 border border-foreground/20 px-7 py-3.5 font-mono text-sm uppercase tracking-widest text-foreground hover:border-accent hover:text-accent transition-all duration-200"
-            >
-              <ScrambleTextOnHover text="Join Waitlist" as="span" duration={0.6} />
-              <BitmapChevron className="transition-transform duration-[400ms] ease-in-out group-hover:rotate-45" />
-            </a>
-          )}
-          {!IS_PRODUCT_MODE && (
-            <a
-              href="#signals"
-              className="font-mono text-sm uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors duration-200"
-            >
-              How It Works
-            </a>
-          )}
+        <div className="flex flex-wrap items-center gap-8 mt-8 justify-center">
+          <HeroZipForm />
         </div>
       </div>
-
     </section>
   )
 }

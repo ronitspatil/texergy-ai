@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     template: "%s | Texergy AI",
   },
   description:
-    "AI-powered electricity plan shopping for Texas residents and businesses. Enter your ZIP, set your priorities, and find the right plan in minutes. Join the waitlist today.",
+    "AI-powered electricity plan shopping for Texas residents and businesses. Enter your ZIP, set your priorities, and find the right plan in minutes. 100% free.",
   applicationName: "Texergy AI",
   keywords: [
     "Texas electricity",

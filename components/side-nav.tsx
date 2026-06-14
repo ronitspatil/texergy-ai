@@ -4,18 +4,10 @@ import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 
-// See app/page.tsx for context — product mode is permanent.
-const IS_PRODUCT_MODE = true
-
 const navItems = [
   { id: "hero", label: "Home" },
   { id: "signals", label: "How It Works" },
   { id: "work", label: "Smart Match" },
-  ...(IS_PRODUCT_MODE
-    ? []
-    : [{ id: "waitlist", label: "Early Access" }]),
-  { id: "faq", label: "FAQ" },
-  ...(IS_PRODUCT_MODE ? [] : [{ id: "colophon", label: "Soon" }]),
 ]
 
 const resourceLinks = [
