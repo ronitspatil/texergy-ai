@@ -9,6 +9,7 @@ import { PlanCard } from "@/components/find/plan-card";
 import { ResultsSidebar } from "@/components/find/results-sidebar";
 import { CompareDialog } from "@/components/find/compare-dialog";
 import { UsageForecastChart } from "@/components/find/usage-forecast-chart";
+import { HistoricalPricingChart } from "@/components/find/historical-pricing-chart";
 import { UsageEstimateModal } from "@/components/find/usage-estimate-modal";
 import { buildRecommendBody, type ApiResponse } from "@/components/find/recommend-client";
 
@@ -364,6 +365,10 @@ export function ResultsStep({
         <UsageForecastSection state={state} onUpdate={onUpdate} />
       )}
 
+      {!loading && !error && data && data.tduCodes.length > 0 && (
+        <HistoricalPricingSection tduCodes={data.tduCodes} />
+      )}
+
       <CompareBar
         selected={sortedRanked.filter((r) => compareIds.includes(r.plan.id))}
         max={COMPARE_MAX}
@@ -456,6 +461,32 @@ function UsageForecastSection({
   );
 }
 
+/** Live historical-pricing graph shown below the usage forecast. Plots the
+ *  daily average ¢/kWh for the TDU(s) serving the entered ZIP, so the user can
+ *  see whether the market is trending up or down before they lock in a plan. */
+function HistoricalPricingSection({ tduCodes }: { tduCodes: string[] }) {
+  return (
+    <section className="mt-12 sm:mt-16 border-t border-border/40 pt-10">
+      <SectionLabel className="block mb-3">Market price history</SectionLabel>
+      <h3 className="font-[family-name:var(--font-bebas)] text-foreground text-[clamp(1.75rem,4vw,3rem)] leading-[0.95] tracking-tight mb-2">
+        WHERE RATES ARE <span className="text-accent">HEADED.</span>
+      </h3>
+      <p className="font-mono text-xs text-muted-foreground mb-6 max-w-2xl">
+        Daily average plan rate for the{" "}
+        {tduCodes.length > 1 ? "utilities" : "utility"}{" "}
+        serving your ZIP, captured every night. Use it to gauge whether the market&apos;s rising
+        or falling before you lock in.
+      </p>
+      <div className="border border-border/40 bg-background/40 p-4 sm:p-6">
+        <HistoricalPricingChart tduCodes={tduCodes} />
+      </div>
+      <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground/70">
+        <span className="text-accent">●</span> Average ¢/kWh across all active plans · updated daily
+      </p>
+    </section>
+  );
+}
+
 /** Sticky bottom strip showing the currently selected compare-set. Visible
  *  whenever ≥1 plan is selected; "Compare" enabled at ≥2. Mirrors the
  *  EnergyBot pattern: small footprint, immediate access to the dialog. */
@@ -475,35 +506,35 @@ function CompareBar({
   if (selected.length === 0) return null;
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 backdrop-blur-sm">
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 flex flex-col sm:flex-row sm:items-center gap-3">
-        <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground shrink-0">
+      <div className="max-w-7xl mx-auto px-4 md:px-8 py-4 sm:py-5 flex flex-col sm:flex-row sm:items-center gap-4">
+        <div className="font-mono text-xs sm:text-sm uppercase tracking-[0.25em] text-muted-foreground shrink-0">
           Compare {selected.length}/{max}
         </div>
-        <div className="flex flex-wrap items-center gap-2 flex-1 min-w-0">
+        <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-0">
           {selected.map((r) => (
             <div
               key={r.plan.id}
-              className="flex items-center gap-2 border border-foreground/20 pl-3 pr-2 py-1.5 max-w-full"
+              className="flex items-center gap-2.5 border border-foreground/20 pl-4 pr-2.5 py-2.5 max-w-full"
             >
-              <span className="font-mono text-[11px] text-foreground truncate max-w-[180px]">
+              <span className="font-mono text-sm text-foreground truncate max-w-[240px]">
                 {r.plan.rep_name} · {r.plan.name}
               </span>
               <button
                 type="button"
                 onClick={() => onRemove(r.plan.id)}
                 aria-label={`Remove ${r.plan.rep_name} ${r.plan.name} from comparison`}
-                className="text-muted-foreground hover:text-accent transition-colors font-mono text-sm leading-none"
+                className="text-muted-foreground hover:text-accent transition-colors font-mono text-base leading-none"
               >
                 ✕
               </button>
             </div>
           ))}
         </div>
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center gap-4 shrink-0">
           <button
             type="button"
             onClick={onClear}
-            className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground hover:text-foreground transition-colors"
+            className="font-mono text-xs uppercase tracking-[0.25em] text-muted-foreground hover:text-foreground transition-colors"
           >
             Clear
           </button>
@@ -511,7 +542,7 @@ function CompareBar({
             type="button"
             onClick={onOpen}
             disabled={selected.length < 2}
-            className="border border-foreground bg-foreground text-background px-5 py-2 font-mono text-xs uppercase tracking-widest hover:bg-accent hover:border-accent hover:text-accent-foreground transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="border border-foreground bg-foreground text-background px-7 py-3 font-mono text-sm uppercase tracking-widest hover:bg-accent hover:border-accent hover:text-accent-foreground transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Compare →
           </button>

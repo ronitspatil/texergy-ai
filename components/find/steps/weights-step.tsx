@@ -136,17 +136,17 @@ export function WeightsStep({
         FIVE QUICK <span className="text-accent">CALLS.</span>
       </h2>
       <p className="font-mono text-sm text-muted-foreground mb-10 max-w-2xl">
-        Tell us what to optimize for. We weight the ranking from your answers — skip any you don&apos;t feel strongly about.
+        Answer what you can and skip the rest. We tune the plan ranking to match your picks.
       </p>
 
       <div className="space-y-10">
         <QuizQ
           number="01"
-          title="What matters most about your bill?"
+          title="When it comes to your bill, what matters most?"
           options={[
-            { id: "lowest",      label: "Lowest total" },
-            { id: "predictable", label: "Predictable, no surprises" },
-            { id: "longterm",    label: "Long-term certainty" },
+            { id: "lowest",      label: "Lowest price",        desc: "The cheapest monthly bill at your usage." },
+            { id: "predictable", label: "No surprises",        desc: "A bill that matches the rate you signed up for." },
+            { id: "longterm",    label: "Long-term stability", desc: "A locked rate that holds through seasonal spikes." },
           ]}
           value={quiz.billStyle}
           onSelect={(v) => patchQuiz({ billStyle: v as QuizAnswers["billStyle"] })}
@@ -154,11 +154,11 @@ export function WeightsStep({
 
         <QuizQ
           number="02"
-          title="Contract length?"
+          title="How long a contract are you okay with?"
           options={[
-            { id: "lock",     label: "Lock me in" },
-            { id: "flexible", label: "Keep me flexible" },
-            { id: "any",      label: "Whatever's cheapest" },
+            { id: "lock",     label: "Happy to lock in", desc: "A longer fixed term is fine for a better rate." },
+            { id: "flexible", label: "Keep it flexible", desc: "Short term or low exit fees so I can switch." },
+            { id: "any",      label: "No preference",    desc: "Whatever lands the best price." },
           ]}
           value={quiz.contractLength}
           onSelect={(v) => patchQuiz({ contractLength: v as QuizAnswers["contractLength"] })}
@@ -166,11 +166,11 @@ export function WeightsStep({
 
         <QuizQ
           number="03"
-          title="How much does renewable energy matter?"
+          title="How much does clean energy matter?"
           options={[
-            { id: "green", label: "100% green only" },
-            { id: "nice",  label: "Nice to have" },
-            { id: "any",   label: "Don't care" },
+            { id: "green", label: "A lot",     desc: "Only show 100% renewable plans." },
+            { id: "nice",  label: "Somewhat",  desc: "A greener plan is a bonus, but optional." },
+            { id: "any",   label: "Not really", desc: "Rank on everything else." },
           ]}
           value={quiz.renewable}
           onSelect={(v) => patchQuiz({ renewable: v as QuizAnswers["renewable"] })}
@@ -178,12 +178,12 @@ export function WeightsStep({
 
         <QuizMultiQ
           number="04"
-          title="Anything you specifically want to avoid?"
+          title="Anything you'd rather avoid?"
           subtitle="Pick any that apply."
           options={[
-            { id: "credits",  label: "Bill-credit thresholds" },
-            { id: "swings",   label: "Variable rates that swing" },
-            { id: "longlock", label: "Long lock-ins" },
+            { id: "credits",  label: "Bill-credit catches",  desc: "Plans that are only cheap if you use an exact amount." },
+            { id: "swings",   label: "Rates that jump around", desc: "Variable rates that move with the market." },
+            { id: "longlock", label: "Long lock-ins",        desc: "Long contracts with steep early-exit fees." },
           ]}
           values={quiz.avoid}
           onToggle={(v) => toggleAvoid(v as QuizAnswers["avoid"][number])}
@@ -191,10 +191,10 @@ export function WeightsStep({
 
         <QuizQ
           number="05"
-          title="Worried about TX summer or winter price spikes?"
+          title="Want protection from Texas price spikes?"
           options={[
-            { id: "shield", label: "Yes, shield me" },
-            { id: "any",    label: "Not really" },
+            { id: "shield", label: "Yes, shield me", desc: "Favor fixed plans that cover summer and winter spikes." },
+            { id: "any",    label: "Not worried",    desc: "I'll take the risk for a better rate." },
           ]}
           value={quiz.spikes}
           onSelect={(v) => patchQuiz({ spikes: v as QuizAnswers["spikes"] })}
@@ -208,6 +208,53 @@ export function WeightsStep({
   );
 }
 
+type QuizOption = { id: string; label: string; desc?: string };
+
+// Static column classes (Tailwind can't see interpolated class names), keyed by
+// option count so the cards lay out 2- or 3-up on desktop and stack on mobile.
+const GRID_COLS: Record<number, string> = {
+  2: "sm:grid-cols-2",
+  3: "sm:grid-cols-3",
+};
+
+/** One selectable option, rendered as an equal-height card: a plain-language
+ *  label with a short explanation beneath it so the choice is self-evident. */
+function OptionCard({
+  label,
+  desc,
+  selected,
+  onClick,
+}: {
+  label: string;
+  desc?: string;
+  selected: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={selected}
+      className={`flex h-full flex-col gap-1.5 border px-4 py-3 text-left transition-colors ${
+        selected
+          ? "border-accent bg-accent/5"
+          : "border-foreground/25 hover:border-foreground/50"
+      }`}
+    >
+      <span
+        className={`font-mono text-xs uppercase tracking-widest ${
+          selected ? "text-accent" : "text-foreground/80"
+        }`}
+      >
+        {label}
+      </span>
+      {desc && (
+        <span className="font-mono text-[11px] leading-snug text-muted-foreground">{desc}</span>
+      )}
+    </button>
+  );
+}
+
 function QuizQ({
   number,
   title,
@@ -217,7 +264,7 @@ function QuizQ({
 }: {
   number: string;
   title: string;
-  options: { id: string; label: string }[];
+  options: QuizOption[];
   value: string | null;
   onSelect: (id: string) => void;
 }) {
@@ -226,20 +273,15 @@ function QuizQ({
       <div className="font-mono text-[11px] uppercase tracking-[0.25em] text-accent mb-3">
         {number} / {title}
       </div>
-      <div className="flex flex-wrap gap-2">
+      <div className={`grid grid-cols-1 gap-2 ${GRID_COLS[options.length] ?? "sm:grid-cols-3"}`}>
         {options.map((o) => (
-          <button
+          <OptionCard
             key={o.id}
-            type="button"
+            label={o.label}
+            desc={o.desc}
+            selected={value === o.id}
             onClick={() => onSelect(o.id)}
-            className={`border px-4 py-2 font-mono text-xs uppercase tracking-widest transition-colors ${
-              value === o.id
-                ? "border-accent text-accent"
-                : "border-foreground/25 text-muted-foreground hover:border-foreground/50 hover:text-foreground"
-            }`}
-          >
-            {o.label}
-          </button>
+          />
         ))}
       </div>
     </div>
@@ -257,7 +299,7 @@ function QuizMultiQ({
   number: string;
   title: string;
   subtitle?: string;
-  options: { id: string; label: string }[];
+  options: QuizOption[];
   values: string[];
   onToggle: (id: string) => void;
 }) {
@@ -267,24 +309,16 @@ function QuizMultiQ({
         {number} / {title}
       </div>
       {subtitle && <p className="mt-1 font-mono text-xs text-muted-foreground">{subtitle}</p>}
-      <div className="mt-3 flex flex-wrap gap-2">
-        {options.map((o) => {
-          const active = values.includes(o.id);
-          return (
-            <button
-              key={o.id}
-              type="button"
-              onClick={() => onToggle(o.id)}
-              className={`border px-4 py-2 font-mono text-xs uppercase tracking-widest transition-colors ${
-                active
-                  ? "border-accent text-accent"
-                  : "border-foreground/25 text-muted-foreground hover:border-foreground/50 hover:text-foreground"
-              }`}
-            >
-              {o.label}
-            </button>
-          );
-        })}
+      <div className={`mt-3 grid grid-cols-1 gap-2 ${GRID_COLS[options.length] ?? "sm:grid-cols-3"}`}>
+        {options.map((o) => (
+          <OptionCard
+            key={o.id}
+            label={o.label}
+            desc={o.desc}
+            selected={values.includes(o.id)}
+            onClick={() => onToggle(o.id)}
+          />
+        ))}
       </div>
     </div>
   );
