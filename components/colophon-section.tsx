@@ -97,7 +97,8 @@ export function ColophonSection() {
               <a href="mailto:hello@texergy.ai" className="hover:text-accent transition-colors duration-200">Support</a>
             </li>
             <li className="h-5 flex items-center font-mono text-xs text-foreground/80">
-              Press <span className="ml-0.5 text-[9px] text-muted-foreground/60 uppercase tracking-wide">Soon</span>
+              <span className="text-foreground/45">Press</span>
+              <span className="ml-2 border border-border/80 px-1.5 py-[1px] text-[8px] uppercase tracking-[0.18em] text-muted-foreground/70">Soon</span>
             </li>
           </ul>
         </div>
@@ -142,7 +143,8 @@ export function ColophonSection() {
               </a>
             </li>
             <li className="h-5 flex items-center font-mono text-xs text-foreground/80">
-              Commercial Plans <span className="ml-0.5 text-[9px] text-muted-foreground/60 uppercase tracking-wide">Soon</span>
+              <span className="text-foreground/45">Commercial Plans</span>
+              <span className="ml-2 border border-border/80 px-1.5 py-[1px] text-[8px] uppercase tracking-[0.18em] text-muted-foreground/70">Soon</span>
             </li>
             <li className="h-5 flex items-center font-mono text-xs text-foreground/80">
               <a href="/electricity-providers" className="hover:text-accent transition-colors">

@@ -250,7 +250,7 @@ export function UsageCalculator() {
                 </span>
                 <span
                   className={`shrink-0 w-5 h-5 border rounded flex items-center justify-center transition-colors ${
-                    selected ? "border-accent bg-accent text-background" : "border-foreground/30"
+                    selected ? "border-accent bg-accent text-accent-foreground" : "border-foreground/30"
                   }`}
                   aria-hidden="true"
                 >

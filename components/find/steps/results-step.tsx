@@ -8,9 +8,20 @@ import { SectionLabel } from "@/components/ui/section-label";
 import { PlanCard } from "@/components/find/plan-card";
 import { ResultsSidebar } from "@/components/find/results-sidebar";
 import { CompareDialog } from "@/components/find/compare-dialog";
-import { UsageForecastChart } from "@/components/find/usage-forecast-chart";
-import { HistoricalPricingChart } from "@/components/find/historical-pricing-chart";
+import dynamic from "next/dynamic";
 import { UsageEstimateModal } from "@/components/find/usage-estimate-modal";
+
+/* Charts pull in recharts (~0.5 MB of JS). Loading them lazily keeps the
+   wizard's initial bundle light — they only render on the results step. */
+const chartFallback = <div className="h-40 animate-pulse bg-muted/20" aria-hidden="true" />;
+const UsageForecastChart = dynamic(
+  () => import("@/components/find/usage-forecast-chart").then((m) => m.UsageForecastChart),
+  { ssr: false, loading: () => chartFallback },
+);
+const HistoricalPricingChart = dynamic(
+  () => import("@/components/find/historical-pricing-chart").then((m) => m.HistoricalPricingChart),
+  { ssr: false, loading: () => chartFallback },
+);
 import { buildRecommendBody, type ApiResponse } from "@/components/find/recommend-client";
 
 const ZONE_LABELS: Record<string, string> = {
@@ -175,7 +186,6 @@ export function ResultsStep({
       </p>
       {!loading && !error && data?.profile && (
         <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground/70 mb-8 sm:mb-10">
-          <span className="text-accent">●</span>{" "}
           {data.profile.source === "meter_api"
             ? `Bill estimates based on ${describeZone(data.profile.weatherZone)} load curve`
             : `Bill estimates based on a typical Texas home`}
@@ -510,13 +520,13 @@ function CompareBar({
         <div className="font-mono text-xs sm:text-sm uppercase tracking-[0.25em] text-muted-foreground shrink-0">
           Compare {selected.length}/{max}
         </div>
-        <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-0">
+        <div className="flex flex-wrap sm:flex-nowrap sm:overflow-x-auto items-center gap-2.5 flex-1 min-w-0">
           {selected.map((r) => (
             <div
               key={r.plan.id}
-              className="flex items-center gap-2.5 border border-foreground/20 pl-4 pr-2.5 py-2.5 max-w-full"
+              className="flex items-center gap-2.5 border border-foreground/20 pl-4 pr-2.5 py-2.5 max-w-full sm:min-w-0"
             >
-              <span className="font-mono text-sm text-foreground truncate max-w-[240px]">
+              <span className="font-mono text-sm text-foreground break-words max-w-[320px] leading-snug">
                 {r.plan.rep_name} · {r.plan.name}
               </span>
               <button

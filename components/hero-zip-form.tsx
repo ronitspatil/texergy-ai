@@ -81,7 +81,7 @@ export function HeroZipForm() {
       onSubmit={onSubmit}
       noValidate
       aria-label="Enter your ZIP code"
-      className="relative w-full max-w-2xl mx-auto flex flex-col gap-6 rounded-xl border border-border/50 focus-within:border-accent/50 bg-background/25 backdrop-blur-sm shadow-e2 focus-within:shadow-e3 p-7 sm:p-9 md:p-12 transition-all duration-200"
+      className="relative w-full max-w-2xl mx-auto flex flex-col gap-[clamp(0.875rem,2.2svh,1.5rem)] rounded-xl border border-border/50 focus-within:border-accent/50 bg-background/25 backdrop-blur-sm shadow-e2 focus-within:shadow-e3 p-[clamp(1.5rem,3svh,1.75rem)] sm:p-[clamp(1.75rem,3.5svh,2.25rem)] md:p-[clamp(1.75rem,4svh,3rem)] transition-all duration-200"
     >
       <div className="flex items-center justify-between gap-4">
         <span className="whitespace-nowrap font-mono text-xs sm:text-sm tracking-[0.02em] sm:tracking-[0.06em] text-muted-foreground">
@@ -159,13 +159,13 @@ export function HeroZipForm() {
             }}
             aria-invalid={error != null}
             disabled={submitting}
-            className="flex-1 min-w-0 bg-transparent py-4 sm:py-5 font-mono text-sm sm:text-base text-foreground placeholder:text-muted-foreground/50 focus:outline-none disabled:opacity-60"
+            className="flex-1 min-w-0 bg-transparent py-4 sm:py-[clamp(1rem,2.2svh,1.25rem)] font-mono text-sm sm:text-base text-foreground placeholder:text-muted-foreground/50 focus:outline-none disabled:opacity-60"
           />
         </div>
         <button
           type="submit"
           disabled={submitting}
-          className="group grain-surface inline-flex flex-1 items-center justify-center gap-2.5 overflow-hidden rounded-l-full bg-accent/80 shadow-e1 px-4 sm:px-6 font-mono font-bold text-sm sm:text-base tracking-wide text-background transition duration-200 hover:brightness-95 disabled:opacity-60"
+          className="group grain-surface inline-flex flex-1 items-center justify-center gap-2.5 overflow-hidden rounded-l-full bg-accent shadow-e1 px-4 sm:px-6 font-mono font-bold text-sm sm:text-base tracking-wide text-accent-foreground transition duration-200 hover:bg-accent-strong disabled:opacity-60"
         >
           <span className="whitespace-nowrap">{submitting ? "Loading…" : isMobile ? "See Plans" : "Compare Plans"}</span>
           {!submitting && (

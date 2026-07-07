@@ -455,7 +455,7 @@ function ProviderMultiSelect({
                         onChange={() => toggle(p.id)}
                         className="accent-accent shrink-0"
                       />
-                      <span className="font-mono text-[11px] text-foreground truncate">{p.name}</span>
+                      <span className="font-mono text-[11px] text-foreground break-words min-w-0">{p.name}</span>
                     </label>
                   </li>
                 );

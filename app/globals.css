@@ -21,8 +21,10 @@
   --secondary-foreground: oklch(0.26 0.012 55);
   --muted: oklch(0.918 0.030 48);
   --muted-foreground: oklch(0.47 0.012 60);
-  --accent: oklch(0.66 0.16 42);
-  --accent-foreground: oklch(0.16 0.02 55);
+  --accent: oklch(0.63 0.155 41);
+  /* Text over solid accent fills is always warm white — never ink. Dark text
+     on the terracotta reads as a rendering mistake and fails contrast. */
+  --accent-foreground: oklch(0.985 0.012 60);
   /* Supporting orange tones so the accent has depth (gradients, hovers, tints)
      instead of one flat hue doing all the work. */
   --accent-strong: oklch(0.55 0.145 38);
@@ -34,16 +36,16 @@
   --destructive-foreground: oklch(0.577 0.245 27.325);
   --border: oklch(0.865 0.008 70);
   --input: oklch(0.968 0.004 78);
-  --ring: oklch(0.66 0.16 42);
+  --ring: oklch(0.63 0.155 41);
   --radius: 0rem;
   --sidebar: oklch(0.978 0.030 48);
   --sidebar-foreground: oklch(0.19 0.012 55);
-  --sidebar-primary: oklch(0.66 0.16 42);
-  --sidebar-primary-foreground: oklch(0.16 0.02 55);
+  --sidebar-primary: oklch(0.63 0.155 41);
+  --sidebar-primary-foreground: oklch(0.985 0.012 60);
   --sidebar-accent: oklch(0.94 0.006 75);
   --sidebar-accent-foreground: oklch(0.19 0.012 55);
   --sidebar-border: oklch(0.865 0.008 70);
-  --sidebar-ring: oklch(0.66 0.16 42);
+  --sidebar-ring: oklch(0.63 0.155 41);
   --grid-line: oklch(0.9 0.011 48);
   --scrollbar-track: oklch(0.991 0.009 48);
   --scrollbar-thumb: oklch(0.78 0.01 70);
@@ -255,10 +257,11 @@
   background-size: 60px 60px;
 }
 
-/* Custom selection color */
+/* Custom selection color — terracotta with warm-white text, matching the
+   accent-on-fill rule used everywhere else. */
 ::selection {
-  background: oklch(0.7 0.175 45);
-  color: oklch(0.08 0 0);
+  background: var(--accent-strong);
+  color: oklch(0.985 0.012 60);
 }
 
 /* Always-visible scrollbar for the results plan container, so users see

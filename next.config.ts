@@ -8,7 +8,9 @@ const isDev = process.env.NODE_ENV !== "production";
 
 const csp = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
+  // browser.sentry-cdn.com serves the lazily loaded Sentry replay integration
+  // (kept out of the main bundle for performance).
+  `script-src 'self' 'unsafe-inline' https://browser.sentry-cdn.com${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data:",
   "font-src 'self' data:",

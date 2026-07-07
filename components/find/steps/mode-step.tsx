@@ -123,7 +123,7 @@ function PathColumn({ path, onClick }: { path: Path; onClick: () => void }) {
             {index}
           </span>
           {recommended ? (
-            <span className="mt-2 shrink-0 bg-accent px-2 py-1 font-mono text-[8px] uppercase tracking-[0.2em] text-white">
+            <span className="mt-2 shrink-0 bg-accent px-2 py-1 font-mono text-[8px] uppercase tracking-[0.2em] text-accent-foreground">
               {tag}
             </span>
           ) : (

@@ -58,7 +58,7 @@ export function PlanCard({
                 }}
               />
             ) : null}
-            <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground truncate">
+            <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground break-words leading-relaxed">
               {plan.rep_name}
             </span>
           </div>

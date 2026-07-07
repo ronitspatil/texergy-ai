@@ -291,7 +291,7 @@ export function CompareDialog({
                               }}
                             />
                           ) : null}
-                          <div className="font-mono text-[7px] sm:text-[10px] uppercase tracking-[0.2em] text-muted-foreground truncate">
+                          <div className="font-mono text-[7px] sm:text-[10px] uppercase tracking-[0.2em] text-muted-foreground break-words leading-relaxed">
                             {r.plan.rep_name}
                           </div>
                           <div className="mt-0.5 sm:mt-1 font-display text-sm sm:text-xl tracking-tight text-foreground leading-tight">

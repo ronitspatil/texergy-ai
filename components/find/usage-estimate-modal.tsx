@@ -3,8 +3,14 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { UsageForecastChart } from "@/components/find/usage-forecast-chart";
+import dynamic from "next/dynamic";
 import type { UsageEstimate } from "@/components/find/wizard-types";
+
+/* Lazy — recharts is heavy and this chart only renders after an estimate. */
+const UsageForecastChart = dynamic(
+  () => import("@/components/find/usage-forecast-chart").then((m) => m.UsageForecastChart),
+  { ssr: false, loading: () => <div className="h-24 animate-pulse bg-muted/20" aria-hidden="true" /> },
+);
 
 const HOUSE_TYPES = [
   { value: "", label: "Either" },
