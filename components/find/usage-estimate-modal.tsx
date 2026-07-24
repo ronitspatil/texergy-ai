@@ -3,8 +3,14 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { UsageForecastChart } from "@/components/find/usage-forecast-chart";
+import dynamic from "next/dynamic";
 import type { UsageEstimate } from "@/components/find/wizard-types";
+
+/* Lazy — recharts is heavy and this chart only renders after an estimate. */
+const UsageForecastChart = dynamic(
+  () => import("@/components/find/usage-forecast-chart").then((m) => m.UsageForecastChart),
+  { ssr: false, loading: () => <div className="h-24 animate-pulse bg-muted/20" aria-hidden="true" /> },
+);
 
 const HOUSE_TYPES = [
   { value: "", label: "Either" },
@@ -305,7 +311,7 @@ export function UsageEstimateModal({
                 <button
                   type="button"
                   onClick={apply}
-                  className="mt-5 w-full border border-foreground bg-foreground text-background px-6 py-3 font-mono text-xs uppercase tracking-widest hover:bg-accent hover:border-accent hover:text-accent-foreground transition-colors"
+                  className="mt-5 w-full grain-surface rounded-full bg-accent text-accent-foreground shadow-e1 px-6 py-3 font-mono text-xs uppercase tracking-widest hover:bg-accent-strong hover:shadow-e2 transition-all duration-200"
                 >
                   Use this estimate ({result.monthlyAvgKwh.toLocaleString()} kWh/mo) →
                 </button>

@@ -96,7 +96,7 @@ export function TduLookup() {
         <button
           type="submit"
           disabled={loading || !/^\d{5}$/.test(zip)}
-          className="border border-foreground bg-foreground text-background px-6 py-3 font-mono text-xs uppercase tracking-widest hover:bg-accent hover:border-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-foreground disabled:hover:border-foreground"
+          className="grain-surface rounded-full bg-accent text-accent-foreground shadow-e1 px-7 py-3 font-mono text-xs uppercase tracking-widest hover:bg-accent-strong hover:shadow-e2 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none disabled:hover:bg-accent"
         >
           {loading ? "Looking up…" : "Look up TDU"}
         </button>

@@ -92,7 +92,9 @@ const STRUCTURED_DATA = [
 ];
 
 export const viewport: Viewport = {
-  themeColor: "#ffffff",
+  // Matches --background (warm paper) so the browser chrome on mobile blends
+  // with the page instead of flashing clinical white.
+  themeColor: "#fdf6ec",
   width: "device-width",
   initialScale: 1,
 };

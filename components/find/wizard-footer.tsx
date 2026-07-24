@@ -26,7 +26,7 @@ export function WizardFooter({
         type="button"
         onClick={onNext}
         disabled={nextDisabled}
-        className="border border-foreground bg-foreground text-background px-7 py-3 font-mono text-sm uppercase tracking-widest hover:bg-accent hover:text-accent-foreground hover:border-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        className="grain-surface rounded-full bg-accent text-accent-foreground shadow-e1 px-8 py-3 font-mono text-sm uppercase tracking-widest hover:bg-accent-strong hover:shadow-e2 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
       >
         {nextLabel}
       </button>

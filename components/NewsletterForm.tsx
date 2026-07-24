@@ -66,7 +66,7 @@ export default function NewsletterForm({ source = "blog" }: { source?: string })
         <button
           type="submit"
           disabled={status === "submitting"}
-          className="border border-foreground/30 bg-accent text-accent-foreground px-6 py-3 font-mono text-xs uppercase tracking-widest hover:border-accent transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed whitespace-nowrap"
+          className="grain-surface rounded-full bg-accent text-accent-foreground shadow-e1 px-7 py-3 font-mono text-xs uppercase tracking-widest hover:bg-accent-strong hover:shadow-e2 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:shadow-none whitespace-nowrap"
         >
           {status === "submitting" ? "Subscribing…" : "Subscribe"}
         </button>

@@ -296,7 +296,7 @@ function EditWeightsDialog({
             <button
               type="button"
               onClick={onSave}
-              className="border border-foreground bg-foreground text-background px-5 py-2 font-mono text-xs uppercase tracking-widest hover:bg-accent hover:border-accent transition-colors"
+              className="grain-surface rounded-full bg-accent text-accent-foreground shadow-e1 px-6 py-2 font-mono text-xs uppercase tracking-widest hover:bg-accent-strong hover:shadow-e2 transition-all duration-200"
             >
               Apply
             </button>
@@ -455,7 +455,7 @@ function ProviderMultiSelect({
                         onChange={() => toggle(p.id)}
                         className="accent-accent shrink-0"
                       />
-                      <span className="font-mono text-[11px] text-foreground truncate">{p.name}</span>
+                      <span className="font-mono text-[11px] text-foreground break-words min-w-0">{p.name}</span>
                     </label>
                   </li>
                 );

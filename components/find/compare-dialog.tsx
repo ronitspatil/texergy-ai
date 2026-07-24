@@ -128,7 +128,7 @@ function AskBot({ plans }: { plans: RankedPlan[] }) {
         <button
           type="submit"
           disabled={loading || question.trim().length === 0}
-          className="border border-foreground bg-foreground text-background px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.2em] hover:bg-accent hover:border-accent hover:text-accent-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="grain-surface rounded-full bg-accent text-accent-foreground shadow-e1 px-6 py-2.5 font-mono text-[11px] uppercase tracking-[0.2em] hover:bg-accent-strong hover:shadow-e2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
         >
           {loading ? "Thinking…" : "Ask →"}
         </button>
@@ -291,7 +291,7 @@ export function CompareDialog({
                               }}
                             />
                           ) : null}
-                          <div className="font-mono text-[7px] sm:text-[10px] uppercase tracking-[0.2em] text-muted-foreground truncate">
+                          <div className="font-mono text-[7px] sm:text-[10px] uppercase tracking-[0.2em] text-muted-foreground break-words leading-relaxed">
                             {r.plan.rep_name}
                           </div>
                           <div className="mt-0.5 sm:mt-1 font-display text-sm sm:text-xl tracking-tight text-foreground leading-tight">
@@ -432,7 +432,7 @@ export function CompareDialog({
                             href={r.plan.enroll_url}
                             target="_blank"
                             rel="noreferrer noopener"
-                            className="border border-foreground bg-foreground text-background px-2 sm:px-3 py-1 sm:py-2 font-mono text-[8px] sm:text-[10px] uppercase tracking-widest hover:bg-accent hover:border-accent hover:text-accent-foreground transition-colors text-center"
+                            className="grain-surface rounded-full bg-accent text-accent-foreground px-2.5 sm:px-4 py-1 sm:py-2 font-mono text-[8px] sm:text-[10px] uppercase tracking-widest hover:bg-accent-strong transition-colors text-center"
                           >
                             Enroll →
                           </a>

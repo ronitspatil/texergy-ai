@@ -319,8 +319,8 @@ function PlanCard({ plan, expanded, onExpand }: { plan: Plan; expanded: boolean;
               <span
                 className={`inline-flex items-center gap-1.5 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.22em] transition-colors ${
                   accent
-                    ? "bg-accent text-accent-foreground hover:brightness-95"
-                    : "border border-foreground/25 text-foreground hover:border-accent hover:text-accent"
+                    ? "grain-surface rounded-full bg-accent text-accent-foreground shadow-e1 hover:bg-accent-strong"
+                    : "rounded-full border border-foreground/25 text-foreground hover:border-accent hover:text-accent"
                 }`}
               >
                 Enroll
