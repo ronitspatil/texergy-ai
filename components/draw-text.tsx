@@ -108,7 +108,7 @@ export function DrawText({ text, className = "", duration = 0.08, delay = 0.5, s
       className={className}
       onMouseEnter={handleMouseEnter}
       style={{
-        fontSize: "clamp(5rem, 18vw, 18rem)",
+        fontSize: "clamp(5rem, calc(var(--vpw) * 18), 18rem)",
         lineHeight: 0.9,
         letterSpacing: "0.02em",
         fontFamily: "'Bebas Neue', sans-serif",

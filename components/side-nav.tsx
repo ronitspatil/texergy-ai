@@ -163,7 +163,7 @@ export function SideNav({ variant = "home" }: { variant?: "home" | "subpage" }) 
   return (
     <nav
       aria-label="Primary"
-      className="fixed top-3 sm:top-4 left-1/2 -translate-x-1/2 z-50 flex w-max max-w-[calc(100vw-16px)] items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 border border-border/40 bg-background/80 backdrop-blur-md shadow-sm"
+      className="fixed top-3 sm:top-4 left-1/2 -translate-x-1/2 z-50 flex w-max max-w-[calc(var(--vpw)*100-16px)] items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 border border-border/40 bg-background/80 backdrop-blur-md shadow-sm"
     >
       {isHome ? (
         <button

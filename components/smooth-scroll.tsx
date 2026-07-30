@@ -27,15 +27,22 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
     // Connect Lenis to GSAP ScrollTrigger
     lenis.on("scroll", ScrollTrigger.update)
 
-    gsap.ticker.add((time) => {
+    const tick = (time: number) => {
       lenis.raf(time * 1000)
-    })
+    }
+    gsap.ticker.add(tick)
 
     gsap.ticker.lagSmoothing(0)
 
+    // ScrollTrigger caches every start/end position when a trigger is created.
+    // If that happened before the web fonts swapped in, those positions are
+    // measured against fallback-font content heights and stay wrong. Same story
+    // for a tab that laid out before it had a real size.
+    document.fonts?.ready.then(() => ScrollTrigger.refresh()).catch(() => {})
+
     return () => {
       lenis.destroy()
-      gsap.ticker.remove(lenis.raf)
+      gsap.ticker.remove(tick)
       delete (window as unknown as { __lenis?: Lenis }).__lenis
     }
   }, [])

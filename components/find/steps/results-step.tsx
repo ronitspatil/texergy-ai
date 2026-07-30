@@ -172,7 +172,7 @@ export function ResultsStep({
   return (
     <div className="w-full">
       <SectionLabel className="block mb-4">Your matches</SectionLabel>
-      <h2 className="font-[family-name:var(--font-bebas)] text-foreground text-[clamp(2rem,5vw,4rem)] leading-[0.95] tracking-tight mb-2">
+      <h2 className="font-[family-name:var(--font-bebas)] text-foreground text-[clamp(2rem,calc(var(--vpw)*5),4rem)] leading-[0.95] tracking-tight mb-2">
         HERE&apos;S WHAT <span className="text-accent">FITS.</span>
       </h2>
       <p className="font-mono text-xs sm:text-sm text-muted-foreground mb-2">
@@ -245,7 +245,7 @@ export function ResultsStep({
           </div>
         </aside>
 
-        <div className="mx-auto max-w-[calc(100vw-24px)] sm:max-w-none lg:relative lg:h-full lg:w-full lg:max-w-none lg:mx-0">
+        <div className="mx-auto max-w-[calc(var(--vpw)*100-24px)] sm:max-w-none lg:relative lg:h-full lg:w-full lg:max-w-none lg:mx-0">
           {error ? (
             <div className="border border-destructive/50 p-6 font-mono text-sm text-destructive">
               {error}
@@ -307,7 +307,7 @@ export function ResultsStep({
                 // so two-finger trackpad scrolling actually reaches the
                 // container instead of getting swallowed by the page scroller.
                 data-lenis-prevent="true"
-                className="results-scroller max-h-[calc(100vh-280px)] lg:max-h-none lg:flex-1 lg:min-h-0 overflow-y-auto overscroll-contain"
+                className="results-scroller max-h-[calc(var(--vph)*100-280px)] lg:max-h-none lg:flex-1 lg:min-h-0 overflow-y-auto overscroll-contain"
                 tabIndex={0}
                 aria-label={`${sortedRanked.length} plan results — scroll to browse`}
               >
@@ -414,7 +414,7 @@ function UsageForecastSection({
   return (
     <section className="mt-12 sm:mt-16 border-t border-border/40 pt-10">
       <SectionLabel className="block mb-3">Your usage forecast</SectionLabel>
-      <h3 className="font-[family-name:var(--font-bebas)] text-foreground text-[clamp(1.75rem,4vw,3rem)] leading-[0.95] tracking-tight mb-2">
+      <h3 className="font-[family-name:var(--font-bebas)] text-foreground text-[clamp(1.75rem,calc(var(--vpw)*4),3rem)] leading-[0.95] tracking-tight mb-2">
         WHAT YOU&apos;LL <span className="text-accent">USE.</span>
       </h3>
       <p className="font-mono text-xs text-muted-foreground mb-6 max-w-2xl">
@@ -478,7 +478,7 @@ function HistoricalPricingSection({ tduCodes }: { tduCodes: string[] }) {
   return (
     <section className="mt-12 sm:mt-16 border-t border-border/40 pt-10">
       <SectionLabel className="block mb-3">Market price history</SectionLabel>
-      <h3 className="font-[family-name:var(--font-bebas)] text-foreground text-[clamp(1.75rem,4vw,3rem)] leading-[0.95] tracking-tight mb-2">
+      <h3 className="font-[family-name:var(--font-bebas)] text-foreground text-[clamp(1.75rem,calc(var(--vpw)*4),3rem)] leading-[0.95] tracking-tight mb-2">
         WHERE RATES ARE <span className="text-accent">HEADED.</span>
       </h3>
       <p className="font-mono text-xs text-muted-foreground mb-6 max-w-2xl">

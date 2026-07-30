@@ -11,12 +11,12 @@ export const metadata: Metadata = {
  *  product instead of a dead end. */
 export default function NotFound() {
   return (
-    <main className="relative grid-bg flex min-h-[100svh] flex-col items-center justify-center px-6 py-24 text-center">
+    <main className="relative grid-bg flex min-h-[calc(var(--vph)*100)] flex-col items-center justify-center px-6 py-24 text-center">
       <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
         Error · Signal Lost
       </p>
 
-      <h1 className="mt-4 font-display text-[clamp(6rem,22vw,14rem)] leading-[0.85] tracking-tight text-foreground">
+      <h1 className="mt-4 font-display text-[clamp(6rem,calc(var(--vpw)*22),14rem)] leading-[0.85] tracking-tight text-foreground">
         4<span className="text-accent">0</span>4
       </h1>
 

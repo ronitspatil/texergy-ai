@@ -76,7 +76,7 @@ export function ModeStep({ onSelect }: { onSelect: (mode: Mode) => void }) {
             Select one / 3
           </span>
         </div>
-        <h2 className="mt-5 font-[family-name:var(--font-bebas)] text-foreground text-[clamp(2.75rem,7vw,5rem)] leading-[0.9] tracking-tight">
+        <h2 className="mt-5 font-[family-name:var(--font-bebas)] text-foreground text-[clamp(2.75rem,calc(var(--vpw)*7),5rem)] leading-[0.9] tracking-tight">
           PICK YOUR <span className="text-accent">PATH.</span>
         </h2>
         <p className="mt-3 max-w-md font-mono text-sm text-muted-foreground leading-relaxed">

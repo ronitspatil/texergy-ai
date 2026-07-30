@@ -55,7 +55,7 @@ export function UploadStep({
   return (
     <div className="max-w-3xl mx-auto">
       <SectionLabel className="block mb-4">Bring your real usage</SectionLabel>
-      <h2 className="font-[family-name:var(--font-bebas)] text-foreground text-[clamp(2.5rem,5vw,4rem)] leading-[0.95] tracking-tight mb-3">
+      <h2 className="font-[family-name:var(--font-bebas)] text-foreground text-[clamp(2.5rem,calc(var(--vpw)*5),4rem)] leading-[0.95] tracking-tight mb-3">
         DROP IT <span className="text-accent">IN.</span>
       </h2>
       <p className="font-mono text-sm text-muted-foreground mb-10 max-w-2xl">

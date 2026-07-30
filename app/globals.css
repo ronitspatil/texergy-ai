@@ -158,6 +158,16 @@
     @apply border-border outline-ring/50;
   }
 
+  /* 1% of the viewport's width / height. Native units are the fallback so
+     server-rendered markup is sized correctly on a normal load; <ViewportUnits>
+     overrides these with measured pixels once the tab has a real size, which is
+     what keeps the hero from collapsing to its clamp floors when Chrome lays
+     the page out before sizing the tab. See components/viewport-units.tsx. */
+  :root {
+    --vpw: 1vw;
+    --vph: 1svh;
+  }
+
   /* Cursor hygiene: anything clickable should get the pointer; nothing else
      should. Default user-agent styling on <button> is the arrow cursor, which
      fights the intent that real buttons feel clickable. Inputs (text/number/

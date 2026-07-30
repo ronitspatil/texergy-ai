@@ -32,7 +32,7 @@ export function QuestionsStep({
   return (
     <div className="max-w-3xl mx-auto">
       <SectionLabel className="block mb-4">A few quick questions</SectionLabel>
-      <h2 className="font-[family-name:var(--font-bebas)] text-foreground text-[clamp(2.5rem,5vw,4rem)] leading-[0.95] tracking-tight mb-2">
+      <h2 className="font-[family-name:var(--font-bebas)] text-foreground text-[clamp(2.5rem,calc(var(--vpw)*5),4rem)] leading-[0.95] tracking-tight mb-2">
         TELL US ABOUT <span className="text-accent">YOU.</span>
       </h2>
       <p className="font-mono text-sm text-muted-foreground mb-12">
