@@ -18,12 +18,12 @@ export default function NewsletterForm({ source = "blog" }: { source?: string })
     setMessage(null);
 
     try {
-      const res = await fetch("/api/waitlist", {
+      const res = await fetch("/api/newsletter/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        // Reuse the waitlist pipeline (proven delivery). `referrer` lets us
-        // distinguish blog signups from home-page waitlist signups in the DB.
-        body: JSON.stringify({ email, referrer: source, website }),
+        // `source` is recorded on the subscriber row so we can tell which page
+        // a signup came from.
+        body: JSON.stringify({ email, source, website }),
       });
       const data = (await res.json().catch(() => ({}))) as {
         ok?: boolean;

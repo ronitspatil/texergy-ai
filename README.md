@@ -111,9 +111,8 @@ npm run dev
 |---|---|
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
 | `SUPABASE_SERVICE_ROLE_KEY` | Service-role key; all DB access is server-side |
-| `ADMIN_TOKEN` | Gates `/admin/*` routes |
+| `ADMIN_TOKEN` | Bearer token for `POST /api/admin/revalidate` |
 | `IP_HASH_SALT` | Salt for SHA-256 IP hashing |
-| `CRON_SECRET` | Bearer token for cron-triggered routes |
 | `NEWSLETTER_TOKEN_SECRET` | Signs unsubscribe tokens |
 
 Generate any of the random ones with:
@@ -160,7 +159,7 @@ app/
     zip-check/         ZIP validation + TDU resolution
     ask-bot/           plan Q&A behind the compare dialog (Gemini, rate-limited)
     providers/         provider listing
-  admin/               token-gated ingest admin
+    admin/revalidate/  token-gated ISR flush after ingest
 components/find/
   recommend-wizard.tsx wizard state machine
   steps/               mode, questions, weights, upload, results
