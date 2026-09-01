@@ -12,6 +12,7 @@ import { DEVICE_OPTIONS } from "@/components/find/wizard-types";
 import { SectionLabel } from "@/components/ui/section-label";
 import { WizardFooter } from "@/components/find/wizard-footer";
 import { UsageEstimateModal } from "@/components/find/usage-estimate-modal";
+import { parseSmtCsv, type ParsedMeterData } from "@/lib/smt-csv";
 
 type Patch = Partial<Pick<WizardState, "monthlyUsageKwh" | "usageEstimate" | "rateTypePref" | "renewablePref" | "termPref" | "devices">>;
 
@@ -28,6 +29,7 @@ export function QuestionsStep({
 }) {
   const isSmart = state.mode === "smart";
   const [estimateOpen, setEstimateOpen] = useState(false);
+  const [meterData, setMeterData] = useState<ParsedMeterData | null>(null);
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -86,11 +88,20 @@ export function QuestionsStep({
           >
             Not sure? Estimate my usage →
           </button>
-          {state.usageEstimate && (
+          {state.usageEstimate && !meterData && (
             <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground/70">
               <span className="text-accent">●</span> Using WattBuy estimate
             </p>
           )}
+
+          <MeterUpload
+            data={meterData}
+            onParsed={(result) => {
+              setMeterData(result);
+              onChange({ monthlyUsageKwh: Math.round(result.monthlyAvgKwh) });
+            }}
+            onClear={() => setMeterData(null)}
+          />
         </Field>
 
         <Field
@@ -152,6 +163,141 @@ export function QuestionsStep({
           onApply={(patch) => onChange(patch)}
           onClose={() => setEstimateOpen(false)}
         />
+      )}
+    </div>
+  );
+}
+
+/** Optional Smart Meter Texas upload, offered alongside the manual usage entry.
+ *  Parsing the export replaces the typed figure with the real monthly average,
+ *  so the ranking runs against actual consumption instead of a round number.
+ *  Collapsed to a single line until opened, so it stays out of the way of the
+ *  people who just want to type 1000 and move on. */
+function MeterUpload({
+  data,
+  onParsed,
+  onClear,
+}: {
+  data: ParsedMeterData | null;
+  onParsed: (d: ParsedMeterData) => void;
+  onClear: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [filename, setFilename] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [parsing, setParsing] = useState(false);
+
+  async function handleFile(file: File) {
+    setError(null);
+    setFilename(file.name);
+    setParsing(true);
+    try {
+      const result = parseSmtCsv(await file.text());
+      if (result.daysCovered === 0) {
+        onClear();
+        setError(
+          "Couldn't read any usage rows from that file. Make sure it's the IntervalData.csv export from Smart Meter Texas.",
+        );
+        return;
+      }
+      onParsed(result);
+    } catch {
+      onClear();
+      setError("Couldn't parse that file. Make sure it's a valid CSV.");
+    } finally {
+      setParsing(false);
+    }
+  }
+
+  if (!open && !data) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="mt-3 block font-mono text-xs text-accent underline underline-offset-4 decoration-accent/40 hover:decoration-accent transition-colors"
+      >
+        Have your Smart Meter Texas data? Upload it →
+      </button>
+    );
+  }
+
+  return (
+    <div className="mt-4 max-w-xl border-l-2 border-accent/40 pl-4">
+      <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-accent mb-2">
+        Smart Meter Texas
+      </div>
+      <p className="font-mono text-[11px] leading-relaxed text-muted-foreground mb-3">
+        Log in at{" "}
+        <a
+          href="https://smartmetertexas.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline decoration-accent/60 underline-offset-2 hover:text-accent transition-colors"
+        >
+          smartmetertexas.com
+        </a>
+        , go to <span className="text-foreground">Data → Usage → Export</span> and download{" "}
+        <span className="text-foreground">IntervalData.csv</span> — up to 13 months of 15-minute
+        readings. It is read in your browser and never uploaded.
+      </p>
+
+      <label
+        htmlFor="smt-csv"
+        className="block cursor-pointer border border-dashed border-border hover:border-accent transition-colors px-4 py-3"
+      >
+        <div className="flex items-center justify-between gap-4">
+          <span className="font-mono text-[11px] uppercase tracking-widest text-foreground truncate">
+            {filename ?? "Choose CSV file"}
+          </span>
+          <span className="shrink-0 font-mono text-[11px] uppercase tracking-widest text-accent">
+            Browse →
+          </span>
+        </div>
+        <input
+          id="smt-csv"
+          type="file"
+          accept=".csv,text/csv"
+          className="sr-only"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) void handleFile(f);
+          }}
+        />
+      </label>
+
+      {parsing && <p className="mt-2 font-mono text-[11px] text-muted-foreground">Reading file…</p>}
+
+      {error && (
+        <p role="alert" className="mt-2 font-mono text-[11px] text-destructive">
+          {error}
+        </p>
+      )}
+
+      {data && (
+        <dl className="mt-3 grid grid-cols-3 gap-3 font-mono text-[11px]">
+          <div>
+            <dt className="text-muted-foreground mb-0.5">Monthly avg</dt>
+            <dd className="font-[family-name:var(--font-bebas)] text-base tracking-tight text-foreground">
+              {Math.round(data.monthlyAvgKwh).toLocaleString()} kWh
+            </dd>
+          </div>
+          <div>
+            <dt className="text-muted-foreground mb-0.5">Days</dt>
+            <dd className="text-foreground">{data.daysCovered}</dd>
+          </div>
+          <div>
+            <dt className="text-muted-foreground mb-0.5">Range</dt>
+            <dd className="text-foreground text-[10px]">
+              {data.earliest && data.latest ? `${data.earliest} → ${data.latest}` : "—"}
+            </dd>
+          </div>
+        </dl>
+      )}
+
+      {data && (
+        <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground/70">
+          <span className="text-accent">●</span> Usage set from your meter data
+        </p>
       )}
     </div>
   );

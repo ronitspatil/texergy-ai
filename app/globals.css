@@ -3,7 +3,42 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Light mode with orange accent. Remove the .light class to roll back. */
+/* The split-flap board fills whatever width the hero's padding leaves it, and
+   that padding steps from 3rem on phones to 10rem at md — so the width cap has
+   to step with it. The height budget and the absolute ceiling are shared.
+   --vpw/--vph rather than vw/svh: see components/viewport-units.tsx. */
+#hero {
+  --hero-flap: max(2.25rem, min(calc(var(--vpw)*15.5), calc(var(--vph)*30 - 88px), 11.25rem));
+}
+@media (min-width: 768px) {
+  #hero {
+    --hero-flap: max(2.25rem, min(calc(var(--vpw)*13), calc(var(--vph)*30 - 88px), 11.25rem));
+  }
+}
+/* iPad portrait can afford a bigger wordmark — the taller viewport leaves room
+   and the reduced portrait padding widens the content column. */
+@media (min-width: 768px) and (orientation: portrait) {
+  #hero {
+    --hero-flap: max(4rem, min(calc(var(--vpw)*14), calc(var(--vph)*18), 14rem));
+  }
+}
+
+/* Phones tall enough to afford it stack the hero's ZIP field above its CTA so
+   each gets full width. Short viewports keep the joined pill, where the extra
+   ~56px of height would push the Get Started card below the fold. The threshold
+   is set to 700px — safely below the layout viewport of modern iPhones even when
+   Safari's URL bar is visible (390x844 = ~752, 393x852 = ~758), so the variant
+   does not flip in and out as the URL bar shows and hides on scroll — while
+   still excluding the 568-667px-tall SE-class phones. */
+@custom-variant zip-stack {
+  @media (max-width: 639px) and (min-height: 700px) {
+    @slot;
+  }
+}
+
+/* Light mode with orange accent. Remove the .light class to roll back.
+   Neutrals carry a touch of the accent's warmth (hue ~60, low chroma) so the
+   UI reads as a considered warm-paper palette instead of flat clinical gray. */
 .light {
   /* Backgrounds carry a faint burnt-orange wash (hue ~48, nudged chroma) so the
      "white" surfaces read as warm tinted paper rather than neutral cream. */
@@ -220,6 +255,23 @@
   z-index: 1000;
   opacity: 0.03;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+/* Subtle grain texture for solid surfaces (e.g. accent buttons), tuned to
+   match the warm-paper noise overlay used elsewhere. */
+.grain-surface {
+  position: relative;
+}
+.grain-surface::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0.12;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
 }
 
 /* Grid background pattern */

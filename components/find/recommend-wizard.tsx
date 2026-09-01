@@ -5,16 +5,15 @@ import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { ProgressBar } from "@/components/find/progress-bar";
 import { ColophonSection } from "@/components/colophon-section";
-import { ModeStep } from "@/components/find/steps/mode-step";
 import { QuestionsStep } from "@/components/find/steps/questions-step";
 import { WeightsStep } from "@/components/find/steps/weights-step";
 import { ResultsStep } from "@/components/find/steps/results-step";
-import { UploadStep } from "@/components/find/steps/upload-step";
-import type { Mode, WizardState } from "@/components/find/wizard-types";
+import type { WizardState } from "@/components/find/wizard-types";
 
-const STEPS_SMART = ["MODE", "PROFILE", "WEIGHTS", "MATCH"] as const;
-const STEPS_BASIC = ["MODE", "PROFILE", "MATCH"] as const;
-const STEPS_METER = ["MODE", "UPLOAD", "MATCH"] as const;
+// Smart Match is the only route now — the mode picker and the separate meter
+// upload step are gone, with the Smart Meter Texas import folded into the
+// profile step's usage field.
+const STEPS = ["PROFILE", "WEIGHTS", "MATCH"] as const;
 
 export function RecommendWizard() {
   const router = useRouter();
@@ -28,7 +27,7 @@ export function RecommendWizard() {
 
   const [state, setState] = useState<WizardState>(() => ({
     zip: zipFromUrl,
-    mode: null,
+    mode: "smart",
     monthlyUsageKwh: 1000,
     usageEstimate: null,
     rateTypePref: "any",
@@ -52,17 +51,21 @@ export function RecommendWizard() {
     stepIndex: 0,
   }));
 
-  const steps =
-    state.mode === "basic" ? STEPS_BASIC : state.mode === "meter" ? STEPS_METER : STEPS_SMART;
+  const steps = STEPS;
   const currentStep = steps[state.stepIndex] ?? steps[0];
 
-  function setMode(mode: Mode) {
-    setState((s) => ({ ...s, mode, stepIndex: 1 }));
-  }
   function goNext() {
     setState((s) => ({ ...s, stepIndex: Math.min(s.stepIndex + 1, steps.length - 1) }));
   }
   function goBack() {
+    // Profile is the first step now that the mode picker is gone, so going back
+    // from it returns to the home page the ZIP was entered on rather than
+    // clamping to itself and leaving a dead button. Navigating outside the
+    // state updater keeps that updater pure — StrictMode invokes it twice.
+    if (state.stepIndex === 0) {
+      router.push("/");
+      return;
+    }
     setState((s) => ({ ...s, stepIndex: Math.max(0, s.stepIndex - 1) }));
   }
 
@@ -120,17 +123,6 @@ export function RecommendWizard() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
         >
-          {currentStep === "MODE" && <ModeStep onSelect={setMode} />}
-
-          {currentStep === "UPLOAD" && (
-            <UploadStep
-              monthlyUsageKwh={state.monthlyUsageKwh}
-              onParsed={(kwh) => setState((s) => ({ ...s, monthlyUsageKwh: kwh }))}
-              onBack={goBack}
-              onNext={goNext}
-            />
-          )}
-
           {currentStep === "PROFILE" && (
             <QuestionsStep
               state={state}

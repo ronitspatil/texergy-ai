@@ -17,23 +17,18 @@ const resourceLinks = [
   { href: "/esid-lookup", label: "ESID Lookup" },
 ]
 
-const aboutLinks = [
-  { href: "/about", label: "About Us" },
-  { href: "/blog", label: "Blog" },
-  { href: "/faq", label: "FAQ" },
-]
-
 function NavDropdown({
   label,
   links,
-  className,
+  activePath,
 }: {
   label: string
   links: Array<{ href: string; label: string }>
-  className?: string
+  activePath?: string
 }) {
   const [open, setOpen] = useState(false)
   const closeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const rootRef = useRef<HTMLLIElement | null>(null)
 
   const openMenu = () => {
     if (closeTimeout.current) clearTimeout(closeTimeout.current)
@@ -45,8 +40,29 @@ function NavDropdown({
     closeTimeout.current = setTimeout(() => setOpen(false), 120)
   }
 
+  // Touch has no pointer to move away, so onMouseLeave never fires and the menu
+  // would have no way to close. This is the only dropdown left in the nav and
+  // the sole route to Resources on a phone, so it needs both dismissals.
+  useEffect(() => {
+    if (!open) return
+
+    const onPointerDown = (e: PointerEvent) => {
+      if (!rootRef.current?.contains(e.target as Node)) setOpen(false)
+    }
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false)
+    }
+
+    document.addEventListener("pointerdown", onPointerDown)
+    document.addEventListener("keydown", onKeyDown)
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown)
+      document.removeEventListener("keydown", onKeyDown)
+    }
+  }, [open])
+
   return (
-    <li className={cn("relative", className)} onMouseEnter={openMenu} onMouseLeave={closeMenu}>
+    <li ref={rootRef} className="relative" onMouseEnter={openMenu} onMouseLeave={closeMenu}>
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
@@ -75,9 +91,12 @@ function NavDropdown({
           />
         </svg>
       </button>
+      {/* Panel is centred under the trigger where there is room, but
+          right-anchored on a phone: the trigger sits near the end of the nav
+          pill, so centring a 208px panel there ran it past the viewport edge. */}
       {open && (
-        <div className="absolute top-full left-1/2 -translate-x-1/2 pt-3">
-          <ul className="w-max min-w-52 rounded-[10px] border border-border/50 bg-background/95 backdrop-blur-md shadow-e2 py-2 animate-in fade-in slide-in-from-top-1 duration-150">
+        <div className="absolute top-full right-0 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 pt-4 md:pt-6">
+          <ul className="w-max min-w-52 md:min-w-56 max-w-[calc(var(--vpw)*100-24px)] rounded-[10px] border border-border/50 bg-background/95 backdrop-blur-md shadow-e2 py-2 md:py-2.5 animate-in fade-in slide-in-from-top-1 duration-150">
             {links.map(({ href, label: linkLabel }, index) => (
               <li key={href}>
                 <Link
@@ -107,7 +126,6 @@ function NavDropdown({
 
 export function SideNav() {
   const [activeSection, setActiveSection] = useState("hero")
-  const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -152,8 +170,8 @@ export function SideNav() {
 
       <span aria-hidden="true" className="h-5 w-px bg-border/60" />
 
-      {/* Section links: always visible. Resources/About become a hamburger on mobile. */}
-      <ul className="flex items-center gap-0 sm:gap-2">
+      {/* Section links and Resources, all visible at every width. */}
+      <ul className="flex min-w-0 items-center gap-0 sm:gap-1 md:gap-1.5 lg:gap-2">
         {navItems.map(({ id, label }) => {
           const active = activeSection === id
           return (
@@ -174,60 +192,13 @@ export function SideNav() {
             </li>
           )
         })}
-        <NavDropdown label="Resources" links={resourceLinks} className="hidden sm:block" />
-        <NavDropdown label="About" links={aboutLinks} className="hidden sm:block" />
+        <NavDropdown
+          label="Resources"
+          links={resourceLinks}
+          activePath={isHome ? undefined : pathname}
+        />
       </ul>
 
-      <span aria-hidden="true" className="sm:hidden h-5 w-px bg-border/60" />
-
-      <button
-        type="button"
-        onClick={() => setMenuOpen((o) => !o)}
-        aria-expanded={menuOpen}
-        aria-label={menuOpen ? "Close menu" : "More links"}
-        className="sm:hidden flex flex-col justify-center items-center gap-[5px] w-7 h-7 -mr-0.5 shrink-0 text-foreground"
-      >
-        <span
-          className={cn(
-            "block h-px w-4 bg-current transition-transform duration-200",
-            menuOpen && "translate-y-[3px] rotate-45",
-          )}
-        />
-        <span
-          className={cn(
-            "block h-px w-4 bg-current transition-transform duration-200",
-            menuOpen && "-translate-y-[3px] -rotate-45",
-          )}
-        />
-      </button>
-
-      {menuOpen && (
-        <div className="sm:hidden absolute top-full right-0 mt-2 min-w-52 border border-border/40 bg-background shadow-e2 animate-in fade-in slide-in-from-top-1 duration-150">
-          {[
-            { heading: "Resources", links: resourceLinks },
-            { heading: "About", links: aboutLinks },
-          ].map(({ heading, links }, i) => (
-            <div key={heading} className={cn("py-2", i > 0 && "border-t border-border/40")}>
-              <p className="px-4 pt-1.5 pb-1 font-mono text-[9px] uppercase tracking-[0.22em] text-accent/70">
-                {heading}
-              </p>
-              <ul>
-                {links.map(({ href, label }) => (
-                  <li key={href}>
-                    <Link
-                      href={href}
-                      onClick={() => setMenuOpen(false)}
-                      className="block font-mono text-[9.5px] uppercase tracking-[0.04em] px-4 py-2.5 text-muted-foreground transition-colors"
-                    >
-                      {label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      )}
     </nav>
   )
 }

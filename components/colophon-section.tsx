@@ -59,11 +59,11 @@ export function ColophonSection() {
     >
 
       {/* Multi-column layout */}
-      <div ref={gridRef} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-x-8 gap-y-10 md:gap-x-10 lg:gap-x-6 xl:gap-x-10">
+      <div ref={gridRef} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-10 md:gap-x-10 lg:gap-x-6 xl:gap-x-10">
 
-        {/* Product */}
+        {/* Site */}
         <div className="col-span-1">
-          <h4 className="font-mono text-[9px] uppercase tracking-[0.3em] text-muted-foreground mb-5">Product</h4>
+          <h4 className="font-mono text-[9px] uppercase tracking-[0.3em] text-muted-foreground mb-5">Site</h4>
           <ul className="space-y-2">
             <li className="h-5 flex items-center font-mono text-xs text-foreground/80">
               <a href="#signals" className="hover:text-accent transition-colors duration-200">How It Works</a>
@@ -73,31 +73,6 @@ export function ColophonSection() {
             </li>
             <li className="h-5 flex items-center font-mono text-xs text-foreground/80">
               <a href="#hero" className="hover:text-accent transition-colors duration-200">Find My Plan</a>
-            </li>
-            <li className="h-5 flex items-center font-mono text-xs text-foreground/80">
-              <a href="#faq" className="hover:text-accent transition-colors duration-200">FAQ</a>
-            </li>
-          </ul>
-        </div>
-
-        {/* Company */}
-        <div className="col-span-1">
-          <h4 className="font-mono text-[9px] uppercase tracking-[0.3em] text-muted-foreground mb-5">Texergy AI</h4>
-          <ul className="space-y-2">
-            <li className="h-5 flex items-center font-mono text-xs text-foreground/80">
-              <a href="/about" className="hover:text-accent transition-colors duration-200">About Texergy AI</a>
-            </li>
-            <li className="h-5 flex items-center font-mono text-xs text-foreground/80">
-              <a href="/blog" className="hover:text-accent transition-colors duration-200">Blog</a>
-            </li>
-            <li className="h-5 flex items-center font-mono text-xs text-foreground/80">
-              <a href="mailto:ronit@texergy.ai?subject=Partnership%20with%20Texergy%20AI" className="hover:text-accent transition-colors duration-200">Partner With Us</a>
-            </li>
-            <li className="h-5 flex items-center font-mono text-xs text-foreground/80">
-              <a href="mailto:hello@texergy.ai" className="hover:text-accent transition-colors duration-200">Support</a>
-            </li>
-            <li className="h-5 flex items-center font-mono text-xs text-foreground/80">
-              Press <span className="ml-0.5 text-[9px] text-muted-foreground/60 uppercase tracking-wide">Soon</span>
             </li>
           </ul>
         </div>

@@ -53,12 +53,6 @@ export default function SiteLayout({
             >
               Terms
             </Link>
-            <Link
-              href="/blog"
-              className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground hover:text-accent transition-colors"
-            >
-              Blog
-            </Link>
             <a
               href="mailto:hello@texergy.ai"
               className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground hover:text-accent transition-colors"

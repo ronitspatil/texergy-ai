@@ -103,9 +103,6 @@ export function HeroZipForm() {
           className="relative z-10 flex items-center justify-center whitespace-nowrap font-mono text-[10px] sm:text-xs uppercase tracking-[0.02em] sm:tracking-[0.25em] px-2 sm:px-5 py-2.5 text-background cursor-default"
         >
           Residential
-          <span className="ml-1.5 text-[8px] sm:text-[9px] tracking-[0.2em] text-background/70 align-middle">
-            · Beta
-          </span>
         </button>
         <button
           type="button"
