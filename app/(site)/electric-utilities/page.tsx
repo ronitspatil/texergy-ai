@@ -72,10 +72,10 @@ export default async function ElectricUtilitiesPage() {
   return (
     <article className="mx-auto max-w-5xl px-6 md:px-12">
       <header className="mb-16">
-        <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-accent">
+        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">
           Electric Utilities
         </span>
-        <h1 className="mt-4 font-[var(--font-bebas)] text-5xl md:text-7xl tracking-tight leading-none">
+        <h1 className="mt-4 font-display text-5xl md:text-7xl tracking-tight leading-none">
           THE WIRES, NOT THE BILL.
         </h1>
         <p className="mt-6 max-w-2xl font-mono text-sm text-muted-foreground leading-relaxed">
@@ -96,7 +96,7 @@ export default async function ElectricUtilitiesPage() {
             className="border-l-2 border-accent pl-5 flex flex-col md:flex-row md:items-start md:justify-between gap-4"
           >
             <div className="flex-1 min-w-0">
-              <h2 className="font-[var(--font-bebas)] text-3xl md:text-4xl tracking-tight text-foreground leading-none">
+              <h2 className="font-display text-3xl md:text-4xl tracking-tight text-foreground leading-none">
                 {tdu.name.toUpperCase()}
               </h2>
               <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
@@ -110,7 +110,7 @@ export default async function ElectricUtilitiesPage() {
               )}
             </div>
             <div className="md:text-right shrink-0">
-              <div className="font-[var(--font-bebas)] text-4xl text-foreground tabular-nums leading-none">
+              <div className="font-display text-4xl text-foreground tabular-nums leading-none">
                 {tdu.active_plan_count}
               </div>
               <div className="mt-1 font-mono text-[9px] uppercase tracking-[0.25em] text-muted-foreground">

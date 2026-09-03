@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Terms of Service",
-  description: "The rules of using Texergy AI during the beta.",
+  description: "The rules of using Texergy during the beta.",
   robots: { index: false, follow: true },
 };
 
@@ -10,10 +10,10 @@ export default function TermsPage() {
   return (
     <article className="mx-auto max-w-3xl px-6 md:px-12">
       <header className="mb-16">
-        <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-accent">
+        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">
           Terms of Service
         </span>
-        <h1 className="mt-4 font-[var(--font-bebas)] text-5xl md:text-7xl tracking-tight leading-none">
+        <h1 className="mt-4 font-display text-5xl md:text-7xl tracking-tight leading-none">
           THE AGREEMENT, KEPT SHORT.
         </h1>
         <p className="mt-6 font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
@@ -23,11 +23,11 @@ export default function TermsPage() {
 
       <div className="space-y-12 text-foreground/80 leading-relaxed">
         <section>
-          <h2 className="font-[var(--font-bebas)] text-3xl tracking-tight text-foreground mb-4">
+          <h2 className="font-display text-3xl tracking-tight text-foreground mb-4">
             What this is
           </h2>
           <p className="font-mono text-sm">
-            Texergy AI (&ldquo;we&rdquo;, &ldquo;us&rdquo;) is a public beta
+            Texergy (&ldquo;we&rdquo;, &ldquo;us&rdquo;) is a public beta
             tool that helps Texas residents shortlist retail electricity plans
             available in their service area. By using the site, you agree to
             these terms.
@@ -35,7 +35,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="font-[var(--font-bebas)] text-3xl tracking-tight text-foreground mb-4">
+          <h2 className="font-display text-3xl tracking-tight text-foreground mb-4">
             Plan recommendations are guidance, not advice
           </h2>
           <p className="font-mono text-sm mb-3">
@@ -69,7 +69,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="font-[var(--font-bebas)] text-3xl tracking-tight text-foreground mb-4">
+          <h2 className="font-display text-3xl tracking-tight text-foreground mb-4">
             Acceptable use
           </h2>
           <ul className="list-disc list-outside ml-5 space-y-3 marker:text-accent/60 font-mono text-sm">
@@ -84,7 +84,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="font-[var(--font-bebas)] text-3xl tracking-tight text-foreground mb-4">
+          <h2 className="font-display text-3xl tracking-tight text-foreground mb-4">
             No account required
           </h2>
           <p className="font-mono text-sm">
@@ -97,7 +97,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="font-[var(--font-bebas)] text-3xl tracking-tight text-foreground mb-4">
+          <h2 className="font-display text-3xl tracking-tight text-foreground mb-4">
             What we own, what you own
           </h2>
           <p className="font-mono text-sm mb-3">
@@ -140,7 +140,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="font-[var(--font-bebas)] text-3xl tracking-tight text-foreground mb-4">
+          <h2 className="font-display text-3xl tracking-tight text-foreground mb-4">
             Service is provided &ldquo;as is&rdquo;
           </h2>
           <p className="font-mono text-sm">
@@ -151,7 +151,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="font-[var(--font-bebas)] text-3xl tracking-tight text-foreground mb-4">
+          <h2 className="font-display text-3xl tracking-tight text-foreground mb-4">
             Changes
           </h2>
           <p className="font-mono text-sm">
@@ -162,7 +162,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="font-[var(--font-bebas)] text-3xl tracking-tight text-foreground mb-4">
+          <h2 className="font-display text-3xl tracking-tight text-foreground mb-4">
             Governing law
           </h2>
           <p className="font-mono text-sm">
@@ -173,7 +173,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="font-[var(--font-bebas)] text-3xl tracking-tight text-foreground mb-4">
+          <h2 className="font-display text-3xl tracking-tight text-foreground mb-4">
             Contact
           </h2>
           <p className="font-mono text-sm">

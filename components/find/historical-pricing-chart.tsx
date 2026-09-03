@@ -51,14 +51,16 @@ function tduLabel(code: string): string {
 }
 
 function formatDate(iso: string): string {
-  // iso is YYYY-MM-DD; render as "Jun 7" without pulling in a date lib.
+  // iso is YYYY-MM-DD; render the axis tick as numeric month/day, e.g. "6/23".
   const [, m, d] = iso.split("-");
-  const months = [
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-  ];
-  const mi = Number(m) - 1;
-  return `${months[mi] ?? m} ${Number(d)}`;
+  return `${Number(m)}/${Number(d)}`;
+}
+
+function formatDateLong(iso: string): string {
+  // Tooltip label keeps the year (data can span the turn of a year), e.g.
+  // "6/23/25".
+  const [y, m, d] = iso.split("-");
+  return `${Number(m)}/${Number(d)}/${y.slice(2)}`;
 }
 
 /** Resolve the theme accent so the 1,000 kWh line matches the rest of the UI.
@@ -168,6 +170,27 @@ export function HistoricalPricingChart({ tduCodes }: { tduCodes: string[] }) {
     return { rows: sorted, hasData: anyValue };
   }, [series, selectedTdu]);
 
+  // Thin the X-axis labels so they stay readable as history accumulates. We aim
+  // for at most ~9 labels: with a few days of data every point is labeled, and
+  // as the window grows the stride widens (every 2nd day, 3rd day, …) so labels
+  // never collide. First and last dates are always kept so the axis spans the
+  // full range; a near-duplicate final tick is dropped to avoid crowding the
+  // right edge.
+  const xTicks = useMemo(() => {
+    const n = rows.length;
+    if (n <= 1) return rows.map((r) => r.date);
+    const TARGET = 9;
+    const stride = Math.max(1, Math.ceil((n - 1) / (TARGET - 1)));
+    const idx: number[] = [];
+    for (let i = 0; i < n; i += stride) idx.push(i);
+    const lastIdx = n - 1;
+    if (idx[idx.length - 1] !== lastIdx) {
+      if (lastIdx - idx[idx.length - 1] < stride / 2) idx.pop();
+      idx.push(lastIdx);
+    }
+    return idx.map((i) => rows[i].date);
+  }, [rows]);
+
   // Tight, data-driven Y range so small day-to-day moves are actually visible
   // instead of being flattened by a fixed 0-based axis. Recomputes whenever the
   // rows change (TDU switch, tier data, or a fresh nightly snapshot from the
@@ -247,15 +270,18 @@ export function HistoricalPricingChart({ tduCodes }: { tduCodes: string[] }) {
 
       <div style={{ width: "100%", height: 300 }}>
         <ResponsiveContainer>
-          <LineChart data={rows} margin={{ top: 8, right: 12, bottom: 0, left: 0 }}>
+          <LineChart data={rows} margin={{ top: 8, right: 18, bottom: 0, left: 4 }}>
             <CartesianGrid stroke={border} strokeDasharray="2 4" vertical={false} />
             <XAxis
               dataKey="date"
               tickFormatter={formatDate}
               tick={{ fill: muted, fontSize: 10, fontFamily: "var(--font-mono, monospace)" }}
               tickLine={false}
+              tickMargin={8}
               axisLine={{ stroke: border }}
-              minTickGap={24}
+              ticks={xTicks}
+              interval={0}
+              padding={{ left: 10, right: 10 }}
             />
             <YAxis
               tick={{ fill: muted, fontSize: 10, fontFamily: "var(--font-mono, monospace)" }}
@@ -276,7 +302,7 @@ export function HistoricalPricingChart({ tduCodes }: { tduCodes: string[] }) {
                 fontSize: 11,
               }}
               labelStyle={{ color: "var(--foreground)" }}
-              labelFormatter={(label: string) => formatDate(label)}
+              labelFormatter={(label: string) => formatDateLong(label)}
               formatter={(value: number | string, name: string) => [`${value}¢/kWh`, name]}
             />
             <Legend

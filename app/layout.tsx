@@ -3,6 +3,7 @@ import { IBM_Plex_Sans, IBM_Plex_Mono, Bebas_Neue } from "next/font/google";
 import { Suspense } from "react";
 import RefreshToHome from "@/components/RefreshToHome";
 import { SmoothScroll } from "@/components/smooth-scroll";
+import { ViewportUnits } from "@/components/viewport-units";
 import { PHProvider } from "@/components/posthog-provider";
 import { PostHogPageView } from "@/components/posthog-pageview";
 import "./globals.css";
@@ -92,7 +93,9 @@ const STRUCTURED_DATA = [
 ];
 
 export const viewport: Viewport = {
-  themeColor: "#ffffff",
+  // Matches --background (warm paper) so the browser chrome on mobile blends
+  // with the page instead of flashing clinical white.
+  themeColor: "#fdf6ec",
   width: "device-width",
   initialScale: 1,
 };
@@ -116,6 +119,7 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(STRUCTURED_DATA) }}
         />
+        <ViewportUnits />
         <PHProvider>
           <Suspense fallback={null}>
             <PostHogPageView />

@@ -18,7 +18,7 @@ function escapeHtml(s: string): string {
 // --- Newsletter -----------------------------------------------------------
 
 function buildNewsletterBody(recipientEmail: string, unsubUrl: string) {
-  const subject = "You're subscribed to Texergy AI";
+  const subject = "You're subscribed to Texergy";
 
   const sans = "Helvetica,Arial,sans-serif";
   const mono = "ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
@@ -47,7 +47,7 @@ function buildNewsletterBody(recipientEmail: string, unsubUrl: string) {
     "",
     "YOU'RE SUBSCRIBED.",
     "",
-    `${recipientEmail} is now on the Texergy AI newsletter list.`,
+    `${recipientEmail} is now on the Texergy newsletter list.`,
     "",
     "We'll send a short note when a new post goes up. No spam, no promotions, no AI-generated filler — just field notes on the Texas electricity market.",
     "",
@@ -63,7 +63,7 @@ function buildNewsletterBody(recipientEmail: string, unsubUrl: string) {
 <html lang="en">
 <body style="margin:0;padding:0;background:#fafafa;font-family:${sans};color:#1a1a1a;-webkit-font-smoothing:antialiased;">
   <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;font-size:1px;line-height:1px;mso-hide:all;">
-    You're subscribed to the Texergy AI newsletter.
+    You're subscribed to the Texergy newsletter.
   </div>
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#fafafa;">
     <tr>
@@ -91,7 +91,7 @@ function buildNewsletterBody(recipientEmail: string, unsubUrl: string) {
 
           <tr><td style="padding:0 36px 18px;">
             <p style="margin:0;font-family:${mono};font-size:14px;line-height:1.7;color:#1a1a1a;">
-              ${escapeHtml(recipientEmail)} is now on the Texergy AI newsletter list.
+              ${escapeHtml(recipientEmail)} is now on the Texergy newsletter list.
             </p>
           </td></tr>
 
@@ -115,7 +115,7 @@ function buildNewsletterBody(recipientEmail: string, unsubUrl: string) {
               Questions? Just reply.
             </p>
             <div style="font-family:${mono};font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#1a1a1a;">
-              — The Texergy AI Team
+              — The Texergy Team
             </div>
             <a href="https://texergy.ai" style="display:inline-block;margin-top:6px;font-family:${mono};font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#f47a1a;text-decoration:none;">
               texergy.ai →
@@ -124,10 +124,10 @@ function buildNewsletterBody(recipientEmail: string, unsubUrl: string) {
 
           <tr><td style="padding:32px 36px 36px;">
             <p style="margin:0 0 10px;font-family:${mono};font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9a9a;">
-              Texergy AI · Built for Texas · ERCOT
+              Texergy · Built for Texas · ERCOT
             </p>
             <p style="margin:0;font-family:${mono};font-size:11px;line-height:1.6;color:#9a9a9a;">
-              You're getting this because you subscribed to the Texergy AI newsletter.
+              You're getting this because you subscribed to the Texergy newsletter.
               <a href="${unsubUrl}" style="color:#6b6b6b;text-decoration:underline;">Unsubscribe</a>.
             </p>
           </td></tr>

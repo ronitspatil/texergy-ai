@@ -4,7 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Service Areas",
   description:
-    "Major Texas cities where Texergy AI can rank retail electricity plans, grouped by Transmission & Distribution Utility (TDU).",
+    "Major Texas cities where Texergy can rank retail electricity plans, grouped by Transmission & Distribution Utility (TDU).",
   robots: { index: false, follow: false },
 };
 
@@ -127,14 +127,14 @@ export default function ServiceAreasPage() {
   return (
     <article className="mx-auto max-w-5xl px-6 md:px-12">
       <header className="mb-16">
-        <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-accent">
+        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">
           Service Areas
         </span>
-        <h1 className="mt-4 font-[var(--font-bebas)] text-5xl md:text-7xl tracking-tight leading-none">
+        <h1 className="mt-4 font-display text-5xl md:text-7xl tracking-tight leading-none">
           WHERE TEXERGY WORKS.
         </h1>
         <p className="mt-6 max-w-2xl font-mono text-sm text-muted-foreground leading-relaxed">
-          Texergy AI ranks plans wherever Texas retail electricity is{" "}
+          Texergy ranks plans wherever Texas retail electricity is{" "}
           <em>deregulated</em> — the parts of the state where you choose your
           own retail provider on top of the same physical wires. That covers
           most of the state, but not all of it. Pick your city below, or just
@@ -150,7 +150,7 @@ export default function ServiceAreasPage() {
         {TDU_AREAS.map((tdu) => (
           <div key={tdu.code}>
             <div className="border-l-2 border-accent pl-5 mb-6">
-              <h2 className="font-[var(--font-bebas)] text-3xl md:text-4xl tracking-tight text-foreground leading-none">
+              <h2 className="font-display text-3xl md:text-4xl tracking-tight text-foreground leading-none">
                 {tdu.name.toUpperCase()}
               </h2>
               <p className="mt-2 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
@@ -171,13 +171,13 @@ export default function ServiceAreasPage() {
 
       <section className="mt-24 border-t border-border/50 pt-12">
         <div className="border-l-2 border-muted-foreground/40 pl-5 mb-6">
-          <h2 className="font-[var(--font-bebas)] text-3xl md:text-4xl tracking-tight text-foreground leading-none">
+          <h2 className="font-display text-3xl md:text-4xl tracking-tight text-foreground leading-none">
             NOT ON THE DEREGULATED GRID
           </h2>
           <p className="mt-3 max-w-2xl font-mono text-sm text-foreground/80 leading-relaxed">
             A few major Texas cities don&apos;t have retail choice — your
             electricity comes from a municipal utility or co-op at a single
-            regulated rate. Texergy AI can&apos;t shop these for you.
+            regulated rate. Texergy can&apos;t shop these for you.
           </p>
         </div>
         <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 font-mono text-sm text-foreground/85">

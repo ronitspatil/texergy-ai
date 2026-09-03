@@ -8,25 +8,21 @@ import { SectionLabel } from "@/components/ui/section-label";
 import { PlanCard } from "@/components/find/plan-card";
 import { ResultsSidebar } from "@/components/find/results-sidebar";
 import { CompareDialog } from "@/components/find/compare-dialog";
-import { UsageForecastChart } from "@/components/find/usage-forecast-chart";
-import { HistoricalPricingChart } from "@/components/find/historical-pricing-chart";
+import dynamic from "next/dynamic";
 import { UsageEstimateModal } from "@/components/find/usage-estimate-modal";
+
+/* Charts pull in recharts (~0.5 MB of JS). Loading them lazily keeps the
+   wizard's initial bundle light — they only render on the results step. */
+const chartFallback = <div className="h-40 animate-pulse bg-muted/20" aria-hidden="true" />;
+const UsageForecastChart = dynamic(
+  () => import("@/components/find/usage-forecast-chart").then((m) => m.UsageForecastChart),
+  { ssr: false, loading: () => chartFallback },
+);
+const HistoricalPricingChart = dynamic(
+  () => import("@/components/find/historical-pricing-chart").then((m) => m.HistoricalPricingChart),
+  { ssr: false, loading: () => chartFallback },
+);
 import { buildRecommendBody, type ApiResponse } from "@/components/find/recommend-client";
-
-const ZONE_LABELS: Record<string, string> = {
-  COAST: "Houston coast",
-  EAST: "East Texas",
-  FWEST: "Far west Texas",
-  NCENT: "DFW / north central",
-  NORTH: "north Texas",
-  SCENT: "Austin / central Texas",
-  SOUTH: "south Texas",
-  WEST: "west Texas",
-};
-
-function describeZone(zone: string): string {
-  return ZONE_LABELS[zone] ?? "your ERCOT zone";
-}
 
 export function ResultsStep({
   state,
@@ -157,12 +153,12 @@ export function ResultsStep({
   }, [data, state.sortBy]);
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="w-full">
       <SectionLabel className="block mb-4">Your matches</SectionLabel>
-      <h2 className="font-[family-name:var(--font-bebas)] text-foreground text-[clamp(2.5rem,5vw,4rem)] leading-[0.95] tracking-tight mb-2">
+      <h2 className="font-[family-name:var(--font-bebas)] text-foreground text-[clamp(2rem,calc(var(--vpw)*5),4rem)] leading-[0.95] tracking-tight mb-2">
         HERE&apos;S WHAT <span className="text-accent">FITS.</span>
       </h2>
-      <p className="font-mono text-xs sm:text-sm text-muted-foreground mb-2">
+      <p className="font-mono text-xs sm:text-sm text-muted-foreground mb-8 sm:mb-10">
         {loading
           ? "Crunching plans…"
           : error
@@ -171,25 +167,16 @@ export function ResultsStep({
               ? `${data.ranked.length} plans available in ${data.tduCodes.join(", ") || "your area"}`
               : ""}
       </p>
-      {!loading && !error && data?.profile && (
-        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground/70 mb-8 sm:mb-10">
-          <span className="text-accent">●</span>{" "}
-          {data.profile.source === "meter_api"
-            ? `Bill estimates based on ${describeZone(data.profile.weatherZone)} load curve`
-            : `Bill estimates based on a typical Texas home`}
-        </p>
-      )}
-      {!data?.profile && !loading && !error && <div className="mb-8 sm:mb-10" />}
 
       {/* Mobile/tablet: Refine toggle. Hidden on lg+ where the sidebar is
           always visible. */}
-      <div className="lg:hidden mb-6">
+      <div className="lg:hidden mb-4 sm:mb-6">
         <button
           type="button"
           onClick={() => setSidebarOpen((v) => !v)}
           aria-expanded={sidebarOpen}
           aria-controls="results-refine-panel"
-          className="w-full flex items-center justify-between border border-foreground/20 px-5 py-3 font-mono text-xs uppercase tracking-widest text-foreground hover:border-accent hover:text-accent transition-colors"
+          className="w-full flex items-center justify-between border border-foreground/20 px-3 sm:px-5 py-2 sm:py-3 font-mono text-[10px] sm:text-xs uppercase tracking-widest text-foreground hover:border-accent hover:text-accent transition-colors"
         >
           <span>{sidebarOpen ? "Hide" : "Refine"} preferences</span>
           <motion.span
@@ -219,7 +206,7 @@ export function ResultsStep({
         </AnimatePresence>
       </div>
 
-      <div className="grid lg:grid-cols-[280px_1fr] gap-8 lg:gap-12">
+      <div className="grid lg:grid-cols-[240px_1fr] gap-3 sm:gap-4 md:gap-6 lg:gap-4 lg:pl-12">
         <aside className="hidden lg:block lg:sticky lg:top-8 lg:self-start">
           <ResultsSidebar state={state} onUpdate={onUpdate} />
           <div className="mt-8 pt-6 border-t border-border/40">
@@ -233,7 +220,7 @@ export function ResultsStep({
           </div>
         </aside>
 
-        <div>
+        <div className="mx-auto max-w-[calc(var(--vpw)*100-24px)] sm:max-w-none lg:relative lg:h-full lg:w-full lg:max-w-none lg:mx-0">
           {error ? (
             <div className="border border-destructive/50 p-6 font-mono text-sm text-destructive">
               {error}
@@ -256,7 +243,7 @@ export function ResultsStep({
                 ZIP {state.zip} isn&apos;t in a deregulated Texas electricity market.
               </p>
               <p className="leading-relaxed">
-                Texergy AI works only for ZIPs served by an ERCOT retail provider
+                Texergy works only for ZIPs served by an ERCOT retail provider
                 (i.e. you can choose your supplier). Regulated areas like Austin
                 Energy, CPS Energy, and electric co-ops aren&apos;t covered.
               </p>
@@ -267,15 +254,18 @@ export function ResultsStep({
             </div>
           ) : (
             <>
-            <div className="mb-3 flex items-center justify-end gap-3">
-              <label htmlFor="sort-by" className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
+            {/* The negative top margin lifts this row out of the plan column and
+                onto the same line as the "N plans available in …" count above the
+                grid, so the control reads as belonging to that summary. */}
+            <div className="mb-3 flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2 sm:gap-3 mx-auto max-w-full sm:max-w-none lg:-mt-[66px]">
+              <label htmlFor="sort-by" className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground whitespace-nowrap flex-shrink-0">
                 Sort by
               </label>
               <select
                 id="sort-by"
                 value={state.sortBy}
                 onChange={(e) => onUpdate({ sortBy: e.target.value as SortBy })}
-                className="bg-background border border-foreground/25 px-3 py-1.5 font-mono text-xs text-foreground focus:outline-none focus:border-accent transition-colors"
+                className="bg-background border border-foreground/25 px-2 sm:px-3 py-1.5 font-mono text-xs text-foreground focus:outline-none focus:border-accent transition-colors flex-1 sm:flex-initial min-w-0 sm:min-w-auto truncate"
               >
                 {SORT_OPTIONS.map((o) => (
                   <option key={o.value} value={o.value}>
@@ -288,14 +278,14 @@ export function ResultsStep({
                 and the user scrolls within the list instead of the whole page.
                 Wraps the scroller in a relative parent so we can layer top/bottom
                 gradient fades that hint at more content above/below the fold. */}
-            <div className="relative border border-border/40 bg-background/40">
+            <div className="relative border border-border/40 bg-background/40 overflow-hidden mx-auto max-w-full sm:max-w-none lg:absolute lg:left-6 lg:right-0 lg:-top-5 lg:bottom-0 lg:flex lg:flex-col lg:min-h-0 lg:max-w-none lg:mx-0">
               <div
                 // data-lenis-prevent tells the site-wide Lenis smooth-scroll
                 // wrapper to leave wheel/touch events for this element alone,
                 // so two-finger trackpad scrolling actually reaches the
                 // container instead of getting swallowed by the page scroller.
                 data-lenis-prevent="true"
-                className="results-scroller max-h-[calc(100vh-280px)] overflow-y-auto overscroll-contain"
+                className="results-scroller max-h-[calc(var(--vph)*100-280px)] lg:max-h-none lg:flex-1 lg:min-h-0 overflow-y-auto overscroll-contain"
                 tabIndex={0}
                 aria-label={`${sortedRanked.length} plan results — scroll to browse`}
               >
@@ -402,7 +392,7 @@ function UsageForecastSection({
   return (
     <section className="mt-12 sm:mt-16 border-t border-border/40 pt-10">
       <SectionLabel className="block mb-3">Your usage forecast</SectionLabel>
-      <h3 className="font-[family-name:var(--font-bebas)] text-foreground text-[clamp(1.75rem,4vw,3rem)] leading-[0.95] tracking-tight mb-2">
+      <h3 className="font-[family-name:var(--font-bebas)] text-foreground text-[clamp(1.75rem,calc(var(--vpw)*4),3rem)] leading-[0.95] tracking-tight mb-2">
         WHAT YOU&apos;LL <span className="text-accent">USE.</span>
       </h3>
       <p className="font-mono text-xs text-muted-foreground mb-6 max-w-2xl">
@@ -466,7 +456,7 @@ function HistoricalPricingSection({ tduCodes }: { tduCodes: string[] }) {
   return (
     <section className="mt-12 sm:mt-16 border-t border-border/40 pt-10">
       <SectionLabel className="block mb-3">Market price history</SectionLabel>
-      <h3 className="font-[family-name:var(--font-bebas)] text-foreground text-[clamp(1.75rem,4vw,3rem)] leading-[0.95] tracking-tight mb-2">
+      <h3 className="font-[family-name:var(--font-bebas)] text-foreground text-[clamp(1.75rem,calc(var(--vpw)*4),3rem)] leading-[0.95] tracking-tight mb-2">
         WHERE RATES ARE <span className="text-accent">HEADED.</span>
       </h3>
       <p className="font-mono text-xs text-muted-foreground mb-6 max-w-2xl">
@@ -508,13 +498,13 @@ function CompareBar({
         <div className="font-mono text-xs sm:text-sm uppercase tracking-[0.25em] text-muted-foreground shrink-0">
           Compare {selected.length}/{max}
         </div>
-        <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-0">
+        <div className="flex flex-wrap sm:flex-nowrap sm:overflow-x-auto items-center gap-2.5 flex-1 min-w-0">
           {selected.map((r) => (
             <div
               key={r.plan.id}
-              className="flex items-center gap-2.5 border border-foreground/20 pl-4 pr-2.5 py-2.5 max-w-full"
+              className="flex items-center gap-2.5 border border-foreground/20 pl-4 pr-2.5 py-2.5 max-w-full sm:min-w-0"
             >
-              <span className="font-mono text-sm text-foreground truncate max-w-[240px]">
+              <span className="font-mono text-sm text-foreground break-words max-w-[320px] leading-snug">
                 {r.plan.rep_name} · {r.plan.name}
               </span>
               <button
@@ -540,7 +530,7 @@ function CompareBar({
             type="button"
             onClick={onOpen}
             disabled={selected.length < 2}
-            className="border border-foreground bg-foreground text-background px-7 py-3 font-mono text-sm uppercase tracking-widest hover:bg-accent hover:border-accent hover:text-accent-foreground transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="grain-surface rounded-full bg-accent text-accent-foreground shadow-e1 px-7 py-3 font-mono text-sm uppercase tracking-widest hover:bg-accent-strong hover:shadow-e2 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
           >
             Compare →
           </button>

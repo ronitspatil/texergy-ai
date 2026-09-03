@@ -8,6 +8,12 @@ export const dynamic = "force-dynamic";
 
 const PTC_BASE = "https://api.powertochoose.org/api/PowerToChoose";
 
+// Upper bounds on external calls so a slow PTC/Supabase never hangs the
+// caller's "Find My Plan" button. Generous enough for cold serverless +
+// healthy network, short enough that the UI recovers with a retry message.
+const PTC_TIMEOUT_MS = 8000;
+const DB_TIMEOUT_MS = 8000;
+
 type PtcPlan = { company_tdu_id?: string };
 
 function getServerClient() {
@@ -64,21 +70,34 @@ export async function POST(req: NextRequest) {
 
   const supabase = getServerClient();
 
-  // Cache hit?
-  const { data: cached } = await supabase.from("service_areas").select("tdu_id").eq("zip", zip);
+  // Cache hit? A stalled DB call returns an error (via abortSignal) instead of
+  // hanging; we surface it as ptc_unreachable so the client shows a retry.
+  const { data: cached, error: cacheErr } = await supabase
+    .from("service_areas")
+    .select("tdu_id")
+    .eq("zip", zip)
+    .abortSignal(AbortSignal.timeout(DB_TIMEOUT_MS));
+  if (cacheErr) {
+    return NextResponse.json({ ok: false, reason: "ptc_unreachable" });
+  }
   if (cached && cached.length > 0) {
     const { data: tdus } = await supabase
       .from("tdus")
       .select("code")
-      .in("id", cached.map((r) => r.tdu_id as number));
+      .in("id", cached.map((r) => r.tdu_id as number))
+      .abortSignal(AbortSignal.timeout(DB_TIMEOUT_MS));
     return NextResponse.json({ ok: true, tduCodes: (tdus ?? []).map((t) => t.code as string) });
   }
 
-  // Cache miss — ask PTC.
+  // Cache miss — ask PTC. PTC can stall for a minute or more without ever
+  // failing the connection; without a timeout the request (and the user's
+  // "Find My Plan" button) hangs indefinitely. Bound it so we surface a
+  // retryable "unreachable" error fast instead of blocking the UI.
   let res: Response;
   try {
     res = await fetch(`${PTC_BASE}/plans?zip_code=${zip}`, {
       headers: { Accept: "application/json" },
+      signal: AbortSignal.timeout(PTC_TIMEOUT_MS),
     });
   } catch {
     return NextResponse.json({ ok: false, reason: "ptc_unreachable" });
@@ -110,9 +129,14 @@ export async function POST(req: NextRequest) {
   const { data: tdus } = await supabase
     .from("tdus")
     .select("id, code")
-    .in("ptc_tdu_id", distinctPtcTduIds);
-  for (const tdu of tdus ?? []) {
-    await supabase.from("service_areas").upsert({ zip, tdu_id: tdu.id });
+    .in("ptc_tdu_id", distinctPtcTduIds)
+    .abortSignal(AbortSignal.timeout(DB_TIMEOUT_MS));
+  // Backfill in a single round-trip rather than one upsert per TDU.
+  if (tdus && tdus.length > 0) {
+    await supabase
+      .from("service_areas")
+      .upsert(tdus.map((tdu) => ({ zip, tdu_id: tdu.id })))
+      .abortSignal(AbortSignal.timeout(DB_TIMEOUT_MS));
   }
   return NextResponse.json({
     ok: true,

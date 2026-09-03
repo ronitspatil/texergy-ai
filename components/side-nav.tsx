@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 
 const navItems = [
@@ -9,6 +10,13 @@ const navItems = [
   { id: "signals", label: "How It Works" },
   { id: "work", label: "Smart Match" },
 ]
+
+// Route the homepage sections resolve to when the nav renders on a subpage.
+const sectionHrefs: Record<string, string> = {
+  hero: "/",
+  signals: "/#signals",
+  work: "/#work",
+}
 
 const resourceLinks = [
   { href: "/texas-energy-101", label: "Texas Energy 101" },
@@ -27,6 +35,7 @@ function NavDropdown({
   activePath?: string
 }) {
   const [open, setOpen] = useState(false)
+  const containsActive = links.some(({ href }) => href === activePath)
   const closeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
   const rootRef = useRef<HTMLLIElement | null>(null)
 
@@ -69,18 +78,23 @@ function NavDropdown({
         aria-expanded={open}
         aria-haspopup="true"
         className={cn(
-          "flex items-center gap-1 font-mono text-[10px] sm:text-[11px] uppercase tracking-[0.06em] sm:tracking-[0.22em] px-1.5 sm:px-2.5 py-1.5 transition-colors whitespace-nowrap",
-          open ? "text-foreground" : "text-muted-foreground hover:text-foreground",
+          "flex items-center gap-1 md:gap-1.5 font-mono text-[8.5px] sm:text-[9.5px] md:text-[10.5px] lg:text-[11px] uppercase tracking-[0.01em] sm:tracking-[0.04em] px-1.5 sm:px-2 md:px-2.5 lg:px-3 py-1 sm:py-1.5 transition-colors whitespace-nowrap",
+          containsActive
+            ? "text-accent"
+            : open
+              ? "text-foreground"
+              : "text-muted-foreground hover:text-foreground",
         )}
       >
         {label}
         <svg
-          width="8"
-          height="8"
           viewBox="0 0 8 8"
           fill="none"
           aria-hidden="true"
-          className={cn("transition-transform", open && "rotate-180")}
+          className={cn(
+            "w-1.5 h-1.5 md:w-2 md:h-2 shrink-0 transition-transform",
+            open && "rotate-180",
+          )}
         >
           <path
             d="M1.5 3 4 5.5 6.5 3"
@@ -102,9 +116,15 @@ function NavDropdown({
                 <Link
                   href={href}
                   onClick={() => setOpen(false)}
-                  className="group/item flex items-baseline gap-3 px-4 py-2.5 font-mono text-[10px] sm:text-[11px] uppercase tracking-[0.06em] sm:tracking-[0.18em] text-muted-foreground hover:text-foreground hover:bg-accent/[0.06] transition-colors whitespace-nowrap"
+                  aria-current={href === activePath ? "page" : undefined}
+                  className={cn(
+                    "group/item flex items-baseline gap-3 px-3.5 md:px-4 py-2 md:py-2.5 font-mono text-[8.5px] sm:text-[9.5px] md:text-[10.5px] uppercase tracking-[0.01em] sm:tracking-[0.04em] hover:bg-accent/[0.06] transition-colors whitespace-nowrap",
+                    href === activePath
+                      ? "text-accent"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
                 >
-                  <span className="text-[9px] text-accent/60 tabular-nums group-hover/item:text-accent transition-colors">
+                  <span className="text-[9px] md:text-[10px] text-accent/60 tabular-nums group-hover/item:text-accent transition-colors">
                     0{index + 1}
                   </span>
                   <span className="flex-1">{linkLabel}</span>
@@ -124,10 +144,13 @@ function NavDropdown({
   )
 }
 
-export function SideNav() {
+export function SideNav({ variant = "home" }: { variant?: "home" | "subpage" }) {
+  const isHome = variant === "home"
+  const pathname = usePathname()
   const [activeSection, setActiveSection] = useState("hero")
 
   useEffect(() => {
+    if (!isHome) return
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -145,7 +168,7 @@ export function SideNav() {
     })
 
     return () => observer.disconnect()
-  }, [])
+  }, [isHome])
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id)
@@ -157,38 +180,55 @@ export function SideNav() {
   return (
     <nav
       aria-label="Primary"
-      className="fixed top-3 sm:top-4 left-1/2 -translate-x-1/2 z-50 flex w-max max-w-[calc(100vw-16px)] items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 border border-border/40 bg-background/80 backdrop-blur-md shadow-sm"
+      className="fixed top-2.5 sm:top-3 lg:top-4 left-1/2 -translate-x-1/2 z-50 flex w-max max-w-[calc(var(--vpw)*100-16px)] sm:max-w-[calc(var(--vpw)*100-32px)] items-center gap-1 sm:gap-1.5 md:gap-2 lg:gap-2.5 px-2 sm:px-3.5 md:px-4 lg:px-5 py-1.5 sm:py-2 md:py-2.5 border border-border/40 bg-background/80 backdrop-blur-md shadow-sm"
     >
-      <button
-        type="button"
-        onClick={() => scrollToSection("hero")}
-        aria-label="Texergy home"
-        className="shrink-0 hover:opacity-80 transition-opacity"
-      >
-        <img src="/logo.svg" alt="Texergy" className="block w-5 h-5 sm:w-6 sm:h-6" />
-      </button>
+      {isHome ? (
+        <button
+          type="button"
+          onClick={() => scrollToSection("hero")}
+          aria-label="Texergy home"
+          className="shrink-0 hover:opacity-80 transition-opacity"
+        >
+          <img src="/logo.svg" alt="Texergy" className="block w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8" />
+        </button>
+      ) : (
+        <Link
+          href="/"
+          aria-label="Texergy home"
+          className="shrink-0 hover:opacity-80 transition-opacity"
+        >
+          <img src="/logo.svg" alt="Texergy" className="block w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8" />
+        </Link>
+      )}
 
-      <span aria-hidden="true" className="h-5 w-px bg-border/60" />
+      <span aria-hidden="true" className="hidden sm:block h-4 md:h-5 lg:h-6 w-px bg-border/60" />
 
       {/* Section links and Resources, all visible at every width. */}
       <ul className="flex min-w-0 items-center gap-0 sm:gap-1 md:gap-1.5 lg:gap-2">
         {navItems.map(({ id, label }) => {
-          const active = activeSection === id
+          const active = isHome && activeSection === id
+          const itemClass = cn(
+            "block font-mono text-[8.5px] sm:text-[9.5px] md:text-[10.5px] lg:text-[11px] uppercase tracking-[0.01em] sm:tracking-[0.04em] px-1.5 sm:px-2 md:px-2.5 lg:px-3 py-1 sm:py-1.5 transition-colors whitespace-nowrap",
+            active
+              ? "text-accent"
+              : "text-muted-foreground hover:text-foreground",
+          )
           return (
             <li key={id}>
-              <button
-                type="button"
-                onClick={() => scrollToSection(id)}
-                aria-current={active ? "true" : undefined}
-                className={cn(
-                  "font-mono text-[9.5px] sm:text-[11px] uppercase tracking-[0.04em] sm:tracking-[0.22em] px-1.5 sm:px-2.5 py-1.5 transition-colors whitespace-nowrap",
-                  active
-                    ? "text-accent"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                {label}
-              </button>
+              {isHome ? (
+                <button
+                  type="button"
+                  onClick={() => scrollToSection(id)}
+                  aria-current={active ? "true" : undefined}
+                  className={itemClass}
+                >
+                  {label}
+                </button>
+              ) : (
+                <Link href={sectionHrefs[id] ?? "/"} className={itemClass}>
+                  {label}
+                </Link>
+              )}
             </li>
           )
         })}

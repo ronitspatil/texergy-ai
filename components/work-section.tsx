@@ -122,11 +122,11 @@ export function WorkSection() {
   }, [])
 
   return (
-    <section ref={sectionRef} id="work" className="relative py-32 pl-6 md:pl-28 pr-6 md:pr-12">
+    <section ref={sectionRef} id="work" className="relative py-20 sm:py-24 md:py-32 pl-6 md:pl-28 pr-6 md:pr-12">
       <ArtifactStyles />
 
-      <div ref={headerRef} className="mb-16 max-w-3xl">
-        <h2 className="font-display text-5xl md:text-7xl tracking-tight leading-none">SMART MATCH ENGINE</h2>
+      <div ref={headerRef} className="mb-10 sm:mb-14 md:mb-16 max-w-3xl">
+        <h2 className="font-display text-[clamp(2.25rem,7vw,4.5rem)] tracking-tight leading-none">SMART MATCH ENGINE</h2>
         <p className="mt-6 font-mono text-sm text-muted-foreground leading-relaxed max-w-xl">
           Seven signals feed every match, and you set the weights. Dial each one up or down and the engine
           re-ranks every plan around what actually matters to you, hyper-personalized to your home.
@@ -319,8 +319,8 @@ function PlanCard({ plan, expanded, onExpand }: { plan: Plan; expanded: boolean;
               <span
                 className={`inline-flex items-center gap-1.5 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.22em] transition-colors ${
                   accent
-                    ? "bg-accent text-accent-foreground hover:brightness-95"
-                    : "border border-foreground/25 text-foreground hover:border-accent hover:text-accent"
+                    ? "grain-surface rounded-full bg-accent text-accent-foreground shadow-e1 hover:bg-accent-strong"
+                    : "rounded-full border border-foreground/25 text-foreground hover:border-accent hover:text-accent"
                 }`}
               >
                 Enroll

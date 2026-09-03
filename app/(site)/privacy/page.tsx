@@ -10,10 +10,10 @@ export default function PrivacyPage() {
   return (
     <article className="mx-auto max-w-3xl px-6 md:px-12">
       <header className="mb-16">
-        <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-accent">
+        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">
           Privacy Policy
         </span>
-        <h1 className="mt-4 font-[var(--font-bebas)] text-5xl md:text-7xl tracking-tight leading-none">
+        <h1 className="mt-4 font-display text-5xl md:text-7xl tracking-tight leading-none">
           YOUR DATA, IN PLAIN ENGLISH.
         </h1>
         <p className="mt-6 font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
@@ -23,11 +23,11 @@ export default function PrivacyPage() {
 
       <div className="space-y-12 text-foreground/80 leading-relaxed">
         <section>
-          <h2 className="font-[var(--font-bebas)] text-3xl tracking-tight text-foreground mb-4">
+          <h2 className="font-display text-3xl tracking-tight text-foreground mb-4">
             What we collect
           </h2>
           <p className="font-mono text-sm mb-3">
-            Using Texergy AI does not require an account. To match you with
+            Using Texergy does not require an account. To match you with
             electricity plans, the site asks for your ZIP code so it can look
             up the providers that serve your area. Your other wizard answers
             (estimated monthly usage, household profile, weight preferences)
@@ -65,7 +65,7 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="font-[var(--font-bebas)] text-3xl tracking-tight text-foreground mb-4">
+          <h2 className="font-display text-3xl tracking-tight text-foreground mb-4">
             What we don&apos;t collect
           </h2>
           <ul className="list-disc list-outside ml-5 space-y-3 marker:text-accent/60 font-mono text-sm">
@@ -95,7 +95,7 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="font-[var(--font-bebas)] text-3xl tracking-tight text-foreground mb-4">
+          <h2 className="font-display text-3xl tracking-tight text-foreground mb-4">
             How we use what we collect
           </h2>
           <p className="font-mono text-sm mb-3">
@@ -117,7 +117,7 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="font-[var(--font-bebas)] text-3xl tracking-tight text-foreground mb-4">
+          <h2 className="font-display text-3xl tracking-tight text-foreground mb-4">
             Where it lives
           </h2>
           <p className="font-mono text-sm mb-3">
@@ -139,7 +139,7 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="font-[var(--font-bebas)] text-3xl tracking-tight text-foreground mb-4">
+          <h2 className="font-display text-3xl tracking-tight text-foreground mb-4">
             How long we keep it
           </h2>
           <p className="font-mono text-sm">
@@ -153,7 +153,7 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="font-[var(--font-bebas)] text-3xl tracking-tight text-foreground mb-4">
+          <h2 className="font-display text-3xl tracking-tight text-foreground mb-4">
             Deleting your data
           </h2>
           <p className="font-mono text-sm">
@@ -172,18 +172,18 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="font-[var(--font-bebas)] text-3xl tracking-tight text-foreground mb-4">
+          <h2 className="font-display text-3xl tracking-tight text-foreground mb-4">
             Children
           </h2>
           <p className="font-mono text-sm">
-            Texergy AI is not directed at children under 13 and we don&apos;t
+            Texergy is not directed at children under 13 and we don&apos;t
             knowingly collect data from them. Texas electricity contracts are
             for adult account-holders.
           </p>
         </section>
 
         <section>
-          <h2 className="font-[var(--font-bebas)] text-3xl tracking-tight text-foreground mb-4">
+          <h2 className="font-display text-3xl tracking-tight text-foreground mb-4">
             Changes to this policy
           </h2>
           <p className="font-mono text-sm">
@@ -195,7 +195,7 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="font-[var(--font-bebas)] text-3xl tracking-tight text-foreground mb-4">
+          <h2 className="font-display text-3xl tracking-tight text-foreground mb-4">
             Contact
           </h2>
           <p className="font-mono text-sm">

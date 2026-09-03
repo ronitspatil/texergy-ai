@@ -56,7 +56,7 @@ export default function UnsubscribeConfirm({
           href="/"
           className="inline-flex items-center gap-3 border border-foreground/20 px-5 py-2.5 font-mono text-[11px] uppercase tracking-widest text-foreground hover:border-accent hover:text-accent transition-colors duration-200"
         >
-          Back to Texergy AI →
+          Back to Texergy →
         </Link>
       </div>
     );
@@ -66,7 +66,7 @@ export default function UnsubscribeConfirm({
     <div className="space-y-6">
       <p className="font-mono text-sm text-foreground/85 leading-relaxed">
         Unsubscribe{" "}
-        <span className="text-foreground">{email}</span> from the Texergy AI
+        <span className="text-foreground">{email}</span> from the Texergy
         newsletter? You can resubscribe anytime from the blog.
       </p>
 
@@ -75,7 +75,7 @@ export default function UnsubscribeConfirm({
           type="button"
           onClick={onConfirm}
           disabled={status === "submitting"}
-          className="border border-foreground/30 bg-accent text-accent-foreground px-6 py-3 font-mono text-xs uppercase tracking-widest hover:border-accent transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+          className="grain-surface rounded-full bg-accent text-accent-foreground shadow-e1 px-7 py-3 font-mono text-xs uppercase tracking-widest hover:bg-accent-strong hover:shadow-e2 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:shadow-none"
         >
           {status === "submitting" ? "Unsubscribing…" : "Confirm Unsubscribe"}
         </button>

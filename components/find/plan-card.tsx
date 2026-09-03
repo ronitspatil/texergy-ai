@@ -58,7 +58,7 @@ export function PlanCard({
                 }}
               />
             ) : null}
-            <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground truncate">
+            <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground break-words leading-relaxed">
               {plan.rep_name}
             </span>
           </div>
@@ -213,7 +213,7 @@ export function PlanCard({
                     href={plan.enroll_url}
                     target="_blank"
                     rel="noreferrer noopener"
-                    className="sm:ml-auto border border-foreground bg-foreground text-background px-5 py-2.5 font-mono text-xs uppercase tracking-widest hover:bg-accent hover:text-accent-foreground hover:border-accent transition-colors text-center"
+                    className="sm:ml-auto grain-surface rounded-full bg-accent text-accent-foreground shadow-e1 px-6 py-2.5 font-mono text-xs uppercase tracking-widest hover:bg-accent-strong hover:shadow-e2 transition-all duration-200 text-center"
                   >
                     Enroll at {plan.rep_name} →
                   </a>

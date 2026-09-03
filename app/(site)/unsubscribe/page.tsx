@@ -5,7 +5,7 @@ import UnsubscribeConfirm from "@/components/UnsubscribeConfirm";
 
 export const metadata: Metadata = {
   title: "Unsubscribe",
-  description: "Confirm that you'd like to unsubscribe from the Texergy AI newsletter.",
+  description: "Confirm that you'd like to unsubscribe from the Texergy newsletter.",
   // Don't index this URL; the token is meant for one recipient.
   robots: { index: false, follow: false },
 };
@@ -32,10 +32,10 @@ export default async function UnsubscribePage({
   return (
     <article className="mx-auto max-w-2xl px-6 md:px-12">
       <header className="mb-12">
-        <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-accent">
+        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">
           Newsletter
         </span>
-        <h1 className="mt-4 font-[var(--font-bebas)] text-5xl md:text-6xl tracking-tight leading-none">
+        <h1 className="mt-4 font-display text-5xl md:text-6xl tracking-tight leading-none">
           UNSUBSCRIBE.
         </h1>
       </header>
@@ -53,7 +53,7 @@ export default async function UnsubscribePage({
             href="/"
             className="inline-flex items-center gap-3 border border-foreground/20 px-5 py-2.5 font-mono text-[11px] uppercase tracking-widest text-foreground hover:border-accent hover:text-accent transition-colors duration-200"
           >
-            Back to Texergy AI →
+            Back to Texergy →
           </Link>
         </div>
       )}

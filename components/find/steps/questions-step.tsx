@@ -33,7 +33,7 @@ export function QuestionsStep({
   return (
     <div className="max-w-3xl mx-auto">
       <SectionLabel className="block mb-4">A few quick questions</SectionLabel>
-      <h2 className="font-[family-name:var(--font-bebas)] text-foreground text-[clamp(2.5rem,5vw,4rem)] leading-[0.95] tracking-tight mb-2">
+      <h2 className="font-[family-name:var(--font-bebas)] text-foreground text-[clamp(2.5rem,calc(var(--vpw)*5),4rem)] leading-[0.95] tracking-tight mb-2">
         TELL US ABOUT <span className="text-accent">YOU.</span>
       </h2>
       <p className="font-mono text-sm text-muted-foreground mb-12">
@@ -53,7 +53,7 @@ export function QuestionsStep({
               step={50}
               value={state.monthlyUsageKwh}
               onChange={(e) => onChange({ monthlyUsageKwh: Math.max(50, Math.min(20000, parseInt(e.target.value || "0", 10) || 0)) })}
-              className="flex-1 bg-transparent border border-foreground/25 px-4 py-3 font-mono text-lg text-foreground focus:outline-none focus:border-accent transition-colors"
+              className="flex-1 bg-transparent border border-foreground/25 px-4 py-3 font-mono text-sm sm:text-lg text-foreground focus:outline-none focus:border-accent transition-colors"
             />
             <span className="font-mono text-sm text-muted-foreground">kWh / mo</span>
           </div>

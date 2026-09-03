@@ -16,10 +16,10 @@ export default function UsageCalculatorPage() {
     <article className="mx-auto max-w-5xl px-6 md:px-12">
       <BreadcrumbJsonLd name="Usage Calculator" path="/usage-calculator" />
       <header className="mb-16">
-        <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-accent">
+        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">
           Usage Calculator
         </span>
-        <h1 className="mt-4 font-[var(--font-bebas)] text-5xl md:text-7xl tracking-tight leading-none">
+        <h1 className="mt-4 font-display text-5xl md:text-7xl tracking-tight leading-none">
           HOW MANY KWH DOES YOUR HOME USE?
         </h1>
         <p className="mt-6 max-w-2xl font-mono text-sm text-muted-foreground leading-relaxed">
@@ -34,10 +34,10 @@ export default function UsageCalculatorPage() {
 
       {/* Explainer sections */}
       <section className="mt-24 border-t border-border/30 pt-12">
-        <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-accent">
+        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">
           01 / Background
         </span>
-        <h2 className="mt-4 font-[var(--font-bebas)] text-4xl md:text-5xl tracking-tight leading-none">
+        <h2 className="mt-4 font-display text-4xl md:text-5xl tracking-tight leading-none">
           WHAT IS A KILOWATT-HOUR?
         </h2>
         <div className="mt-8 grid md:grid-cols-2 gap-10">
@@ -60,10 +60,10 @@ export default function UsageCalculatorPage() {
       </section>
 
       <section className="mt-20 border-t border-border/30 pt-12">
-        <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-accent">
+        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">
           02 / Where you stand
         </span>
-        <h2 className="mt-4 font-[var(--font-bebas)] text-4xl md:text-5xl tracking-tight leading-none">
+        <h2 className="mt-4 font-display text-4xl md:text-5xl tracking-tight leading-none">
           IS YOUR USAGE LOW, AVERAGE, OR HIGH?
         </h2>
         <div className="mt-10 border border-border/40 rounded-lg overflow-hidden">
@@ -79,7 +79,7 @@ export default function UsageCalculatorPage() {
             { bucket: "High", daily: "60 – 70", monthly: "1,800 – 2,100", profile: "Large home, heavy summer AC, electric heat or pool" },
           ].map((r) => (
             <div key={r.bucket} className="grid grid-cols-1 md:grid-cols-[1fr_1fr_1.2fr_2fr] gap-2 md:gap-4 px-5 py-4 border-b border-border/20 last:border-b-0">
-              <div className="font-[var(--font-bebas)] text-xl text-accent">{r.bucket.toUpperCase()}</div>
+              <div className="font-display text-xl text-accent">{r.bucket.toUpperCase()}</div>
               <div className="font-mono text-sm text-foreground tabular-nums">{r.daily}</div>
               <div className="font-mono text-sm text-foreground tabular-nums">{r.monthly}</div>
               <div className="font-mono text-xs text-muted-foreground leading-relaxed">{r.profile}</div>
@@ -89,10 +89,10 @@ export default function UsageCalculatorPage() {
       </section>
 
       <section className="mt-20 border-t border-border/30 pt-12">
-        <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-accent">
+        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">
           03 / How to lower it
         </span>
-        <h2 className="mt-4 font-[var(--font-bebas)] text-4xl md:text-5xl tracking-tight leading-none">
+        <h2 className="mt-4 font-display text-4xl md:text-5xl tracking-tight leading-none">
           PRACTICAL WAYS TO USE LESS.
         </h2>
         <ul className="mt-10 grid md:grid-cols-2 gap-x-12 gap-y-6">
@@ -117,10 +117,10 @@ export default function UsageCalculatorPage() {
       {/* CTA */}
       <section className="mt-20 border-t border-border/30 pt-12 pb-8">
         <div className="border border-border/40 rounded-lg p-8 md:p-10 bg-background/40">
-          <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-accent">
+          <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">
             Next step
           </span>
-          <h3 className="mt-3 font-[var(--font-bebas)] text-3xl md:text-4xl tracking-tight leading-none">
+          <h3 className="mt-3 font-display text-3xl md:text-4xl tracking-tight leading-none">
             GOT A NUMBER? FIND A PLAN THAT FITS IT.
           </h3>
           <p className="mt-4 max-w-2xl font-mono text-sm text-muted-foreground leading-relaxed">

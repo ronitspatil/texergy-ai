@@ -172,11 +172,11 @@ export function SignalsSection() {
   }, [])
 
   return (
-    <section id="signals" ref={sectionRef} className="relative py-32 pl-6 md:pl-28 pr-6 md:pr-12">
+    <section id="signals" ref={sectionRef} className="relative py-20 sm:py-24 md:py-32 pl-6 md:pl-28 pr-6 md:pr-12">
       <style dangerouslySetInnerHTML={{ __html: NODE_STYLES }} />
 
-      <div ref={headerRef} className="mb-20 max-w-3xl">
-        <h2 className="font-display text-5xl md:text-7xl tracking-tight leading-none">
+      <div ref={headerRef} className="mb-12 sm:mb-16 md:mb-20 max-w-3xl">
+        <h2 className="font-display text-[clamp(2.25rem,7vw,4.5rem)] tracking-tight leading-none">
           STEP BY STEP
         </h2>
         <p className="mt-6 font-mono text-sm text-muted-foreground leading-relaxed max-w-xl">

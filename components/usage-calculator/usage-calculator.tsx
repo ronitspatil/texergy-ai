@@ -250,7 +250,7 @@ export function UsageCalculator() {
                 </span>
                 <span
                   className={`shrink-0 w-5 h-5 border rounded flex items-center justify-center transition-colors ${
-                    selected ? "border-accent bg-accent text-background" : "border-foreground/30"
+                    selected ? "border-accent bg-accent text-accent-foreground" : "border-foreground/30"
                   }`}
                   aria-hidden="true"
                 >
@@ -317,7 +317,7 @@ export function UsageCalculator() {
         </div>
         <Link
           href="/#hero"
-          className="shrink-0 px-6 py-3 bg-accent text-background font-mono text-xs uppercase tracking-[0.3em] hover:bg-accent/90 transition-colors whitespace-nowrap"
+          className="shrink-0 grain-surface rounded-full bg-accent text-accent-foreground shadow-e1 px-7 py-3 font-mono text-xs uppercase tracking-[0.3em] hover:bg-accent-strong hover:shadow-e2 transition-all duration-200 whitespace-nowrap text-center"
         >
           Find my plan →
         </Link>
@@ -347,7 +347,7 @@ function Question({
         <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent tabular-nums">
           {step}
         </span>
-        <h3 className="font-[var(--font-bebas)] text-2xl tracking-tight leading-none">
+        <h3 className="font-display text-2xl tracking-tight leading-none">
           {title.toUpperCase()}
         </h3>
       </div>
@@ -398,7 +398,7 @@ function Stat({
         {label}
       </div>
       <div
-        className={`font-[var(--font-bebas)] text-4xl tabular-nums tracking-tight leading-none ${
+        className={`font-display text-4xl tabular-nums tracking-tight leading-none ${
           highlight ? "text-accent" : "text-foreground"
         }`}
       >

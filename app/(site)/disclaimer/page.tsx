@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Disclaimer",
   description:
-    "Plan rankings on Texergy AI are informational estimates, not advice or guarantees.",
+    "Plan rankings on Texergy are informational estimates, not advice or guarantees.",
   robots: { index: false, follow: true },
 };
 
@@ -11,10 +11,10 @@ export default function DisclaimerPage() {
   return (
     <article className="mx-auto max-w-3xl px-6 md:px-12">
       <header className="mb-16">
-        <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-accent">
+        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">
           Disclaimer
         </span>
-        <h1 className="mt-4 font-[var(--font-bebas)] text-5xl md:text-7xl tracking-tight leading-none">
+        <h1 className="mt-4 font-display text-5xl md:text-7xl tracking-tight leading-none">
           INFORMATIONAL. NOT ADVICE.
         </h1>
         <p className="mt-6 font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
@@ -24,11 +24,11 @@ export default function DisclaimerPage() {
 
       <div className="space-y-12 text-foreground/80 leading-relaxed">
         <section>
-          <h2 className="font-[var(--font-bebas)] text-3xl tracking-tight text-foreground mb-4">
+          <h2 className="font-display text-3xl tracking-tight text-foreground mb-4">
             Estimates, not guarantees
           </h2>
           <p className="font-mono text-sm">
-            Everything you see on Texergy AI &mdash; projected monthly bills,
+            Everything you see on Texergy &mdash; projected monthly bills,
             effective ¢/kWh, plan scores, factor breakdowns, reasons, and
             chatbot output &mdash; is an{" "}
             <em>estimate</em> derived from publicly-available plan data and
@@ -38,7 +38,7 @@ export default function DisclaimerPage() {
         </section>
 
         <section>
-          <h2 className="font-[var(--font-bebas)] text-3xl tracking-tight text-foreground mb-4">
+          <h2 className="font-display text-3xl tracking-tight text-foreground mb-4">
             Why estimates differ from reality
           </h2>
           <ul className="list-disc list-outside ml-5 space-y-3 marker:text-accent/60 font-mono text-sm">
@@ -80,11 +80,11 @@ export default function DisclaimerPage() {
         </section>
 
         <section>
-          <h2 className="font-[var(--font-bebas)] text-3xl tracking-tight text-foreground mb-4">
+          <h2 className="font-display text-3xl tracking-tight text-foreground mb-4">
             Not financial, legal, or energy-advisory advice
           </h2>
           <p className="font-mono text-sm">
-            Texergy AI is a comparison tool. We are not a licensed financial
+            Texergy is a comparison tool. We are not a licensed financial
             advisor, attorney, energy broker, or retail electric provider.
             Rankings reflect a generic scoring model applied to public data,
             not personalized advice for your household.
@@ -92,7 +92,7 @@ export default function DisclaimerPage() {
         </section>
 
         <section>
-          <h2 className="font-[var(--font-bebas)] text-3xl tracking-tight text-foreground mb-4">
+          <h2 className="font-display text-3xl tracking-tight text-foreground mb-4">
             Verify before you sign up
           </h2>
           <p className="font-mono text-sm">
@@ -105,11 +105,11 @@ export default function DisclaimerPage() {
         </section>
 
         <section>
-          <h2 className="font-[var(--font-bebas)] text-3xl tracking-tight text-foreground mb-4">
+          <h2 className="font-display text-3xl tracking-tight text-foreground mb-4">
             No liability
           </h2>
           <p className="font-mono text-sm">
-            To the maximum extent permitted by law, Texergy AI and its
+            To the maximum extent permitted by law, Texergy and its
             operators are not liable for any direct, indirect, incidental,
             consequential, or punitive damages arising from your use of the
             site or any decisions you make based on its output. You use the
@@ -125,7 +125,7 @@ export default function DisclaimerPage() {
         </section>
 
         <section>
-          <h2 className="font-[var(--font-bebas)] text-3xl tracking-tight text-foreground mb-4">
+          <h2 className="font-display text-3xl tracking-tight text-foreground mb-4">
             Data sources
           </h2>
           <p className="font-mono text-sm">
@@ -151,12 +151,12 @@ export default function DisclaimerPage() {
             </a>
             , which sources its load profiles from ERCOT&apos;s published
             residential profiles. None of these entities endorse or are
-            affiliated with Texergy AI.
+            affiliated with Texergy.
           </p>
         </section>
 
         <section>
-          <h2 className="font-[var(--font-bebas)] text-3xl tracking-tight text-foreground mb-4">
+          <h2 className="font-display text-3xl tracking-tight text-foreground mb-4">
             Questions
           </h2>
           <p className="font-mono text-sm">

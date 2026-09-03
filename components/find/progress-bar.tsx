@@ -26,7 +26,7 @@ export function ProgressBar({ steps }: { steps: Readonly<Step[]> }) {
           the 0%/100% extremes. We drop the bottom padding (the labels provide
           the lower content) so the header's own padding leaves balanced space. */}
       <div className="relative px-3.5 pt-3 pb-0">
-        <div className="relative h-1.5 rounded-full bg-border/60">
+        <div className="relative h-[2px] rounded-full bg-border/60">
           {/* Filled portion up to the current step. */}
           <div
             className="absolute inset-y-0 left-0 rounded-full bg-accent transition-[width] duration-500 ease-out"

@@ -98,7 +98,7 @@ export function RecommendWizard() {
               onClick={() => router.push("/")}
               className="shrink-0 font-mono text-xs uppercase tracking-normal text-muted-foreground hover:text-foreground transition-colors sm:order-1"
             >
-              ← Texergy AI
+              ← Texergy
             </button>
             <div className="shrink-0 font-mono text-xs text-muted-foreground sm:order-3">
               ZIP <span className="text-foreground">{state.zip}</span>

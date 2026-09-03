@@ -62,7 +62,7 @@ export function TduLookup() {
       </div>
       <h2
         id="tdu-lookup-heading"
-        className="font-[var(--font-bebas)] text-3xl md:text-4xl tracking-tight leading-none"
+        className="font-display text-3xl md:text-4xl tracking-tight leading-none"
       >
         FIND YOUR TDU.
       </h2>
@@ -96,7 +96,7 @@ export function TduLookup() {
         <button
           type="submit"
           disabled={loading || !/^\d{5}$/.test(zip)}
-          className="border border-foreground bg-foreground text-background px-6 py-3 font-mono text-xs uppercase tracking-widest hover:bg-accent hover:border-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-foreground disabled:hover:border-foreground"
+          className="grain-surface rounded-full bg-accent text-accent-foreground shadow-e1 px-7 py-3 font-mono text-xs uppercase tracking-widest hover:bg-accent-strong hover:shadow-e2 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none disabled:hover:bg-accent"
         >
           {loading ? "Looking up…" : "Look up TDU"}
         </button>
@@ -137,7 +137,7 @@ function Result({ result }: { result: LookupResult }) {
         <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
           ZIP {result.zipCode}
         </div>
-        <div className="mt-2 font-[var(--font-bebas)] text-2xl md:text-3xl tracking-tight text-foreground leading-none">
+        <div className="mt-2 font-display text-2xl md:text-3xl tracking-tight text-foreground leading-none">
           {(result.utilityDisplayName ?? result.utilityCode).toUpperCase()}
         </div>
         <p className="mt-3 max-w-xl font-mono text-sm text-foreground/80 leading-relaxed">
@@ -164,7 +164,7 @@ function Result({ result }: { result: LookupResult }) {
           </div>
         )}
       </div>
-      <div className="mt-2 font-[var(--font-bebas)] text-3xl md:text-4xl tracking-tight text-foreground leading-none">
+      <div className="mt-2 font-display text-3xl md:text-4xl tracking-tight text-foreground leading-none">
         {(result.utilityDisplayName ?? result.utilityShortName ?? result.utilityCode).toUpperCase()}
       </div>
       <p className="mt-3 max-w-xl font-mono text-sm text-foreground/80 leading-relaxed">

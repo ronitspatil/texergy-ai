@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import type { RankedPlan } from "@/lib/ranking/types";
 
@@ -73,18 +74,18 @@ function AskBot({ plans }: { plans: RankedPlan[] }) {
   return (
     <section
       aria-label="Ask Texergy Bot"
-      className="max-w-7xl mx-auto mt-12 border border-border/60 bg-background/40 p-6 md:p-8"
+      className="max-w-7xl mx-auto mt-8 sm:mt-12 border border-border/60 bg-background/40 p-4 sm:p-6 md:p-8"
     >
-      <div className="flex items-baseline justify-between gap-4 flex-wrap">
+      <div className="flex items-baseline justify-between gap-2 sm:gap-4 flex-col sm:flex-row">
         <div>
-          <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">
+          <div className="font-mono text-[8px] sm:text-[10px] uppercase tracking-[0.3em] text-accent">
             AI Insight
           </div>
-          <h3 className="mt-2 font-[var(--font-bebas)] text-2xl md:text-3xl tracking-tight leading-none">
+          <h3 className="mt-1 sm:mt-2 font-display text-xl sm:text-2xl md:text-3xl tracking-tight leading-none">
             ASK TEXERGY BOT.
           </h3>
         </div>
-        <p className="font-mono text-[11px] text-muted-foreground max-w-md">
+        <p className="font-mono text-[10px] sm:text-[11px] text-muted-foreground max-w-md">
           Grounded in the {plans.length} {plans.length === 1 ? "plan" : "plans"} above. No marketing
           fluff, no invented numbers.
         </p>
@@ -127,7 +128,7 @@ function AskBot({ plans }: { plans: RankedPlan[] }) {
         <button
           type="submit"
           disabled={loading || question.trim().length === 0}
-          className="border border-foreground bg-foreground text-background px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.2em] hover:bg-accent hover:border-accent hover:text-accent-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="grain-surface rounded-full bg-accent text-accent-foreground shadow-e1 px-6 py-2.5 font-mono text-[11px] uppercase tracking-[0.2em] hover:bg-accent-strong hover:shadow-e2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
         >
           {loading ? "Thinking…" : "Ask →"}
         </button>
@@ -210,7 +211,9 @@ export function CompareDialog({
     };
   }, [onClose]);
 
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <AnimatePresence>
       <motion.div
         key="compare-overlay"
@@ -218,7 +221,7 @@ export function CompareDialog({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.2 }}
-        className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm overflow-y-auto"
+        className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-sm overflow-y-auto"
         data-lenis-prevent="true"
         role="dialog"
         aria-modal="true"
@@ -229,41 +232,43 @@ export function CompareDialog({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 16 }}
           transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-          className="min-h-screen px-4 md:px-8 py-8 md:py-12"
+          className="px-4 md:px-8 py-4 sm:py-6 md:py-8 flex flex-col"
         >
-          {/* Header */}
-          <div className="max-w-7xl mx-auto mb-8 flex items-center justify-between gap-4">
-            <div>
-              <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">
-                Side-by-side
+          {/* Header - fixed at top of modal so it's always accessible */}
+          <div className="mb-4 sm:mb-6 md:mb-8 pb-3 sm:pb-4 border-b border-border/40">
+            <div className="max-w-7xl mx-auto flex items-start sm:items-center justify-between gap-2 sm:gap-4">
+              <div>
+                <div className="font-mono text-[8px] sm:text-[10px] uppercase tracking-[0.3em] text-accent">
+                  Side-by-side
+                </div>
+                <h2 className="mt-1 sm:mt-2 font-display text-2xl sm:text-3xl md:text-5xl tracking-tight leading-none">
+                  COMPARE PLANS.
+                </h2>
               </div>
-              <h2 className="mt-2 font-[var(--font-bebas)] text-3xl md:text-5xl tracking-tight leading-none">
-                COMPARE PLANS.
-              </h2>
+              <button
+                type="button"
+                onClick={onClose}
+                className="border border-foreground/25 px-2 sm:px-4 py-1 sm:py-2 font-mono text-[10px] sm:text-xs uppercase tracking-widest text-foreground hover:border-accent hover:text-accent transition-colors whitespace-nowrap shrink-0"
+              >
+                Close ✕
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={onClose}
-              className="border border-foreground/25 px-4 py-2 font-mono text-xs uppercase tracking-widest text-foreground hover:border-accent hover:text-accent transition-colors"
-            >
-              Close ✕
-            </button>
           </div>
 
           {/* Table */}
           <div className="max-w-7xl mx-auto overflow-x-auto">
-            <table className="w-full border-collapse table-fixed">
+            <table className="w-full border-collapse table-fixed text-sm md:text-base">
               <colgroup>
-                <col style={{ width: "11rem" }} />
+                <col style={{ width: "6rem" }} className="sm:w-44" />
                 {plans.map((r) => (
-                  <col key={r.plan.id} style={{ width: `calc((100% - 11rem) / ${plans.length})` }} />
+                  <col key={r.plan.id} style={{ width: `calc((100% - 6rem) / ${plans.length})` }} className="sm:w-auto" />
                 ))}
               </colgroup>
               <thead>
                 <tr>
                   <th
                     scope="col"
-                    className="text-left align-bottom pb-4 pr-6 font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground"
+                    className="text-left align-bottom pb-2 sm:pb-4 pr-2 sm:pr-6 font-mono text-[8px] sm:text-[10px] uppercase tracking-[0.25em] text-muted-foreground"
                   >
                     &nbsp;
                   </th>
@@ -271,25 +276,25 @@ export function CompareDialog({
                     <th
                       key={r.plan.id}
                       scope="col"
-                      className="text-left align-bottom pb-4 px-4 border-b border-border/60"
+                      className="text-left align-bottom pb-2 sm:pb-4 px-2 sm:px-4 border-b border-border/60"
                     >
-                      <div className="flex items-start gap-3">
+                      <div className="flex items-start gap-2 sm:gap-3">
                         <div className="flex-1 min-w-0">
                           {r.plan.rep_logo_url ? (
                             <img
                               src={r.plan.rep_logo_url}
                               alt={r.plan.rep_name}
-                              className="h-7 w-auto max-w-[140px] object-contain object-left mb-2"
+                              className="h-4 sm:h-7 w-auto max-w-[80px] sm:max-w-[140px] object-contain object-left mb-1 sm:mb-2"
                               loading="lazy"
                               onError={(e) => {
                                 (e.currentTarget as HTMLImageElement).style.display = "none";
                               }}
                             />
                           ) : null}
-                          <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground truncate">
+                          <div className="font-mono text-[7px] sm:text-[10px] uppercase tracking-[0.2em] text-muted-foreground break-words leading-relaxed">
                             {r.plan.rep_name}
                           </div>
-                          <div className="mt-1 font-[var(--font-bebas)] text-xl tracking-tight text-foreground leading-tight">
+                          <div className="mt-0.5 sm:mt-1 font-display text-sm sm:text-xl tracking-tight text-foreground leading-tight">
                             {r.plan.name}
                           </div>
                         </div>
@@ -297,7 +302,7 @@ export function CompareDialog({
                           type="button"
                           onClick={() => onRemove(r.plan.id)}
                           aria-label={`Remove ${r.plan.rep_name} ${r.plan.name} from comparison`}
-                          className="shrink-0 text-muted-foreground hover:text-accent transition-colors font-mono text-lg leading-none"
+                          className="shrink-0 text-muted-foreground hover:text-accent transition-colors font-mono text-base sm:text-lg leading-none"
                         >
                           ✕
                         </button>
@@ -310,7 +315,7 @@ export function CompareDialog({
                 <Row label="Effective rate">
                   {plans.map((r) => (
                     <Cell key={r.plan.id}>
-                      <span className="font-[var(--font-bebas)] text-lg sm:text-2xl tracking-tight text-foreground">
+                      <span className="font-display text-lg sm:text-2xl tracking-tight text-foreground">
                         {(r.effectiveCentsPerKwh ?? 0).toFixed(1)}
                         <span className="text-xs sm:text-base text-muted-foreground ml-1">¢/kWh</span>
                       </span>
@@ -410,14 +415,14 @@ export function CompareDialog({
                 <tr>
                   <td className="pt-6 pr-6">&nbsp;</td>
                   {plans.map((r) => (
-                    <td key={r.plan.id} className="pt-6 px-4">
-                      <div className="flex flex-col gap-2">
+                    <td key={r.plan.id} className="pt-3 sm:pt-6 px-2 sm:px-4">
+                      <div className="flex flex-col gap-1 sm:gap-2">
                         {r.plan.efl_url && (
                           <a
                             href={r.plan.efl_url}
                             target="_blank"
                             rel="noreferrer noopener"
-                            className="border border-foreground/25 px-3 py-2 font-mono text-[10px] uppercase tracking-widest text-foreground hover:border-accent hover:text-accent transition-colors text-center"
+                            className="border border-foreground/25 px-2 sm:px-3 py-1 sm:py-2 font-mono text-[8px] sm:text-[10px] uppercase tracking-widest text-foreground hover:border-accent hover:text-accent transition-colors text-center"
                           >
                             View EFL →
                           </a>
@@ -427,7 +432,7 @@ export function CompareDialog({
                             href={r.plan.enroll_url}
                             target="_blank"
                             rel="noreferrer noopener"
-                            className="border border-foreground bg-foreground text-background px-3 py-2 font-mono text-[10px] uppercase tracking-widest hover:bg-accent hover:border-accent hover:text-accent-foreground transition-colors text-center"
+                            className="grain-surface rounded-full bg-accent text-accent-foreground px-2.5 sm:px-4 py-1 sm:py-2 font-mono text-[8px] sm:text-[10px] uppercase tracking-widest hover:bg-accent-strong transition-colors text-center"
                           >
                             Enroll →
                           </a>
@@ -449,7 +454,8 @@ export function CompareDialog({
           )}
         </motion.div>
       </motion.div>
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   );
 }
 
@@ -458,7 +464,7 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
     <tr>
       <th
         scope="row"
-        className="text-left align-top py-4 pr-6 font-mono text-[10px] uppercase tracking-[0.25em] text-accent"
+        className="text-left align-top py-2 sm:py-4 pr-2 sm:pr-6 font-mono text-[8px] sm:text-[10px] uppercase tracking-[0.25em] text-accent"
       >
         {label}
       </th>
@@ -469,7 +475,7 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 
 function Cell({ children }: { children: React.ReactNode }) {
   return (
-    <td className="align-top py-4 px-4 font-mono text-sm text-foreground/90 leading-relaxed">
+    <td className="align-top py-2 sm:py-4 px-2 sm:px-4 font-mono text-xs sm:text-sm text-foreground/90 leading-relaxed">
       {children}
     </td>
   );

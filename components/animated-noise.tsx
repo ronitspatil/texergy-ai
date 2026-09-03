@@ -21,11 +21,16 @@ export function AnimatedNoise({ opacity = 0.05, className }: AnimatedNoiseProps)
     let frame = 0
 
     const resize = () => {
-      canvas.width = canvas.offsetWidth / 2
-      canvas.height = canvas.offsetHeight / 2
+      canvas.width = Math.max(1, Math.floor(canvas.offsetWidth / 2))
+      canvas.height = Math.max(1, Math.floor(canvas.offsetHeight / 2))
     }
 
     const generateNoise = () => {
+      // Guard the zero case: a tab that lays out before it has been sized gives
+      // us a 0x0 canvas, and createImageData(0, 0) throws — which would kill the
+      // rAF loop for good, so the grain never appears even once the tab resizes.
+      if (canvas.width < 1 || canvas.height < 1) return
+
       const imageData = ctx.createImageData(canvas.width, canvas.height)
       const data = imageData.data
 
@@ -50,11 +55,14 @@ export function AnimatedNoise({ opacity = 0.05, className }: AnimatedNoiseProps)
     }
 
     resize()
-    window.addEventListener("resize", resize)
+    // Observe the canvas itself rather than the window: the hero can change
+    // height without the window resizing (fonts swapping in, --vph landing).
+    const observer = new ResizeObserver(resize)
+    observer.observe(canvas)
     animate()
 
     return () => {
-      window.removeEventListener("resize", resize)
+      observer.disconnect()
       cancelAnimationFrame(animationId)
     }
   }, [])

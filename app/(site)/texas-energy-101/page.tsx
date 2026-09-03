@@ -44,7 +44,7 @@ function SectionHeader({ id, eyebrow, title }: { id: string; eyebrow?: string; t
           {eyebrow}
         </p>
       ) : null}
-      <h2 className="mt-1 font-[var(--font-bebas)] text-3xl md:text-4xl tracking-tight text-foreground leading-none">
+      <h2 className="mt-1 font-display text-3xl md:text-4xl tracking-tight text-foreground leading-none">
         {title}
       </h2>
     </div>
@@ -64,10 +64,10 @@ export default function TexasEnergy101Page() {
     <article className="mx-auto max-w-3xl px-6 md:px-12">
       <BreadcrumbJsonLd name="Texas Energy 101" path="/texas-energy-101" />
       <header className="mb-16">
-        <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-accent">
+        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">
           Texas Energy 101
         </span>
-        <h1 className="mt-4 font-[var(--font-bebas)] text-5xl md:text-7xl tracking-tight leading-none">
+        <h1 className="mt-4 font-display text-5xl md:text-7xl tracking-tight leading-none">
           A GUIDE TO THE TEXAS ELECTRICITY MARKET.
         </h1>
         <p className="mt-6 font-mono text-sm text-muted-foreground leading-relaxed">
@@ -606,7 +606,7 @@ export default function TexasEnergy101Page() {
           <Link href="/" className="text-foreground hover:text-accent underline underline-offset-4">
             home page
           </Link>
-          . Texergy AI reads each plan&apos;s EFL, runs the math at your real
+          . Texergy reads each plan&apos;s EFL, runs the math at your real
           usage, and ranks plans so cliff-priced offers don&apos;t hide near the
           top of the list.
         </p>

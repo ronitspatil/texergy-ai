@@ -56,10 +56,10 @@ export default function EsidLookupPage() {
     <article className="mx-auto max-w-5xl px-6 md:px-12">
       <BreadcrumbJsonLd name="ESID Lookup" path="/esid-lookup" />
       <header className="mb-16">
-        <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-accent">
+        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">
           ESID Lookup
         </span>
-        <h1 className="mt-4 font-[var(--font-bebas)] text-5xl md:text-7xl tracking-tight leading-none">
+        <h1 className="mt-4 font-display text-5xl md:text-7xl tracking-tight leading-none">
           THE FINGERPRINT OF YOUR METER.
         </h1>
         <p className="mt-6 max-w-2xl font-mono text-sm text-muted-foreground leading-relaxed">
@@ -73,10 +73,10 @@ export default function EsidLookupPage() {
 
       {/* What is an ESI ID */}
       <section className="mt-24 border-t border-border/30 pt-12">
-        <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-accent">
+        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">
           01 / Background
         </span>
-        <h2 className="mt-4 font-[var(--font-bebas)] text-4xl md:text-5xl tracking-tight leading-none">
+        <h2 className="mt-4 font-display text-4xl md:text-5xl tracking-tight leading-none">
           WHAT IS AN ESI ID?
         </h2>
         <div className="mt-8 grid md:grid-cols-2 gap-10">
@@ -135,10 +135,10 @@ export default function EsidLookupPage() {
 
       {/* Format by utility */}
       <section className="mt-20 border-t border-border/30 pt-12">
-        <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-accent">
+        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">
           02 / Format by utility
         </span>
-        <h2 className="mt-4 font-[var(--font-bebas)] text-4xl md:text-5xl tracking-tight leading-none">
+        <h2 className="mt-4 font-display text-4xl md:text-5xl tracking-tight leading-none">
           THE FIRST 7 DIGITS ARE THE UTILITY&apos;S DNA.
         </h2>
         <p className="mt-6 max-w-2xl font-mono text-sm text-muted-foreground leading-relaxed">
@@ -174,10 +174,10 @@ export default function EsidLookupPage() {
 
       {/* Where to find it */}
       <section className="mt-20 border-t border-border/30 pt-12">
-        <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-accent">
+        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">
           03 / Other ways to find yours
         </span>
-        <h2 className="mt-4 font-[var(--font-bebas)] text-4xl md:text-5xl tracking-tight leading-none">
+        <h2 className="mt-4 font-display text-4xl md:text-5xl tracking-tight leading-none">
           IF THE LOOKUP DOESN&apos;T FIND YOU.
         </h2>
         <ol className="mt-10 space-y-8">
@@ -185,7 +185,7 @@ export default function EsidLookupPage() {
             <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
               Option 01
             </div>
-            <h3 className="mt-1 font-[var(--font-bebas)] text-2xl tracking-tight">
+            <h3 className="mt-1 font-display text-2xl tracking-tight">
               CHECK YOUR ELECTRICITY BILL
             </h3>
             <p className="mt-2 font-mono text-sm text-foreground/80 leading-relaxed max-w-2xl">
@@ -199,7 +199,7 @@ export default function EsidLookupPage() {
             <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
               Option 02
             </div>
-            <h3 className="mt-1 font-[var(--font-bebas)] text-2xl tracking-tight">
+            <h3 className="mt-1 font-display text-2xl tracking-tight">
               CALL YOUR TDU
             </h3>
             <p className="mt-2 font-mono text-sm text-foreground/80 leading-relaxed max-w-2xl">
@@ -218,10 +218,10 @@ export default function EsidLookupPage() {
 
       {/* Validation tips */}
       <section className="mt-20 border-t border-border/30 pt-12">
-        <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-accent">
+        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">
           04 / Validation tips
         </span>
-        <h2 className="mt-4 font-[var(--font-bebas)] text-4xl md:text-5xl tracking-tight leading-none">
+        <h2 className="mt-4 font-display text-4xl md:text-5xl tracking-tight leading-none">
           HOW TO TELL IF A NUMBER IS WRONG.
         </h2>
         <ul className="mt-10 space-y-6">
@@ -252,15 +252,15 @@ export default function EsidLookupPage() {
       {/* CTA */}
       <section className="mt-20 border-t border-border/30 pt-12 pb-8">
         <div className="border border-border/40 rounded-lg p-8 md:p-10 bg-background/40">
-          <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-accent">
+          <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent">
             Next step
           </span>
-          <h3 className="mt-3 font-[var(--font-bebas)] text-3xl md:text-4xl tracking-tight leading-none">
+          <h3 className="mt-3 font-display text-3xl md:text-4xl tracking-tight leading-none">
             FOUND YOUR ESI ID? FIND A BETTER PLAN.
           </h3>
           <p className="mt-4 max-w-2xl font-mono text-sm text-muted-foreground leading-relaxed">
             Once you know your ESI ID, you know your TDU — and that determines
-            which plans are available at your address. Texergy AI ranks them
+            which plans are available at your address. Texergy ranks them
             against your actual usage profile, not a 1,000 kWh guess.
           </p>
           <Link

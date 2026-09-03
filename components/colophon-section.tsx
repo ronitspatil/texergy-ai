@@ -117,7 +117,8 @@ export function ColophonSection() {
               </a>
             </li>
             <li className="h-5 flex items-center font-mono text-xs text-foreground/80">
-              Commercial Plans <span className="ml-0.5 text-[9px] text-muted-foreground/60 uppercase tracking-wide">Soon</span>
+              <span className="text-foreground/45">Commercial Plans</span>
+              <span className="ml-2 border border-border/80 px-1.5 py-[1px] text-[8px] uppercase tracking-[0.18em] text-muted-foreground/70">Soon</span>
             </li>
             <li className="h-5 flex items-center font-mono text-xs text-foreground/80">
               <a href="/electricity-providers" className="hover:text-accent transition-colors">
@@ -156,7 +157,7 @@ export function ColophonSection() {
         className="mt-12 pt-6 border-t border-border/20 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
       >
         <p className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
-          © 2026 Texergy AI. All rights reserved.
+          © 2026 Texergy. All rights reserved.
         </p>
         <p className="font-mono text-[10px] text-muted-foreground">
           Built to make Texas electricity shopping clearer.

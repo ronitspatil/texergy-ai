@@ -7,6 +7,14 @@ if (dsn) {
     tracesSampleRate: 0.1,
     replaysOnErrorSampleRate: 1.0,
     replaysSessionSampleRate: 0.05,
-    integrations: [Sentry.replayIntegration()],
   });
+  // Replay is the heaviest Sentry integration; pulling it in lazily keeps it
+  // out of the critical bundle while replays still record once loaded.
+  Sentry.lazyLoadIntegration("replayIntegration")
+    .then((replayIntegration) => {
+      Sentry.addIntegration(replayIntegration());
+    })
+    .catch(() => {
+      // Replay unavailable (blocked CDN, offline) — error reporting still works.
+    });
 }

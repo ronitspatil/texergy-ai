@@ -262,7 +262,7 @@ export function EsidLookup() {
         return (
           <div className="animate-in fade-in duration-300">
             <div className="flex items-baseline justify-between mb-4">
-              <h2 className="font-[var(--font-bebas)] text-2xl md:text-3xl tracking-tight leading-none">
+              <h2 className="font-display text-2xl md:text-3xl tracking-tight leading-none">
                 ESI ID FOUND
               </h2>
               <button
@@ -279,7 +279,7 @@ export function EsidLookup() {
               </div>
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                 <div className="flex-1 min-w-0">
-                  <div className="font-[var(--font-bebas)] text-3xl sm:text-4xl text-foreground tracking-tight leading-none break-all">
+                  <div className="font-display text-3xl sm:text-4xl text-foreground tracking-tight leading-none break-all">
                     {r.esiid}
                   </div>
                   {(r.formatted || r.street) && (
