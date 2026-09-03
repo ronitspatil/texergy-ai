@@ -69,7 +69,6 @@ export function ResultsStep({
     () =>
       JSON.stringify({
         zip: state.zip,
-        mode: state.mode,
         usage: state.monthlyUsageKwh,
         rate: state.rateTypePref,
         renew: state.renewablePref,
@@ -82,7 +81,6 @@ export function ResultsStep({
       }),
     [
       state.zip,
-      state.mode,
       state.monthlyUsageKwh,
       state.rateTypePref,
       state.renewablePref,
@@ -230,7 +228,7 @@ export function ResultsStep({
               onClick={onBack}
               className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
             >
-              ← Back to {state.mode === "smart" ? "weights" : "profile"}
+              ← Back to weights
             </button>
           </div>
         </aside>
@@ -355,7 +353,7 @@ export function ResultsStep({
               onClick={onBack}
               className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
             >
-              ← Back to {state.mode === "smart" ? "weights" : "profile"}
+              ← Back to weights
             </button>
           </div>
         </div>

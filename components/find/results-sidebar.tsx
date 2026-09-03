@@ -16,8 +16,7 @@ import type {
 } from "@/components/find/wizard-types";
 
 /** Editable preference panel that lives next to the results. Every change
- *  triggers a re-fetch upstream (because results-step.tsx watches inputKey).
- *  Smart-mode users see weight sliders; basic-mode users only see filters. */
+ *  triggers a re-fetch upstream (because results-step.tsx watches inputKey). */
 export function ResultsSidebar({
   state,
   onUpdate,
@@ -25,7 +24,6 @@ export function ResultsSidebar({
   state: WizardState;
   onUpdate: (patch: Partial<WizardState>) => void;
 }) {
-  const isSmart = state.mode === "smart";
   const [estimateOpen, setEstimateOpen] = useState(false);
 
   return (
@@ -147,12 +145,10 @@ export function ResultsSidebar({
         />
       </Block>
 
-      {isSmart && (
-        <EditWeightsButton
-          weights={state.weights}
-          onChange={(weights) => onUpdate({ weights })}
-        />
-      )}
+      <EditWeightsButton
+        weights={state.weights}
+        onChange={(weights) => onUpdate({ weights })}
+      />
     </div>
   );
 }

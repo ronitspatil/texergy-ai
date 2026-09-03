@@ -22,13 +22,8 @@ export type ApiResponse = {
 };
 
 /** Convert wizard UI state into the POST body the /api/recommend route expects.
- *
- * In smart mode: pref questions stay soft (they tweak filters lightly), and
- * weights drive the ranking.
- * In basic mode: pref questions become hard filters; no weights are sent
- * (the API uses its defaults, but they barely matter since the candidate set
- * is already pruned to exactly what the user wants).
- */
+ *  Pref questions narrow the candidate set; the weights drive the ranking
+ *  within whatever survives. */
 export function buildRecommendBody(state: WizardState): RecommendBody {
   const body: RecommendBody = {
     zip: state.zip,
@@ -46,24 +41,21 @@ export function buildRecommendBody(state: WizardState): RecommendBody {
     state.timeOfUsePref,
     state.baseChargePref,
     state.etfPref,
-    state.mode === "basic",
   );
   if (state.providerIds && state.providerIds.length > 0) {
     filters.providerIds = [...state.providerIds];
   }
   if (Object.keys(filters).length > 0) body.filters = filters;
 
-  if (state.mode === "smart") {
-    body.weights = {
-      cost: state.weights.cost / 100,
-      renewable: state.weights.renewable / 100,
-      contractFlexibility: state.weights.contractFlexibility / 100,
-      rateStability: state.weights.rateStability / 100,
-      billTransparency: state.weights.billTransparency / 100,
-      historicalPricing: state.weights.historicalPricing / 100,
-      weatherForecast: state.weights.weatherForecast / 100,
-    };
-  }
+  body.weights = {
+    cost: state.weights.cost / 100,
+    renewable: state.weights.renewable / 100,
+    contractFlexibility: state.weights.contractFlexibility / 100,
+    rateStability: state.weights.rateStability / 100,
+    billTransparency: state.weights.billTransparency / 100,
+    historicalPricing: state.weights.historicalPricing / 100,
+    weatherForecast: state.weights.weatherForecast / 100,
+  };
 
   return body;
 }
@@ -75,11 +67,9 @@ function buildFilters(
   tou: TimeOfUsePref,
   base: BaseChargePref,
   etf: EtfPref,
-  strict: boolean,
 ): NonNullable<RecommendBody["filters"]> {
   const out: NonNullable<RecommendBody["filters"]> = {};
-  // Rate type: in basic mode it's a hard filter; in smart mode we *also*
-  // treat a non-"any" pick as a filter — the user opted in to that strictness.
+  // A non-"any" pick is a hard filter — the user opted in to that strictness.
   if (rate !== "any") out.rateType = rate;
 
   if (renew === "atleast25") out.minRenewablePct = 25;
@@ -87,13 +77,10 @@ function buildFilters(
   else if (renew === "atleast90") out.minRenewablePct = 90;
   else if (renew === "only100") out.minRenewablePct = 100;
 
+  // "long" (24+ mo) has no server-side filter today, so it stays unset.
   if (term === "monthToMonth") out.maxTermMonths = 1;
   else if (term === "short") out.maxTermMonths = 6;
-  else if (term === "medium") {
-    out.maxTermMonths = 12;
-  } else if (term === "long" && strict) {
-    // Long-term filter not supported on the server today.
-  }
+  else if (term === "medium") out.maxTermMonths = 12;
 
   if (tou === "only") out.timeOfUseOnly = true;
   else if (tou === "none") out.excludeTimeOfUse = true;

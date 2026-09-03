@@ -27,7 +27,6 @@ export function QuestionsStep({
   onBack: () => void;
   onNext: () => void;
 }) {
-  const isSmart = state.mode === "smart";
   const [estimateOpen, setEstimateOpen] = useState(false);
   const [meterData, setMeterData] = useState<ParsedMeterData | null>(null);
 
@@ -38,9 +37,7 @@ export function QuestionsStep({
         TELL US ABOUT <span className="text-accent">YOU.</span>
       </h2>
       <p className="font-mono text-sm text-muted-foreground mb-12">
-        {isSmart
-          ? "These shape the ranking. You can tune the weights on the next step."
-          : "These become hard filters on the plan list."}
+        These shape the ranking. You can tune the weights on the next step.
       </p>
 
       <div className="space-y-12">
@@ -114,7 +111,7 @@ export function QuestionsStep({
           />
         </Field>
 
-        <Field label="03 / Rate type" help={isSmart ? "We'll bias toward your pick but won't hide alternatives." : "Hard filter — only plans of this type will appear."}>
+        <Field label="03 / Rate type" help="Hard filter — only plans of this type will appear.">
           <RadioRow
             value={state.rateTypePref}
             onChange={(v) => onChange({ rateTypePref: v as RateTypePref })}
@@ -155,7 +152,7 @@ export function QuestionsStep({
         </Field>
       </div>
 
-      <WizardFooter onBack={onBack} onNext={onNext} nextLabel={isSmart ? "Set weights →" : "See matches →"} />
+      <WizardFooter onBack={onBack} onNext={onNext} nextLabel="Set weights →" />
 
       {estimateOpen && (
         <UsageEstimateModal

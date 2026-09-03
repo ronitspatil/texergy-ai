@@ -27,7 +27,6 @@ export function RecommendWizard() {
 
   const [state, setState] = useState<WizardState>(() => ({
     zip: zipFromUrl,
-    mode: "smart",
     monthlyUsageKwh: 1000,
     usageEstimate: null,
     rateTypePref: "any",

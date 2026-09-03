@@ -1,5 +1,3 @@
-export type Mode = "smart" | "basic" | "meter";
-
 export type RateTypePref = "any" | "Fixed" | "Variable";
 export type RenewablePref = "any" | "atleast25" | "atleast50" | "atleast90" | "only100";
 export type TermPref = "any" | "monthToMonth" | "short" | "medium" | "long";
@@ -61,7 +59,6 @@ export type UsageEstimate = {
 
 export type WizardState = {
   zip: string;
-  mode: Mode | null;
   monthlyUsageKwh: number;
   /** Full WattBuy forecast once the user runs the estimator; null otherwise. */
   usageEstimate: UsageEstimate | null;
