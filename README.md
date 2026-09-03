@@ -14,27 +14,27 @@ Texergy parses those EFLs nightly, projects what each plan would actually cost a
 
 ### 1. Enter your ZIP
 
-The ZIP determines your TDU (utility) and therefore which plans and delivery charges apply. Anything outside a deregulated Texas ZIP is rejected up front.
+The ZIP goes in the field on the home page. It determines your TDU (utility) and therefore which plans and delivery charges apply. Anything outside a deregulated Texas ZIP is rejected up front.
 
-### 2. Pick a path
+That drops you straight into Smart Match — one flow, three steps: **profile → weights → results**. There's no mode to choose.
 
-| Path | What it asks for | Time |
-|---|---|---|
-| **Smart Match** | A short profile, then weight sliders for 7 ranking factors | ~30s |
-| **Basic Filters** | Just rate type, term, and green minimum, applied as hard filters | ~10s |
-| **Meter Upload** | Your Smart Meter Texas `IntervalData.csv` export | ~20s |
+### 2. Build your profile
 
-Smart Match uses your answers as *preferences* (they bias the ranking). Basic Filters uses them as *filters* (non-matching plans disappear).
+One step, five fields (everything but usage is optional):
 
-### 3. Set usage
+| Field | What it does |
+|---|---|
+| **Monthly usage** | Pick a preset (Apartment ≈ 500 kWh, Avg. Home ≈ 1000, Large Home ≈ 2000), type a number, click **Estimate my usage** for a 12-month WattBuy forecast from your ZIP and home size, or upload your meter data (below) |
+| **What's in your home** | Smart thermostat, EV, solar, battery/generator — these bias the ranking (an EV owner benefits from time-of-use, a solar customer cares about minimum-usage fees) |
+| **Rate type** | Fixed or Variable; a non-"Any" pick narrows the candidate set |
+| **Renewable energy** | Minimum renewable content (≥25/50/90/100%) |
+| **Contract length** | Month-to-month, ≤ 6 mo, 12 mo, 24+ mo |
 
-Pick a preset (Apartment ≈ 500 kWh, Average Home ≈ 1000, Large Home ≈ 2000), type a number, or click **Estimate my usage** to pull a 12-month WattBuy forecast from your ZIP and home size. Meter Upload skips this and derives your true monthly average from the CSV.
+**Smart Meter Texas import** sits inside the usage field. Log in to [Smart Meter Texas](https://www.smartmetertexas.com), request an interval-data report, and upload the `IntervalData.csv` it emails you — up to 13 months of 15-minute intervals. It's parsed entirely in your browser, so the file never reaches the server, and your true monthly average replaces whatever was in the usage box.
 
-To get the CSV: log in to [Smart Meter Texas](https://www.smartmetertexas.com), request an interval-data report, and upload the `IntervalData.csv` it emails you. It's parsed entirely in your browser — the file is never sent to the server. Up to 13 months of data is supported.
+### 3. Tune the weights
 
-### 4. Tune the weights (Smart Match only)
-
-Seven factors, weighted to taste. Answer the quick quiz to derive a starting set, or drag the sliders directly.
+Seven factors, weighted to taste. Answer the quick quiz to derive a starting set, or switch to the sliders and drag them directly.
 
 | Factor | What it rewards |
 |---|---|
@@ -48,9 +48,9 @@ Seven factors, weighted to taste. Answer the quick quiz to derive a starting set
 
 Default is a balanced 35/10/10/15/10/10/10 split.
 
-### 5. Read the results
+### 4. Read the results
 
-Each plan card shows the projected monthly bill at your usage, the score breakdown per factor, and the fine print that drove it. From there you can:
+Each plan card shows the projected monthly bill at your usage, the score breakdown per factor, and the fine print that drove it. Results can be re-sorted by match, rate, term, estimated bill, or termination fee. From there you can:
 
 - **Compare** up to 3 plans side-by-side, and ask a plain-English question about the ones you're comparing
 - See your **usage forecast** month by month
@@ -62,14 +62,14 @@ Each plan card shows the projected monthly bill at your usage, the score breakdo
 - **[/savings-calculator](https://texergy.ai/savings-calculator)** — estimate savings against your current rate
 - **[/usage-calculator](https://texergy.ai/usage-calculator)** — kWh estimate from home size and appliances
 - **[/esid-lookup](https://texergy.ai/esid-lookup)** — find your meter's ESID from an address
-- **[/electricity-providers](https://texergy.ai/electricity-providers)** and **[/electric-utilities](https://texergy.ai/electric-utilities)** — who serves what
+- **[/electricity-providers](https://texergy.ai/electricity-providers)**, **[/electric-utilities](https://texergy.ai/electric-utilities)**, and **[/service-areas](https://texergy.ai/service-areas)** — who serves what
 - **[/texas-energy-101](https://texergy.ai/texas-energy-101)** — how the deregulated market works
 
 ## Where the data comes from
 
 ```
 GitHub Actions (daily, 08:30 UTC)
-  ├─ scripts/ingest-plans.mjs         scrape Power to Choose plan listings
+  ├─ scripts/ingest-plans.mjs         Power to Choose API → reps/plans/tdus
   ├─ scripts/snapshot-prices.mjs      per-TDU price snapshot for history charts
   └─ EFL parsing, three tiers, each handling what the last couldn't:
        ├─ scripts/parse-efls.mjs             Tier A — regex over extracted PDF text
@@ -80,7 +80,7 @@ GitHub Actions (daily, 08:30 UTC)
                           └─ /find/recommend  wizard UI
 ```
 
-EIA data (`scripts/fetch-eia-prices.mjs`, `scripts/fetch-eia-baseline.mjs`) supplies the market averages behind the historical-pricing factor and the price-history chart.
+Each step is idempotent, so a re-run is always safe, and the snapshot runs even if ingest fails. EIA data (`scripts/fetch-eia-prices.mjs`, `scripts/fetch-eia-baseline.mjs`) supplies the market averages behind the historical-pricing factor and the price-history chart.
 
 ## Stack
 
@@ -89,11 +89,12 @@ EIA data (`scripts/fetch-eia-prices.mjs`, `scripts/fetch-eia-baseline.mjs`) supp
 | Framework | Next.js 16 (App Router), React 19, TypeScript strict |
 | Styling | Tailwind v4, IBM Plex Sans + Mono, Bebas Neue |
 | Database | Supabase (Postgres), service-role server-side only |
-| Plan data | Power to Choose scraping + EFL PDF parsing (unpdf → LlamaParse → Gemini) |
+| Plan data | Power to Choose API + EFL PDF parsing (unpdf → LlamaParse → Gemini) |
 | Usage estimation | WattBuy API |
 | Market data | EIA open data |
 | Ingestion | GitHub Actions daily cron |
 | Animation | GSAP, Framer Motion, Lenis |
+| Monitoring | PostHog analytics, Sentry error tracking |
 
 ## Running locally
 
@@ -137,10 +138,11 @@ Every feature above degrades gracefully when its key is missing, so a minimal lo
 ### Data pipeline scripts
 
 ```bash
-npm run ingest:plans       # scrape Power to Choose
+npm run ingest:plans       # pull plans from Power to Choose
 npm run parse:efls         # Tier A EFL parsing
 npm run snapshot:prices    # per-TDU price snapshot
 npm run fetch:eia-prices   # EIA market prices
+npm run fetch:eia-baseline # EIA usage baseline
 npm run rank:test          # exercise the ranking engine
 ```
 
@@ -148,7 +150,8 @@ npm run rank:test          # exercise the ranking engine
 
 ```
 app/
-  find/recommend/      the wizard (mode → profile → weights → results)
+  page.tsx             landing page with the ZIP entry field
+  find/recommend/      the wizard (profile → weights → results)
   (site)/              tools and content pages
   api/
     recommend/         weighted ranking endpoint
@@ -157,17 +160,21 @@ app/
     price-history/     TDU price history for the results chart
     esid-lookup/       address → ESID
     zip-check/         ZIP validation + TDU resolution
+    utility-for-zip/   TDU lookup for the utilities page
     ask-bot/           plan Q&A behind the compare dialog (Gemini, rate-limited)
     providers/         provider listing
+    newsletter/        subscribe + token-signed unsubscribe
     admin/revalidate/  token-gated ISR flush after ingest
 components/find/
   recommend-wizard.tsx wizard state machine
-  steps/               mode, questions, weights, upload, results
+  recommend-client.ts  wizard state → /api/recommend request body
+  steps/               questions (profile), weights, results
   plan-card.tsx        result card with score breakdown
   compare-dialog.tsx   side-by-side comparison
 lib/
-  ranking/             scoring engine — cost.ts, score.ts, recommend.ts
+  ranking/             scoring engine — cost.ts, score.ts, recommend.ts, types.ts
   usage-profile/       usage shape modeling
+  smt-csv.ts           client-side Smart Meter Texas CSV parser
   price-history.ts     EIA + snapshot series
   db.ts                Supabase client and queries
   rate-limit.ts        in-memory token bucket per hashed IP
