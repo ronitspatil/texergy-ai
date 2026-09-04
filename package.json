@@ -18,6 +18,7 @@
     "fetch:eia-baseline": "node scripts/fetch-eia-baseline.mjs",
     "fetch:eia-prices": "node scripts/fetch-eia-prices.mjs",
     "parse:efls": "node scripts/parse-efls.mjs",
+    "derive:tdu-charges": "node scripts/derive-tdu-charges.mjs",
     "rank:test": "node --experimental-strip-types scripts/test-rank.mjs"
   },
   "dependencies": {

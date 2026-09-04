@@ -75,7 +75,8 @@ GitHub Actions (daily, 08:30 UTC)
        ├─ scripts/parse-efls.mjs             Tier A — regex over extracted PDF text
        ├─ scripts/parse-efls-llamaparse.mjs  Tier B — LlamaParse on Tier-A failures
        └─ scripts/parse-efls-gemini.mjs      Tier C — Gemini on the remainder
-                └─ Supabase (plans + plan_details)
+  └─ scripts/derive-tdu-charges.mjs   canonical per-TDU delivery charge
+                └─ Supabase (plans + plan_details + tdu_delivery_charges)
                      └─ /api/recommend  weighted ranking engine
                           └─ /find/recommend  wizard UI
 ```
@@ -140,6 +141,7 @@ Every feature above degrades gracefully when its key is missing, so a minimal lo
 ```bash
 npm run ingest:plans       # pull plans from Power to Choose
 npm run parse:efls         # Tier A EFL parsing
+npm run derive:tdu-charges # canonical per-TDU delivery charges
 npm run snapshot:prices    # per-TDU price snapshot
 npm run fetch:eia-prices   # EIA market prices
 npm run fetch:eia-baseline # EIA usage baseline

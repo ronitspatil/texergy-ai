@@ -202,10 +202,13 @@ async function loadCandidates(
     query = query.in("rep_id", filters.providerIds);
   }
 
-  const { data, error } = await query;
+  const [{ data, error }, tduDefaults] = await Promise.all([
+    query,
+    loadTduDeliveryCharges(supabase, tduIds),
+  ]);
   if (error) throw error;
 
-  let candidates = (data ?? []).map(rowToPlan);
+  let candidates = (data ?? []).map((row) => rowToPlan(row, tduDefaults));
 
   // Filters that look at joined plan_details fields run in JS — Supabase's
   // builder doesn't OR-with-NULL on related tables cleanly, and we want to
@@ -222,7 +225,34 @@ async function loadCandidates(
   return candidates;
 }
 
-function rowToPlan(row: Record<string, unknown>): PlanForScoring {
+/** Canonical delivery charge per TDU, keyed by tdu_id. Derived nightly by
+ *  scripts/derive-tdu-charges.mjs; used to price plans whose own EFL parse lost
+ *  the delivery table. A missing row is not an error — the plan falls through to
+ *  the PTC headline, same as before this table existed. */
+async function loadTduDeliveryCharges(
+  supabase: SupabaseClient,
+  tduIds: number[],
+): Promise<Map<number, { per_kwh_cents: number; per_month_usd: number }>> {
+  const { data, error } = await supabase
+    .from("tdu_delivery_charges")
+    .select("tdu_id, per_kwh_cents, per_month_usd")
+    .in("tdu_id", tduIds);
+  if (error) throw error;
+
+  const out = new Map<number, { per_kwh_cents: number; per_month_usd: number }>();
+  for (const row of data ?? []) {
+    const perKwh = parseNum(row.per_kwh_cents);
+    const perMonth = parseNum(row.per_month_usd);
+    if (perKwh == null || perMonth == null) continue;
+    out.set(row.tdu_id as number, { per_kwh_cents: perKwh, per_month_usd: perMonth });
+  }
+  return out;
+}
+
+function rowToPlan(
+  row: Record<string, unknown>,
+  tduDefaults: Map<number, { per_kwh_cents: number; per_month_usd: number }>,
+): PlanForScoring {
   const rep = (row.reps as { id: number; name: string; logo_url?: string | null } | null) ?? { id: 0, name: "", logo_url: null };
   const tdu = (row.tdus as { id: number; code: string } | null) ?? { id: 0, code: "" };
   // Supabase returns 1:1 relations as objects, 1:many as arrays. plan_details
@@ -262,6 +292,7 @@ function rowToPlan(row: Record<string, unknown>): PlanForScoring {
     minimum_usage_fee: parseNum(details.minimum_usage_fee),
     energy_charge: (details.energy_charge as PlanForScoring["energy_charge"]) ?? null,
     tdu_charges: (details.tdu_charges as PlanForScoring["tdu_charges"]) ?? null,
+    tdu_default_charges: tduDefaults.get(tdu.id) ?? null,
     bill_credits: (details.bill_credits as PlanForScoring["bill_credits"]) ?? null,
   };
 }

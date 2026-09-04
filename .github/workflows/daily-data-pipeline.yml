@@ -71,6 +71,14 @@ jobs:
         if: ${{ !cancelled() && env.GEMINI_API_KEY != '' }}
         run: node scripts/parse-efls-gemini.mjs
 
+      # Re-derives the canonical per-TDU delivery charge from tonight's parsed
+      # EFLs. Runs last of the data steps so it votes on the freshest values,
+      # and prices the ~20% of plans whose own EFL never yields a delivery
+      # table. Leaves existing rows alone if nothing clears its guardrails.
+      - name: Derive canonical TDU delivery charges
+        if: ${{ !cancelled() }}
+        run: node scripts/derive-tdu-charges.mjs
+
       # The ingest script pings revalidate too, but that fires before parsing
       # has updated plan_details — this final ping makes the ISR'd provider /
       # utility pages reflect tonight's parsed rates, not yesterday's.

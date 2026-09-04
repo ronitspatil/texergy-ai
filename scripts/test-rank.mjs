@@ -84,7 +84,10 @@ result.ranked.forEach((r, i) => {
     col(r.plan.term_months ?? "?", 5) +
     col(r.plan.renewable_pct != null ? `${r.plan.renewable_pct}%` : "?", 5) +
     col(`$${r.estMonthlyBillUsd}`, 7) +
-    col(r.costSource === "parsed_efl" ? "efl" : "ptc", 9) +
+    col(
+      r.costSource === "parsed_efl" ? "efl" : r.costSource === "efl_tdu_default" ? "efl+tdu" : "ptc",
+      9,
+    ) +
     "  " + (r.reasons.join(" · ") || "—"),
   );
 });

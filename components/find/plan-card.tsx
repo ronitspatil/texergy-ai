@@ -117,7 +117,11 @@ export function PlanCard({
             ~ ${Math.round(ranked.estMonthlyBillUsd ?? 0)}/mo est.
           </div>
           <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground mt-1">
-            {ranked.costSource === "parsed_efl" ? "from EFL" : "from PTC avg"}
+            {ranked.costSource === "parsed_efl"
+              ? "from EFL"
+              : ranked.costSource === "efl_tdu_default"
+                ? "from EFL + TDU rate"
+                : "from PTC avg"}
           </div>
         </div>
 

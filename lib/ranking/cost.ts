@@ -65,13 +65,27 @@ export function assessBillCredits(
  * closest to the user's usage. PTC's number already includes TDU pass-throughs,
  * so when we use it we don't add TDU charges again — that's the key reason
  * costSource is reported alongside the number.
+ *
+ * The parsed path is only trusted when it survives two checks: the EFL must
+ * have yielded a TDU delivery rate (see tryParsedBill), and the resulting bill
+ * must not come in implausibly far under PTC's published all-in average (see
+ * parsedLooksPlausible). Both exist because an EFL parse that silently drops
+ * the delivery charges understates a Texas bill by roughly half, and cost is
+ * the dominant ranking factor — an understated plan sweeps the top of the
+ * results. When the parsed number fails either check we fall back to the PTC
+ * headline; when there's no headline to fall back to we return null and the
+ * caller drops the plan rather than rank it on a number we don't believe.
  */
 export function estimateMonthlyBill(
   plan: PlanForScoring,
   usageKwh: number,
-): { usd: number; source: "parsed_efl" | "ptc_headline" } | null {
-  const parsed = tryParsedBill(plan, usageKwh);
-  if (parsed != null) return { usd: parsed, source: "parsed_efl" };
+): { usd: number; source: CostSource } | null {
+  for (const source of ["parsed_efl", "efl_tdu_default"] as const) {
+    const bill = tryParsedBill(plan, usageKwh, source);
+    if (bill != null && parsedLooksPlausible(plan, source)) {
+      return { usd: bill, source };
+    }
+  }
 
   const headline = tryHeadlineBill(plan, usageKwh);
   if (headline != null) return { usd: headline, source: "ptc_headline" };
@@ -79,7 +93,88 @@ export function estimateMonthlyBill(
   return null;
 }
 
-function tryParsedBill(plan: PlanForScoring, usageKwh: number): number | null {
+type CostSource = "parsed_efl" | "efl_tdu_default" | "ptc_headline";
+
+/** The delivery charge to price a plan with, under a given costing strategy.
+ *
+ *  "parsed_efl" uses only what the plan's own EFL yielded — null when the parse
+ *  lost the delivery table, which sends the caller to the next strategy.
+ *  "efl_tdu_default" substitutes the canonical charge for the plan's TDU: it is
+ *  the same regulated pass-through for every REP in that territory, so it is
+ *  the right number, just not one this EFL happened to state. */
+function deliveryChargeFor(
+  plan: PlanForScoring,
+  source: "parsed_efl" | "efl_tdu_default",
+): { perKwhCents: number; perMonthUsd: number } | null {
+  if (source === "parsed_efl") {
+    const perKwhCents = plan.tdu_charges?.per_kwh_cents;
+    if (perKwhCents == null) return null;
+    return { perKwhCents, perMonthUsd: plan.tdu_charges?.per_month_usd ?? 0 };
+  }
+  const fallback = plan.tdu_default_charges;
+  if (fallback == null) return null;
+  return { perKwhCents: fallback.per_kwh_cents, perMonthUsd: fallback.per_month_usd };
+}
+
+/** How far under PTC's published average a parsed bill may land before we stop
+ *  believing it. PTC's "average price per kWh" is all-in (energy + delivery +
+ *  base charge), so a correct parse tracks it closely; the gap that remains is
+ *  legitimate modeling difference — chiefly our probabilistic bill credits,
+ *  which PTC applies as a hard threshold. 15% covers that and still catches a
+ *  dropped TDU table, which costs ~50%. */
+const PARSED_UNDERSHOOT_TOLERANCE = 0.15;
+
+/** How far *over* the published average a parsed bill may land, for plans where
+ *  we have no bill credit to explain the gap. Deliberately loose — it only has
+ *  to catch a garbled component, not police small differences. Real examples it
+ *  rejects: a $130 "base charge" that is plainly a misparsed ETF, which prices
+ *  1000 kWh at 33.9¢ against a published 11.5¢. */
+const PARSED_OVERSHOOT_TOLERANCE = 0.4;
+
+/** Cross-check the parsed components against PTC's published all-in average.
+ *
+ * Compares at PTC's own bracket rather than the user's usage, so both sides
+ * price the same number of kWh and the bracket-snapping in tryHeadlineBill
+ * can't skew the comparison.
+ *
+ * Asymmetric on purpose. Undershooting is always suspect: dropped delivery
+ * charges or a misread tier, and it inflates the plan's rank. Overshooting is
+ * only suspect when nothing explains it — on a bill-credit plan our number
+ * *should* run high, because we apply the credit times the probability of
+ * qualifying while PTC assumes it always lands, and that conservatism is the
+ * point of assessBillCredits. So the ceiling applies only to plans with no
+ * credit parsed, where a large gap means a garbled component rather than a
+ * modeling difference.
+ *
+ * Returns true when there's no headline to check against; that case is handled
+ * by the delivery-charge gate in tryParsedBill instead. */
+function parsedLooksPlausible(
+  plan: PlanForScoring,
+  source: "parsed_efl" | "efl_tdu_default",
+): boolean {
+  const bracket = nearestHeadlineBracket(plan, 1000);
+  if (bracket == null) return true;
+
+  const parsedAtBracket = tryParsedBill(plan, bracket.kwh, source);
+  if (parsedAtBracket == null) return true;
+
+  const headlineAtBracket = (bracket.kwh * bracket.cents) / 100;
+  if (headlineAtBracket <= 0) return true;
+
+  if (parsedAtBracket < headlineAtBracket * (1 - PARSED_UNDERSHOOT_TOLERANCE)) return false;
+
+  const hasCredit = (plan.bill_credits?.amount ?? 0) > 0;
+  if (!hasCredit && parsedAtBracket > headlineAtBracket * (1 + PARSED_OVERSHOOT_TOLERANCE)) {
+    return false;
+  }
+  return true;
+}
+
+function tryParsedBill(
+  plan: PlanForScoring,
+  usageKwh: number,
+  source: "parsed_efl" | "efl_tdu_default",
+): number | null {
   // Need at minimum an energy charge to use the parsed path. TOU plans can't
   // be priced honestly without a usage shape — defer them to the profile-aware
   // path (estimateAnnualBillFromProfile) or the PTC headline fallback.
@@ -89,10 +184,19 @@ function tryParsedBill(plan: PlanForScoring, usageKwh: number): number | null {
   const energyCents = e.cents_per_kwh;
   if (energyCents == null) return null;
 
+  // Every Texas TDU bills a volumetric delivery charge, so a parse that didn't
+  // find one didn't read the delivery table — it did not discover a plan with
+  // free delivery. Pricing it as free understates the bill by roughly half, so
+  // this returns null and the caller moves on to the TDU's canonical charge,
+  // then to the PTC headline. A missing per-month charge alone is worth ~$4/mo
+  // and stays on this path; the headline cross-check catches it if it's worse.
+  const delivery = deliveryChargeFor(plan, source);
+  if (delivery == null) return null;
+
   let bill = (usageKwh * energyCents) / 100;
   bill += plan.base_charge ?? 0;
-  bill += ((plan.tdu_charges?.per_kwh_cents ?? 0) * usageKwh) / 100;
-  bill += plan.tdu_charges?.per_month_usd ?? 0;
+  bill += (delivery.perKwhCents * usageKwh) / 100;
+  bill += delivery.perMonthUsd;
 
   // Probabilistic bill credit: apply credit × reliability rather than the
   // old binary "qualify or not" rule. This stops cliff-prone plans (credit
@@ -126,7 +230,7 @@ function tryParsedBill(plan: PlanForScoring, usageKwh: number): number | null {
 export type AnnualBillFromProfile = {
   monthly: number[];
   annualUsd: number;
-  source: "parsed_efl" | "ptc_headline";
+  source: CostSource;
   /** TOU only: fraction of annual kWh that landed in a zero-rate window
    *  (Free Nights, Free Weekends). 0..1. Null for flat plans. */
   freeWindowFraction: number | null;
@@ -145,7 +249,7 @@ export function estimateAnnualBillFromProfile(
   }
 
   const monthly: number[] = new Array(12).fill(0);
-  let source: "parsed_efl" | "ptc_headline" | null = null;
+  let source: CostSource | null = null;
 
   for (let m = 0; m < 12; m++) {
     const monthKwh = profile.monthlyTotalsKwh[m];
@@ -171,6 +275,17 @@ function priceTouAnnualFromProfile(
   if (plan.energy_charge?.type !== "tou") return null;
   const e = plan.energy_charge;
   if (e.default_cents_per_kwh == null) return null;
+  // Same delivery-charge resolution as the flat path: the plan's own EFL when
+  // it parsed, otherwise the TDU's canonical charge. Null on both sends the
+  // plan to the PTC headline via estimateMonthlyBill. We don't cross-check the
+  // TOU result against the headline afterwards: a Free Nights plan genuinely
+  // prices well below PTC's flat average for a night-heavy profile, so the
+  // undershoot test would reject correct math.
+  const delivery =
+    deliveryChargeFor(plan, "parsed_efl") ?? deliveryChargeFor(plan, "efl_tdu_default");
+  if (delivery == null) return null;
+  const touSource: CostSource =
+    plan.tdu_charges?.per_kwh_cents != null ? "parsed_efl" : "efl_tdu_default";
 
   const monthly: number[] = new Array(12).fill(0);
   let freeKwh = 0;
@@ -192,8 +307,8 @@ function priceTouAnnualFromProfile(
       freeKwh += kwh * freeFracAtHour;
     }
     bill += plan.base_charge ?? 0;
-    bill += ((plan.tdu_charges?.per_kwh_cents ?? 0) * monthKwh) / 100;
-    bill += plan.tdu_charges?.per_month_usd ?? 0;
+    bill += (delivery.perKwhCents * monthKwh) / 100;
+    bill += delivery.perMonthUsd;
     if (plan.bill_credits) {
       const reliability = creditReliability(monthKwh, plan.bill_credits.threshold_kwh);
       bill -= plan.bill_credits.amount * reliability;
@@ -208,7 +323,7 @@ function priceTouAnnualFromProfile(
   return {
     monthly,
     annualUsd: monthly.reduce((a, b) => a + b, 0),
-    source: "parsed_efl",
+    source: touSource,
     freeWindowFraction,
   };
 }
@@ -255,8 +370,12 @@ function hourInWindow(h: number, start: number, end: number): boolean {
   return h >= start || h < end;
 }
 
-function tryHeadlineBill(plan: PlanForScoring, usageKwh: number): number | null {
-  // Pick the PTC tier closest to the user's usage.
+/** PTC's published bracket closest to a given usage, or null when the plan
+ *  carries no published average at all. */
+function nearestHeadlineBracket(
+  plan: PlanForScoring,
+  usageKwh: number,
+): { kwh: number; cents: number } | null {
   const choices = (
     [
       { kwh: 500, cents: plan.rate_500_kwh },
@@ -273,5 +392,11 @@ function tryHeadlineBill(plan: PlanForScoring, usageKwh: number): number | null 
   for (const c of choices) {
     if (Math.abs(c.kwh - usageKwh) < Math.abs(best.kwh - usageKwh)) best = c;
   }
-  return (usageKwh * best.cents) / 100;
+  return best;
+}
+
+function tryHeadlineBill(plan: PlanForScoring, usageKwh: number): number | null {
+  const bracket = nearestHeadlineBracket(plan, usageKwh);
+  if (bracket == null) return null;
+  return (usageKwh * bracket.cents) / 100;
 }

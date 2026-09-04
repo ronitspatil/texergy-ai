@@ -49,6 +49,11 @@ export type PlanForScoring = {
       }
     | null;
   tdu_charges: { per_kwh_cents: number | null; per_month_usd: number | null } | null;
+  /** Canonical delivery charge for this plan's TDU, from tdu_delivery_charges.
+   *  Every REP in a territory passes through the same regulated charge, so this
+   *  prices a plan correctly at any usage when its own EFL parse lost the
+   *  delivery table. Null when the table has no row for the TDU yet. */
+  tdu_default_charges: { per_kwh_cents: number; per_month_usd: number } | null;
   bill_credits: { amount: number; threshold_kwh: number } | null;
 
   efl_url: string | null;
@@ -161,7 +166,10 @@ export type RankedPlan = {
    *  Null when the engine fell back to flat math (no profile). */
   monthlyBillsUsd: number[] | null;
   effectiveCentsPerKwh: number; // all-in cost per kWh = estAnnualCost / annualKwh * 100
-  costSource: "parsed_efl" | "ptc_headline"; // which path produced the cost
+  /** Which path produced the cost. "parsed_efl" = the plan's own EFL, in full.
+   *  "efl_tdu_default" = its EFL for energy, the TDU's canonical delivery
+   *  charge for the rest. "ptc_headline" = PTC's published all-in average. */
+  costSource: "parsed_efl" | "efl_tdu_default" | "ptc_headline";
   /** Source of the shape used to project usage across the year. Null when
    *  the engine ranked on flat math without a profile. */
   profileSource: "meter_api" | "bundled_static" | null;
