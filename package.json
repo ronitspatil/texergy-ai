@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "description": "AI-ranked electricity-plan recommendations for Texas residents.",
-  "license": "MIT",
   "engines": {
     "node": ">=20.0.0"
   },

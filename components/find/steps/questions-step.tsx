@@ -36,14 +36,15 @@ export function QuestionsStep({
       <h2 className="font-[family-name:var(--font-bebas)] text-foreground text-[clamp(2.5rem,calc(var(--vpw)*5),4rem)] leading-[0.95] tracking-tight mb-2">
         TELL US ABOUT <span className="text-accent">YOU.</span>
       </h2>
-      <p className="font-mono text-sm text-muted-foreground mb-12">
-        These shape the ranking. You can tune the weights on the next step.
+      <p className="font-mono text-sm leading-relaxed text-muted-foreground mb-12 max-w-2xl">
+        Only the first question needs an answer. The rest narrow the list, and you can change
+        any of it later without starting over.
       </p>
 
       <div className="space-y-12">
         <Field
-          label="01 / Monthly usage"
-          help="Most TX homes land around 1,000 kWh/month. Larger homes / pool / EV push it higher."
+          label="01 / How much power do you use?"
+          help="Check a recent bill for your kWh, or pick the closest home below. Most Texas homes land near 1,000 kWh a month; a pool, an EV, or a big house pushes that up."
         >
           <div className="flex items-center gap-4 max-w-md">
             <input
@@ -60,21 +61,21 @@ export function QuestionsStep({
           <div className="mt-4 grid grid-cols-3 gap-2 max-w-md">
             {[
               { kwh: 500, label: "Apartment" },
-              { kwh: 1000, label: "Avg. Home" },
-              { kwh: 2000, label: "Large Home" },
+              { kwh: 1000, label: "Average home" },
+              { kwh: 2000, label: "Large home" },
             ].map(({ kwh, label }) => (
               <button
                 key={kwh}
                 type="button"
                 onClick={() => onChange({ monthlyUsageKwh: kwh })}
-                className={`flex flex-col items-center gap-1 border px-3 py-2 font-mono uppercase tracking-widest transition-colors ${
+                className={`flex flex-col items-center gap-1 border px-3 py-2.5 font-mono transition-colors ${
                   state.monthlyUsageKwh === kwh
                     ? "border-accent text-accent"
                     : "border-foreground/25 text-muted-foreground hover:border-foreground/50 hover:text-foreground"
                 }`}
               >
-                <span className="text-xs">{label}</span>
-                <span className="text-[10px] opacity-70">{kwh >= 1000 ? `${kwh / 1000}k` : kwh} kWh</span>
+                <span className="text-sm leading-none">{label}</span>
+                <span className="text-[11px] opacity-70">{kwh >= 1000 ? `${kwh / 1000}k` : kwh} kWh</span>
               </button>
             ))}
           </div>
@@ -83,11 +84,11 @@ export function QuestionsStep({
             onClick={() => setEstimateOpen(true)}
             className="mt-4 font-mono text-xs text-accent underline underline-offset-4 decoration-accent/40 hover:decoration-accent transition-colors"
           >
-            Not sure? Estimate my usage →
+            Not sure? Estimate it from my home →
           </button>
           {state.usageEstimate && !meterData && (
             <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground/70">
-              <span className="text-accent">●</span> Using WattBuy estimate
+              <span className="text-accent">●</span> Using the estimate for your home
             </p>
           )}
 
@@ -102,8 +103,8 @@ export function QuestionsStep({
         </Field>
 
         <Field
-          label="02 / What's in your home? (optional)"
-          help="Used to lightly bias the ranking. EV or battery owners benefit from time-of-use plans; solar tilts away from minimum-usage fees."
+          label="02 / Do you have any of these? (optional)"
+          help="These change which plans suit you. An EV or a home battery makes cheap-overnight plans worth a look, and solar makes it worth dodging fees that hit you for using too little."
         >
           <DeviceChecklist
             value={state.devices}
@@ -111,7 +112,10 @@ export function QuestionsStep({
           />
         </Field>
 
-        <Field label="03 / Rate type" help="Hard filter — only plans of this type will appear.">
+        <Field
+          label="03 / Fixed or variable rate?"
+          help="Fixed stays the same all term. Variable can drop, but it can also spike. Pick one and we only show that kind."
+        >
           <RadioRow
             value={state.rateTypePref}
             onChange={(v) => onChange({ rateTypePref: v as RateTypePref })}
@@ -123,30 +127,36 @@ export function QuestionsStep({
           />
         </Field>
 
-        <Field label="04 / Renewable energy" help="The % renewable content in your plan. State average is ~35%.">
+        <Field
+          label="04 / How much renewable energy?"
+          help="The share of your power from wind and solar. Around 35% is typical in Texas, and going higher often costs little or nothing extra."
+        >
           <RadioRow
             value={state.renewablePref}
             onChange={(v) => onChange({ renewablePref: v as RenewablePref })}
             options={[
-              { value: "any", label: "Don't care" },
-              { value: "atleast25", label: "≥ 25%" },
-              { value: "atleast50", label: "≥ 50%" },
-              { value: "atleast90", label: "≥ 90%" },
+              { value: "any", label: "Any" },
+              { value: "atleast25", label: "25% or more" },
+              { value: "atleast50", label: "Half or more" },
+              { value: "atleast90", label: "Nearly all" },
               { value: "only100", label: "100% only" },
             ]}
           />
         </Field>
 
-        <Field label="05 / Contract length" help="Longer terms usually lock a better rate but mean higher ETF if you move.">
+        <Field
+          label="05 / How long a contract?"
+          help="Longer terms usually lock in a better rate, but leaving early costs more. Month-to-month is free to quit and priced accordingly."
+        >
           <RadioRow
             value={state.termPref}
             onChange={(v) => onChange({ termPref: v as TermPref })}
             options={[
               { value: "any", label: "Any" },
-              { value: "monthToMonth", label: "Month-to-month" },
-              { value: "short", label: "≤ 6 mo" },
-              { value: "medium", label: "12 mo" },
-              { value: "long", label: "24+ mo" },
+              { value: "monthToMonth", label: "Month to month" },
+              { value: "short", label: "6 months or less" },
+              { value: "medium", label: "About a year" },
+              { value: "long", label: "2 years or more" },
             ]}
           />
         </Field>
@@ -213,7 +223,7 @@ function MeterUpload({
         onClick={() => setOpen(true)}
         className="mt-3 block font-mono text-xs text-accent underline underline-offset-4 decoration-accent/40 hover:decoration-accent transition-colors"
       >
-        Have your Smart Meter Texas data? Upload it →
+        Want exact numbers? Upload your meter data →
       </button>
     );
   }
@@ -223,7 +233,7 @@ function MeterUpload({
       <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-accent mb-2">
         Smart Meter Texas
       </div>
-      <p className="font-mono text-[11px] leading-relaxed text-muted-foreground mb-3">
+      <p className="font-mono text-xs leading-relaxed text-muted-foreground mb-3">
         Log in at{" "}
         <a
           href="https://smartmetertexas.com"
@@ -234,8 +244,8 @@ function MeterUpload({
           smartmetertexas.com
         </a>
         , go to <span className="text-foreground">Data → Usage → Export</span> and download{" "}
-        <span className="text-foreground">IntervalData.csv</span> — up to 13 months of 15-minute
-        readings. It is read in your browser and never uploaded.
+        <span className="text-foreground">IntervalData.csv</span>, which covers up to 13 months of
+        15-minute readings. The file is read in your browser and never leaves your computer.
       </p>
 
       <label
@@ -349,17 +359,23 @@ function DeviceChecklist({
             : "border-foreground/15 text-muted-foreground hover:border-foreground/40 hover:text-foreground"
         }`}
       >
-        I don&apos;t have any of these devices
+        None of these
       </button>
     </div>
   );
 }
 
+/** One question. The number keeps the editorial micro-label treatment; the
+ *  question itself is set as a plain sentence, because uppercase mono at wide
+ *  tracking is fine for a two-word label and miserable to read as prose. */
 function Field({ label, help, children }: { label: string; help: string; children: React.ReactNode }) {
+  const [number, ...rest] = label.split(" / ");
+  const question = rest.join(" / ");
   return (
     <div className="border-t border-border/40 pt-8">
-      <div className="font-mono text-[11px] uppercase tracking-[0.25em] text-accent mb-2">{label}</div>
-      <p className="font-mono text-xs text-muted-foreground mb-5 max-w-xl">{help}</p>
+      <div className="font-mono text-[11px] uppercase tracking-[0.25em] text-accent">{number}</div>
+      <h3 className="mt-2 font-mono text-base sm:text-lg leading-snug text-foreground">{question}</h3>
+      <p className="mt-2 mb-5 max-w-xl font-mono text-xs leading-relaxed text-muted-foreground">{help}</p>
       {children}
     </div>
   );
@@ -381,7 +397,7 @@ function RadioRow({
           key={o.value}
           type="button"
           onClick={() => onChange(o.value)}
-          className={`border px-4 py-2 font-mono text-xs uppercase tracking-widest transition-colors ${
+          className={`border px-4 py-2.5 font-mono text-sm transition-colors ${
             value === o.value
               ? "border-accent text-accent"
               : "border-foreground/25 text-muted-foreground hover:border-foreground/50 hover:text-foreground"

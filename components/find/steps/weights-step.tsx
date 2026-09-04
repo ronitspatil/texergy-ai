@@ -7,13 +7,13 @@ import { WizardFooter } from "@/components/find/wizard-footer";
 import { Input } from "@/components/ui/input";
 
 const FACTORS: { key: keyof WeightsUI; label: string; blurb: string }[] = [
-  { key: "cost",                label: "Cost",              blurb: "Lower projected monthly bill at your usage." },
-  { key: "renewable",           label: "Renewable",         blurb: "Higher renewable energy content." },
-  { key: "contractFlexibility", label: "Flexibility",       blurb: "Low termination fees + short contract terms." },
-  { key: "rateStability",       label: "Rate preference",   blurb: "How much your preferred rate type should pull matches toward it." },
-  { key: "historicalPricing",   label: "Historical pricing", blurb: "Favors plans priced below the EIA Texas residential trailing-12-month average." },
-  { key: "weatherForecast",     label: "Seasonality",       blurb: "Favors Fixed plans whose term covers TX summer/winter price-spike windows; penalizes Variable plans for the same exposure." },
-  { key: "billTransparency",    label: "Bill transparency", blurb: "Favors plans whose bill stays close to the advertised rate — penalizes bill credits, minimum-usage fees, and steep tier cliffs between 500/1000/2000 kWh." },
+  { key: "cost",                label: "Cost",              blurb: "A lower monthly bill at the usage you entered." },
+  { key: "renewable",           label: "Renewable",         blurb: "More of your power coming from wind and solar." },
+  { key: "contractFlexibility", label: "Flexibility",       blurb: "Short terms and a small fee if you leave early." },
+  { key: "rateStability",       label: "Rate preference",   blurb: "How hard to favor the rate type you picked, fixed or variable." },
+  { key: "historicalPricing",   label: "Historical pricing", blurb: "Favors plans priced under what Texans have paid on average this past year." },
+  { key: "weatherForecast",     label: "Seasonality",       blurb: "Favors fixed plans that cover the summer and winter price spikes, and marks variable plans down for the same exposure." },
+  { key: "billTransparency",    label: "Bill transparency", blurb: "Favors plans that bill close to the advertised rate, and marks down credits, minimum-usage fees, and prices that jump between 500, 1000 and 2000 kWh." },
 ];
 
 const BALANCED: WeightsUI = { cost: 35, renewable: 10, contractFlexibility: 10, rateStability: 15, billTransparency: 10, historicalPricing: 10, weatherForecast: 10 };
@@ -135,18 +135,20 @@ export function WeightsStep({
       <h2 className="font-[family-name:var(--font-bebas)] text-foreground text-[clamp(2.5rem,calc(var(--vpw)*5),4rem)] leading-[0.95] tracking-tight mb-2">
         FIVE QUICK <span className="text-accent">CALLS.</span>
       </h2>
-      <p className="font-mono text-sm text-muted-foreground mb-10 max-w-2xl">
-        Answer what you can and skip the rest. We tune the plan ranking to match your picks.
+      <p className="font-mono text-sm leading-relaxed text-muted-foreground mb-10 max-w-2xl">
+        Five questions, no wrong answers. Skip any of them and we&apos;ll use a balanced default.
+        Every pick changes how the plans get sorted, and you can see the effect at the bottom of
+        the page as you go.
       </p>
 
       <div className="space-y-10">
         <QuizQ
           number="01"
-          title="When it comes to your bill, what matters most?"
+          title="What do you want most from your bill?"
           options={[
-            { id: "lowest",      label: "Lowest price",        desc: "The cheapest monthly bill at your usage." },
-            { id: "predictable", label: "No surprises",        desc: "A bill that matches the rate you signed up for." },
-            { id: "longterm",    label: "Long-term stability", desc: "A locked rate that holds through seasonal spikes." },
+            { id: "lowest",      label: "The lowest total",  desc: "Cheapest monthly bill at the usage you entered." },
+            { id: "predictable", label: "No surprises",      desc: "The bill you get matches the rate you signed up for." },
+            { id: "longterm",    label: "A rate that holds", desc: "Same price in August as in March, locked for the term." },
           ]}
           value={quiz.billStyle}
           onSelect={(v) => patchQuiz({ billStyle: v as QuizAnswers["billStyle"] })}
@@ -154,11 +156,11 @@ export function WeightsStep({
 
         <QuizQ
           number="02"
-          title="How long a contract are you okay with?"
+          title="How long can you commit?"
           options={[
-            { id: "lock",     label: "Happy to lock in", desc: "A longer fixed term is fine for a better rate." },
-            { id: "flexible", label: "Keep it flexible", desc: "Short term or low exit fees so I can switch." },
-            { id: "any",      label: "No preference",    desc: "Whatever lands the best price." },
+            { id: "lock",     label: "A year or more", desc: "Long terms are fine if the rate is better." },
+            { id: "flexible", label: "Keep me free",   desc: "Short term or a cheap exit, in case I move or switch." },
+            { id: "any",      label: "Either way",     desc: "Whatever gets the best price." },
           ]}
           value={quiz.contractLength}
           onSelect={(v) => patchQuiz({ contractLength: v as QuizAnswers["contractLength"] })}
@@ -168,9 +170,9 @@ export function WeightsStep({
           number="03"
           title="How much does clean energy matter?"
           options={[
-            { id: "green", label: "A lot",     desc: "Only show 100% renewable plans." },
-            { id: "nice",  label: "Somewhat",  desc: "A greener plan is a bonus, but optional." },
-            { id: "any",   label: "Not really", desc: "Rank on everything else." },
+            { id: "green", label: "A lot",      desc: "Push 100% renewable plans to the top." },
+            { id: "nice",  label: "Some",       desc: "Nice to have, but not worth paying much extra for." },
+            { id: "any",   label: "Not really", desc: "Rank on price and terms instead." },
           ]}
           value={quiz.renewable}
           onSelect={(v) => patchQuiz({ renewable: v as QuizAnswers["renewable"] })}
@@ -178,12 +180,12 @@ export function WeightsStep({
 
         <QuizMultiQ
           number="04"
-          title="Anything you'd rather avoid?"
-          subtitle="Pick any that apply."
+          title="Anything you want to steer clear of?"
+          subtitle="Pick as many as you like, or none."
           options={[
-            { id: "credits",  label: "Bill-credit catches",  desc: "Plans that are only cheap if you use an exact amount." },
-            { id: "swings",   label: "Rates that jump around", desc: "Variable rates that move with the market." },
-            { id: "longlock", label: "Long lock-ins",        desc: "Long contracts with steep early-exit fees." },
+            { id: "credits",  label: "Usage gotchas", desc: "Plans that are only cheap if you land near an exact kWh number." },
+            { id: "swings",   label: "Moving rates",  desc: "Prices that follow the market up and down each month." },
+            { id: "longlock", label: "Costly exits",  desc: "Long contracts with a big fee for leaving early." },
           ]}
           values={quiz.avoid}
           onToggle={(v) => toggleAvoid(v as QuizAnswers["avoid"][number])}
@@ -191,10 +193,10 @@ export function WeightsStep({
 
         <QuizQ
           number="05"
-          title="Want protection from Texas price spikes?"
+          title="Texas prices spike in summer and winter. Want cover?"
           options={[
-            { id: "shield", label: "Yes, shield me", desc: "Favor fixed plans that cover summer and winter spikes." },
-            { id: "any",    label: "Not worried",    desc: "I'll take the risk for a better rate." },
+            { id: "shield", label: "Yes, protect me", desc: "Favor fixed plans whose term covers those months." },
+            { id: "any",    label: "I'll risk it",    desc: "Take the exposure if it means a better rate." },
           ]}
           value={quiz.spikes}
           onSelect={(v) => patchQuiz({ spikes: v as QuizAnswers["spikes"] })}
@@ -235,21 +237,21 @@ function OptionCard({
       type="button"
       onClick={onClick}
       aria-pressed={selected}
-      className={`flex h-full flex-col gap-1.5 border px-4 py-3 text-left transition-colors ${
+      className={`flex h-full flex-col gap-2 border px-4 py-4 text-left transition-colors ${
         selected
           ? "border-accent bg-accent/5"
           : "border-foreground/25 hover:border-foreground/50"
       }`}
     >
       <span
-        className={`font-mono text-xs uppercase tracking-widest ${
-          selected ? "text-accent" : "text-foreground/80"
+        className={`font-mono text-sm font-medium leading-snug ${
+          selected ? "text-accent" : "text-foreground"
         }`}
       >
         {label}
       </span>
       {desc && (
-        <span className="font-mono text-[11px] leading-snug text-muted-foreground">{desc}</span>
+        <span className="font-mono text-xs leading-relaxed text-muted-foreground">{desc}</span>
       )}
     </button>
   );
@@ -270,9 +272,10 @@ function QuizQ({
 }) {
   return (
     <div className="border-t border-border/40 pt-6">
-      <div className="font-mono text-[11px] uppercase tracking-[0.25em] text-accent mb-3">
-        {number} / {title}
-      </div>
+      <div className="font-mono text-[11px] uppercase tracking-[0.25em] text-accent">{number}</div>
+      <h3 className="mt-2 mb-4 font-mono text-base sm:text-lg leading-snug text-foreground">
+        {title}
+      </h3>
       <div className={`grid grid-cols-1 gap-2 ${GRID_COLS[options.length] ?? "sm:grid-cols-3"}`}>
         {options.map((o) => (
           <OptionCard
@@ -305,11 +308,10 @@ function QuizMultiQ({
 }) {
   return (
     <div className="border-t border-border/40 pt-6">
-      <div className="font-mono text-[11px] uppercase tracking-[0.25em] text-accent">
-        {number} / {title}
-      </div>
-      {subtitle && <p className="mt-1 font-mono text-xs text-muted-foreground">{subtitle}</p>}
-      <div className={`mt-3 grid grid-cols-1 gap-2 ${GRID_COLS[options.length] ?? "sm:grid-cols-3"}`}>
+      <div className="font-mono text-[11px] uppercase tracking-[0.25em] text-accent">{number}</div>
+      <h3 className="mt-2 font-mono text-base sm:text-lg leading-snug text-foreground">{title}</h3>
+      {subtitle && <p className="mt-1.5 font-mono text-xs text-muted-foreground">{subtitle}</p>}
+      <div className={`mt-4 grid grid-cols-1 gap-2 ${GRID_COLS[options.length] ?? "sm:grid-cols-3"}`}>
         {options.map((o) => (
           <OptionCard
             key={o.id}
@@ -329,9 +331,13 @@ function DerivedPreview({ weights }: { weights: WeightsUI }) {
   const rows = FACTORS.map((f) => ({ key: f.key, label: f.label, value: weights[f.key] }));
   return (
     <div className="mt-12 border-t border-border/40 pt-6">
-      <div className="font-mono text-[11px] uppercase tracking-[0.25em] text-muted-foreground mb-4">
-        Your derived weights
+      <div className="font-mono text-[11px] uppercase tracking-[0.25em] text-muted-foreground">
+        How we&apos;ll rank your matches
       </div>
+      <p className="mt-2 mb-5 max-w-xl font-mono text-xs leading-relaxed text-muted-foreground">
+        Longer bar means that factor counts for more. Want to set these by hand? Use the sliders
+        link at the top.
+      </p>
       {/* Fixed-height container so the section stays the same size regardless of values. */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 min-h-[168px]">
         {rows.map((r) => (
@@ -376,8 +382,9 @@ function SliderMode({
       <h2 className="font-[family-name:var(--font-bebas)] text-foreground text-[clamp(2.5rem,calc(var(--vpw)*5),4rem)] leading-[0.95] tracking-tight mb-2">
         DIAL IT <span className="text-accent">IN.</span>
       </h2>
-      <p className="font-mono text-sm text-muted-foreground mb-6 max-w-2xl">
-        Move each slider yourself. We normalize the values so total weight always sums to 1.
+      <p className="font-mono text-sm leading-relaxed text-muted-foreground mb-6 max-w-2xl">
+        Set each factor from 0 to 100. Only the sizes relative to each other matter, so you
+        don&apos;t need them to add up to anything in particular.
       </p>
 
       <div className="space-y-8">
